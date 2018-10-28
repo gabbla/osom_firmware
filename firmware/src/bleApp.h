@@ -76,6 +76,7 @@ extern "C" {
 // *****************************************************************************
 
 #define MAX_PACKET_IN_QUEUE	10
+#define PACKET_RX_TIMEOUT	1000 // ms
 
 // *****************************************************************************
 /* Application states
@@ -124,7 +125,7 @@ typedef struct
     // Packet suff
     uint8_t packet[MAX_PACKET_LEN];
     DRV_USART_BUFFER_HANDLE packetHandler;
-
+    SYS_TMR_HANDLE packetTimeout;
 } BLEAPP_DATA;
 
 
