@@ -112,6 +112,8 @@ const DRV_USART_INIT drvUsart0InitData =
     .interruptTransmit = DRV_USART_XMIT_INT_SRC_IDX0,
     .interruptReceive = DRV_USART_RCV_INT_SRC_IDX0,
     .interruptError = DRV_USART_ERR_INT_SRC_IDX0,
+    .queueSizeTransmit = DRV_USART_XMIT_QUEUE_SIZE_IDX0,
+    .queueSizeReceive = DRV_USART_RCV_QUEUE_SIZE_IDX0,
     .dmaChannelTransmit = DMA_CHANNEL_NONE,
     .dmaInterruptTransmit = DRV_USART_XMIT_INT_SRC_IDX0,    
     .dmaChannelReceive = DMA_CHANNEL_NONE,
@@ -132,6 +134,8 @@ const DRV_USART_INIT drvUsart1InitData =
     .interruptTransmit = DRV_USART_XMIT_INT_SRC_IDX1,
     .interruptReceive = DRV_USART_RCV_INT_SRC_IDX1,
     .interruptError = DRV_USART_ERR_INT_SRC_IDX1,
+    .queueSizeTransmit = DRV_USART_XMIT_QUEUE_SIZE_IDX1,
+    .queueSizeReceive = DRV_USART_RCV_QUEUE_SIZE_IDX1,
     .dmaChannelTransmit = DMA_CHANNEL_NONE,
     .dmaInterruptTransmit = DRV_USART_XMIT_INT_SRC_IDX1,
     .dmaChannelReceive = DMA_CHANNEL_NONE,
@@ -154,6 +158,28 @@ SYSTEM_OBJECTS sysObj;
 // Section: Module Initialization Data
 // *****************************************************************************
 // *****************************************************************************
+// <editor-fold defaultstate="collapsed" desc="SYS_CONSOLE Initialization Data">
+/*** System Console Initialization Data ***/
+
+SYS_MODULE_OBJ sysConsoleObjects[] = { SYS_MODULE_OBJ_INVALID };
+
+/* Declared in console device implementation (sys_console_uart.c) */
+extern SYS_CONSOLE_DEV_DESC consUsartDevDesc;
+SYS_CONSOLE_INIT consUsartInit0 =
+{
+    .moduleInit = {0},
+    .consDevDesc = &consUsartDevDesc,
+};
+// </editor-fold>
+// <editor-fold defaultstate="collapsed" desc="SYS_DEBUG Initialization Data">
+/*** System Debug Initialization Data ***/
+
+SYS_DEBUG_INIT debugInit =
+{
+    .moduleInit = {0},
+    .errorLevel = SYS_ERROR_FATAL
+};
+// </editor-fold>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -195,6 +221,11 @@ void SYS_Initialize ( void* data )
 
     /* Initialize System Services */
     SYS_PORTS_Initialize();
+    sysObj.sysConsole0 = SYS_CONSOLE_Initialize(SYS_CONSOLE_INDEX_0, (SYS_MODULE_INIT *)&consUsartInit0);
+
+
+    /*** Debug Service Initialization Code ***/
+    sysObj.sysDebug = SYS_DEBUG_Initialize(SYS_DEBUG_INDEX_0, (SYS_MODULE_INIT*)&debugInit);
 
     /*** Interrupt Service Initialization Code ***/
     SYS_INT_Initialize();

@@ -114,7 +114,8 @@ typedef struct
     BLEAPP_STATES state;
 
     /* TODO: Define any additional data used by the application. */
-
+    DRV_HANDLE hm10;
+    DRV_HANDLE mcp2200;
 } BLEAPP_DATA;
 
 

@@ -116,8 +116,8 @@ void BLEAPP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     bleappData.state = BLEAPP_STATE_INIT;
-
     
+
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
@@ -141,12 +141,12 @@ void BLEAPP_Tasks ( void )
         /* Application's initial state. */
         case BLEAPP_STATE_INIT:
         {
-            bool appInitialized = true;
-       
+            bleappData.hm10 = DRV_USART_Open(DRV_USART_INDEX_0, DRV_IO_INTENT_READWRITE);
+            bleappData.mcp2200 = DRV_USART_Open(DRV_USART_INDEX_1, DRV_IO_INTENT_READWRITE);
         
-            if (appInitialized)
+            if (bleappData.hm10 != DRV_HANDLE_INVALID && bleappData.mcp2200 != DRV_HANDLE_INVALID)
             {
-            
+
                 bleappData.state = BLEAPP_STATE_SERVICE_TASKS;
             }
             break;
