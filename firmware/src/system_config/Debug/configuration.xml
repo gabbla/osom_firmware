@@ -163,7 +163,7 @@
       <Template dnOrder="7">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug/framework/system/ports/src</Path>
-        <Checksum dnOrder="2">C7C5F12B6B72AE16A19616879948123F</Checksum>
+        <Checksum dnOrder="2">B7E80F9DAD0ED435319F92290F0E418F</Checksum>
       </Template>
       <Template dnOrder="8">
         <Name dnOrder="0">system_definitions.h</Name>
@@ -178,7 +178,7 @@
       <Template dnOrder="10">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/Debug</Path>
-        <Checksum dnOrder="2">4928DAB2849EC1418DEEDC3BE1210680</Checksum>
+        <Checksum dnOrder="2">0F42AB37C38AC985BD6A870C1FBB268C</Checksum>
       </Template>
       <Template dnOrder="11">
         <Name dnOrder="0">system_init.c</Name>

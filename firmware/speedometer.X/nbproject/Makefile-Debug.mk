@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=../../../../framework/driver/usart/src/dynamic/drv_usart.c ../../../../framework/driver/usart/src/dynamic/drv_usart_read_write.c ../../../../framework/system/int/src/sys_int_pic32.c ../src/bleApp.c ../src/system_config/Debug/framework/system/clk/src/sys_clk_pic32mx.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon_pic32mx.c ../src/system_config/Debug/framework/system/ports/src/sys_ports_static.c ../src/system_config/Debug/system_init.c ../src/system_config/Debug/system_interrupt.c ../src/system_config/Debug/system_exceptions.c ../src/main.c ../src/system_config/Debug/system_tasks.c
+SOURCEFILES_QUOTED_IF_SPACED=../src/bleApp.c ../src/main.c ../../../../framework/driver/usart/src/dynamic/drv_usart.c ../../../../framework/driver/usart/src/dynamic/drv_usart_read_write.c ../../../../framework/system/int/src/sys_int_pic32.c ../src/system_config/Debug/framework/system/clk/src/sys_clk_pic32mx.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon_pic32mx.c ../src/system_config/Debug/framework/system/ports/src/sys_ports_static.c ../src/system_config/Debug/system_init.c ../src/system_config/Debug/system_interrupt.c ../src/system_config/Debug/system_exceptions.c ../src/system_config/Debug/system_tasks.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/260586732/drv_usart.o ${OBJECTDIR}/_ext/260586732/drv_usart_read_write.o ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o ${OBJECTDIR}/_ext/1360937237/bleApp.o ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o ${OBJECTDIR}/_ext/992133666/sys_devcon.o ${OBJECTDIR}/_ext/992133666/sys_devcon_pic32mx.o ${OBJECTDIR}/_ext/1235143467/sys_ports_static.o ${OBJECTDIR}/_ext/1475841732/system_init.o ${OBJECTDIR}/_ext/1475841732/system_interrupt.o ${OBJECTDIR}/_ext/1475841732/system_exceptions.o ${OBJECTDIR}/_ext/1360937237/main.o ${OBJECTDIR}/_ext/1475841732/system_tasks.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/260586732/drv_usart.o.d ${OBJECTDIR}/_ext/260586732/drv_usart_read_write.o.d ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d ${OBJECTDIR}/_ext/1360937237/bleApp.o.d ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o.d ${OBJECTDIR}/_ext/992133666/sys_devcon.o.d ${OBJECTDIR}/_ext/992133666/sys_devcon_pic32mx.o.d ${OBJECTDIR}/_ext/1235143467/sys_ports_static.o.d ${OBJECTDIR}/_ext/1475841732/system_init.o.d ${OBJECTDIR}/_ext/1475841732/system_interrupt.o.d ${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d ${OBJECTDIR}/_ext/1360937237/main.o.d ${OBJECTDIR}/_ext/1475841732/system_tasks.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1360937237/bleApp.o ${OBJECTDIR}/_ext/1360937237/main.o ${OBJECTDIR}/_ext/260586732/drv_usart.o ${OBJECTDIR}/_ext/260586732/drv_usart_read_write.o ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o ${OBJECTDIR}/_ext/992133666/sys_devcon.o ${OBJECTDIR}/_ext/992133666/sys_devcon_pic32mx.o ${OBJECTDIR}/_ext/1235143467/sys_ports_static.o ${OBJECTDIR}/_ext/1475841732/system_init.o ${OBJECTDIR}/_ext/1475841732/system_interrupt.o ${OBJECTDIR}/_ext/1475841732/system_exceptions.o ${OBJECTDIR}/_ext/1475841732/system_tasks.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1360937237/bleApp.o.d ${OBJECTDIR}/_ext/1360937237/main.o.d ${OBJECTDIR}/_ext/260586732/drv_usart.o.d ${OBJECTDIR}/_ext/260586732/drv_usart_read_write.o.d ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o.d ${OBJECTDIR}/_ext/992133666/sys_devcon.o.d ${OBJECTDIR}/_ext/992133666/sys_devcon_pic32mx.o.d ${OBJECTDIR}/_ext/1235143467/sys_ports_static.o.d ${OBJECTDIR}/_ext/1475841732/system_init.o.d ${OBJECTDIR}/_ext/1475841732/system_interrupt.o.d ${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d ${OBJECTDIR}/_ext/1475841732/system_tasks.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/260586732/drv_usart.o ${OBJECTDIR}/_ext/260586732/drv_usart_read_write.o ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o ${OBJECTDIR}/_ext/1360937237/bleApp.o ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o ${OBJECTDIR}/_ext/992133666/sys_devcon.o ${OBJECTDIR}/_ext/992133666/sys_devcon_pic32mx.o ${OBJECTDIR}/_ext/1235143467/sys_ports_static.o ${OBJECTDIR}/_ext/1475841732/system_init.o ${OBJECTDIR}/_ext/1475841732/system_interrupt.o ${OBJECTDIR}/_ext/1475841732/system_exceptions.o ${OBJECTDIR}/_ext/1360937237/main.o ${OBJECTDIR}/_ext/1475841732/system_tasks.o
+OBJECTFILES=${OBJECTDIR}/_ext/1360937237/bleApp.o ${OBJECTDIR}/_ext/1360937237/main.o ${OBJECTDIR}/_ext/260586732/drv_usart.o ${OBJECTDIR}/_ext/260586732/drv_usart_read_write.o ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o ${OBJECTDIR}/_ext/992133666/sys_devcon.o ${OBJECTDIR}/_ext/992133666/sys_devcon_pic32mx.o ${OBJECTDIR}/_ext/1235143467/sys_ports_static.o ${OBJECTDIR}/_ext/1475841732/system_init.o ${OBJECTDIR}/_ext/1475841732/system_interrupt.o ${OBJECTDIR}/_ext/1475841732/system_exceptions.o ${OBJECTDIR}/_ext/1475841732/system_tasks.o
 
 # Source Files
-SOURCEFILES=../../../../framework/driver/usart/src/dynamic/drv_usart.c ../../../../framework/driver/usart/src/dynamic/drv_usart_read_write.c ../../../../framework/system/int/src/sys_int_pic32.c ../src/bleApp.c ../src/system_config/Debug/framework/system/clk/src/sys_clk_pic32mx.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon_pic32mx.c ../src/system_config/Debug/framework/system/ports/src/sys_ports_static.c ../src/system_config/Debug/system_init.c ../src/system_config/Debug/system_interrupt.c ../src/system_config/Debug/system_exceptions.c ../src/main.c ../src/system_config/Debug/system_tasks.c
+SOURCEFILES=../src/bleApp.c ../src/main.c ../../../../framework/driver/usart/src/dynamic/drv_usart.c ../../../../framework/driver/usart/src/dynamic/drv_usart_read_write.c ../../../../framework/system/int/src/sys_int_pic32.c ../src/system_config/Debug/framework/system/clk/src/sys_clk_pic32mx.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon.c ../src/system_config/Debug/framework/system/devcon/src/sys_devcon_pic32mx.c ../src/system_config/Debug/framework/system/ports/src/sys_ports_static.c ../src/system_config/Debug/system_init.c ../src/system_config/Debug/system_interrupt.c ../src/system_config/Debug/system_exceptions.c ../src/system_config/Debug/system_tasks.c
 
 
 CFLAGS=
@@ -106,6 +106,18 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
+${OBJECTDIR}/_ext/1360937237/bleApp.o: ../src/bleApp.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" -o ${OBJECTDIR}/_ext/1360937237/bleApp.o ../src/bleApp.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
+	
+${OBJECTDIR}/_ext/1360937237/main.o: ../src/main.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/main.o.d" -o ${OBJECTDIR}/_ext/1360937237/main.o ../src/main.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
+	
 ${OBJECTDIR}/_ext/260586732/drv_usart.o: ../../../../framework/driver/usart/src/dynamic/drv_usart.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/260586732" 
 	@${RM} ${OBJECTDIR}/_ext/260586732/drv_usart.o.d 
@@ -123,12 +135,6 @@ ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o: ../../../../framework/system/int/sr
 	@${RM} ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d 
 	@${RM} ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o 
 	@${FIXDEPS} "${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d" -o ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o ../../../../framework/system/int/src/sys_int_pic32.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
-	
-${OBJECTDIR}/_ext/1360937237/bleApp.o: ../src/bleApp.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" -o ${OBJECTDIR}/_ext/1360937237/bleApp.o ../src/bleApp.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
 	
 ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o: ../src/system_config/Debug/framework/system/clk/src/sys_clk_pic32mx.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/753675579" 
@@ -172,12 +178,6 @@ ${OBJECTDIR}/_ext/1475841732/system_exceptions.o: ../src/system_config/Debug/sys
 	@${RM} ${OBJECTDIR}/_ext/1475841732/system_exceptions.o 
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d" -o ${OBJECTDIR}/_ext/1475841732/system_exceptions.o ../src/system_config/Debug/system_exceptions.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
 	
-${OBJECTDIR}/_ext/1360937237/main.o: ../src/main.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/main.o.d" -o ${OBJECTDIR}/_ext/1360937237/main.o ../src/main.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
-	
 ${OBJECTDIR}/_ext/1475841732/system_tasks.o: ../src/system_config/Debug/system_tasks.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1475841732" 
 	@${RM} ${OBJECTDIR}/_ext/1475841732/system_tasks.o.d 
@@ -185,6 +185,18 @@ ${OBJECTDIR}/_ext/1475841732/system_tasks.o: ../src/system_config/Debug/system_t
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1475841732/system_tasks.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1475841732/system_tasks.o.d" -o ${OBJECTDIR}/_ext/1475841732/system_tasks.o ../src/system_config/Debug/system_tasks.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
 	
 else
+${OBJECTDIR}/_ext/1360937237/bleApp.o: ../src/bleApp.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" -o ${OBJECTDIR}/_ext/1360937237/bleApp.o ../src/bleApp.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
+	
+${OBJECTDIR}/_ext/1360937237/main.o: ../src/main.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/main.o.d" -o ${OBJECTDIR}/_ext/1360937237/main.o ../src/main.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
+	
 ${OBJECTDIR}/_ext/260586732/drv_usart.o: ../../../../framework/driver/usart/src/dynamic/drv_usart.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/260586732" 
 	@${RM} ${OBJECTDIR}/_ext/260586732/drv_usart.o.d 
@@ -202,12 +214,6 @@ ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o: ../../../../framework/system/int/sr
 	@${RM} ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d 
 	@${RM} ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o 
 	@${FIXDEPS} "${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/122796885/sys_int_pic32.o.d" -o ${OBJECTDIR}/_ext/122796885/sys_int_pic32.o ../../../../framework/system/int/src/sys_int_pic32.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
-	
-${OBJECTDIR}/_ext/1360937237/bleApp.o: ../src/bleApp.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/bleApp.o 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/bleApp.o.d" -o ${OBJECTDIR}/_ext/1360937237/bleApp.o ../src/bleApp.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
 	
 ${OBJECTDIR}/_ext/753675579/sys_clk_pic32mx.o: ../src/system_config/Debug/framework/system/clk/src/sys_clk_pic32mx.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/753675579" 
@@ -250,12 +256,6 @@ ${OBJECTDIR}/_ext/1475841732/system_exceptions.o: ../src/system_config/Debug/sys
 	@${RM} ${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1475841732/system_exceptions.o 
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1475841732/system_exceptions.o.d" -o ${OBJECTDIR}/_ext/1475841732/system_exceptions.o ../src/system_config/Debug/system_exceptions.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
-	
-${OBJECTDIR}/_ext/1360937237/main.o: ../src/main.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/1360937237" 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1360937237/main.o 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/1360937237/main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -O1 -I"../src" -I"../src/system_config/Debug" -I"../src/Debug" -I"../../../../framework" -I"../src/system_config/Debug/framework" -MMD -MF "${OBJECTDIR}/_ext/1360937237/main.o.d" -o ${OBJECTDIR}/_ext/1360937237/main.o ../src/main.c    -DXPRJ_Debug=$(CND_CONF)  -no-legacy-libc  $(COMPARISON_BUILD) 
 	
 ${OBJECTDIR}/_ext/1475841732/system_tasks.o: ../src/system_config/Debug/system_tasks.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1475841732" 
