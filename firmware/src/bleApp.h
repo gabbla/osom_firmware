@@ -58,6 +58,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
+#include "somparser.h"
+#include "logger.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -72,6 +74,8 @@ extern "C" {
 // Section: Type Definitions
 // *****************************************************************************
 // *****************************************************************************
+
+#define MAX_PACKET_IN_QUEUE	10
 
 // *****************************************************************************
 /* Application states
@@ -88,7 +92,7 @@ typedef enum
 {
 	/* Application's state machine's initial state. */
 	BLEAPP_STATE_INIT=0,
-	BLEAPP_STATE_SERVICE_TASKS,
+	BLEAPP_COLLECT_PACKET,
 
 	/* TODO: Define states used by the application state machine. */
 
@@ -116,6 +120,11 @@ typedef struct
     /* TODO: Define any additional data used by the application. */
     DRV_HANDLE hm10;
     DRV_HANDLE mcp2200;
+
+    // Packet suff
+    uint8_t packet[MAX_PACKET_LEN];
+    DRV_USART_BUFFER_HANDLE packetHandler;
+
 } BLEAPP_DATA;
 
 
