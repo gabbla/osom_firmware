@@ -81,8 +81,8 @@ extern "C" {
 // *****************************************************************************
 /* Clock System Service Configuration Options
 */
-#define SYS_CLK_FREQ                        48000000ul
-#define SYS_CLK_BUS_PERIPHERAL_1            48000000ul
+#define SYS_CLK_FREQ                        40000000ul
+#define SYS_CLK_BUS_PERIPHERAL_1            40000000ul
 #define SYS_CLK_UPLL_BEFORE_DIV2_FREQ       192000000ul
 #define SYS_CLK_CONFIG_PRIMARY_XTAL         8000000ul
 #define SYS_CLK_CONFIG_SECONDARY_XTAL       32768ul
@@ -96,7 +96,7 @@ extern "C" {
 #define SYS_PORT_A_CNPD         0x0000
 #define SYS_PORT_A_CNEN         0x0000
 
-#define SYS_PORT_B_ANSEL        0xFFF0
+#define SYS_PORT_B_ANSEL        0xF010
 #define SYS_PORT_B_TRIS         0xFFFF
 #define SYS_PORT_B_LAT          0x0000
 #define SYS_PORT_B_ODC          0x0000
@@ -149,11 +149,11 @@ extern "C" {
 #define DRV_USART_PERIPHERAL_ID_IDX0                USART_ID_1
 #define DRV_USART_OPER_MODE_IDX0                    DRV_USART_OPERATION_MODE_NORMAL
 #define DRV_USART_OPER_MODE_DATA_IDX0               
-#define DRV_USART_INIT_FLAG_WAKE_ON_START_IDX0      true
+#define DRV_USART_INIT_FLAG_WAKE_ON_START_IDX0      false
 #define DRV_USART_INIT_FLAG_AUTO_BAUD_IDX0          false
 #define DRV_USART_INIT_FLAG_STOP_IN_IDLE_IDX0       false
-#define DRV_USART_INIT_FLAGS_IDX0                   1
-#define DRV_USART_BRG_CLOCK_IDX0                    48000000
+#define DRV_USART_INIT_FLAGS_IDX0                   0
+#define DRV_USART_BRG_CLOCK_IDX0                    40000000
 #define DRV_USART_BAUD_RATE_IDX0                    9600
 #define DRV_USART_LINE_CNTRL_IDX0                   DRV_USART_LINE_CONTROL_8NONE1
 #define DRV_USART_HANDSHAKE_MODE_IDX0               DRV_USART_HANDSHAKE_NONE
@@ -174,11 +174,11 @@ extern "C" {
 #define DRV_USART_PERIPHERAL_ID_IDX1                USART_ID_2
 #define DRV_USART_OPER_MODE_IDX1                    DRV_USART_OPERATION_MODE_NORMAL
 #define DRV_USART_OPER_MODE_DATA_IDX1               
-#define DRV_USART_INIT_FLAG_WAKE_ON_START_IDX1      true
+#define DRV_USART_INIT_FLAG_WAKE_ON_START_IDX1      false
 #define DRV_USART_INIT_FLAG_AUTO_BAUD_IDX1          false
 #define DRV_USART_INIT_FLAG_STOP_IN_IDLE_IDX1       false
-#define DRV_USART_INIT_FLAGS_IDX1                   1
-#define DRV_USART_BRG_CLOCK_IDX1                    48000000
+#define DRV_USART_INIT_FLAGS_IDX1                   0
+#define DRV_USART_BRG_CLOCK_IDX1                    40000000
 #define DRV_USART_BAUD_RATE_IDX1                    9600
 #define DRV_USART_LINE_CNTRL_IDX1                   DRV_USART_LINE_CONTROL_8NONE1
 #define DRV_USART_HANDSHAKE_MODE_IDX1               DRV_USART_HANDSHAKE_NONE

@@ -143,11 +143,15 @@ void BLEAPP_Tasks ( void )
         {
             bleappData.hm10 = DRV_USART_Open(DRV_USART_INDEX_0, DRV_IO_INTENT_READWRITE);
             bleappData.mcp2200 = DRV_USART_Open(DRV_USART_INDEX_1, DRV_IO_INTENT_READWRITE);
-        
-            if (bleappData.hm10 != DRV_HANDLE_INVALID && bleappData.mcp2200 != DRV_HANDLE_INVALID)
+            // TODO: why mcp handler == DRV_HANDLE_INVALID but it still works? && bleappData.mcp2200 != DRV_HANDLE_INVALID)
+            if (bleappData.hm10 != DRV_HANDLE_INVALID)
             {
-
+            	SYS_DEBUG_PRINT(SYS_ERROR_INFO, "BLE App started\n");
                 bleappData.state = BLEAPP_STATE_SERVICE_TASKS;
+            } else
+            {
+            	SYS_DEBUG_PRINT(SYS_ERROR_ERROR, "HM10 handler is invalid!\n");
+            	// TODO reset
             }
             break;
         }
