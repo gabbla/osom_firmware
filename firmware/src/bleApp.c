@@ -207,7 +207,7 @@ void BLEAPP_Tasks(void) {
 			bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 
 			size_t payLen = bleappData.packet[FIELD_PKTLEN];
-			DEBUG("Packet length: %d bytes, Payload length; %d bytes\n", processedSize, payLen);
+			DEBUG("Packet length: %d bytes, Payload length: %d bytes\n", processedSize, payLen);
 			size_t i;
 			for (i = 0; i < processedSize; i++)
 				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG,"0x%01x ", bleappData.packet[i]);SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");

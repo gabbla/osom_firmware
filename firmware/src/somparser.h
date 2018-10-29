@@ -11,7 +11,7 @@
 #include <stdint.h> // uint8_t ecc
 #include <string.h> // memcpy
 #include <stdlib.h> // malloc, free
-
+#include "osal/osal.h"
 
 // Preamble
 #define PREAMBLE0_VAL		(0x53) // DEC 83
