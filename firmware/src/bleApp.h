@@ -63,6 +63,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "osal/osal_definitions.h"
 
+
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -77,7 +78,7 @@ extern "C" {
 // *****************************************************************************
 // *****************************************************************************
 
-#define MAX_PACKET_IN_QUEUE	10
+#define MAX_PACKET_IN_QUEUE	1
 #define PACKET_RX_TIMEOUT	1000 // ms
 
 // *****************************************************************************

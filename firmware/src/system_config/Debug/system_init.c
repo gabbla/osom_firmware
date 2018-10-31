@@ -192,6 +192,16 @@ SYS_DEBUG_INIT debugInit =
     .errorLevel = SYS_ERROR_DEBUG
 };
 // </editor-fold>
+// <editor-fold defaultstate="collapsed" desc="SYS_MSG Initialization Data">
+/*** Message System Initialization Data ***/
+
+static uint16_t queuePriorities0[2] = { 64, 32 };
+SYS_MSG_INIT msg0Init =
+{
+    .nMaxMsgsDelivered = 1,
+    .nMessagePriorities = 1,
+};
+// </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="SYS_TMR Initialization Data">
 /*** TMR Service Initialization Data ***/
 const SYS_TMR_INIT sysTmrInitData =
@@ -259,6 +269,10 @@ void SYS_Initialize ( void* data )
     /*** Interrupt Service Initialization Code ***/
     SYS_INT_Initialize();
 
+    /*** Message Service Initialization Code ***/
+    msg0Init.nQSizes = queuePriorities0;
+    sysObj.sysMsg0 = SYS_MSG_Initialize(SYS_MSG_0, (SYS_OBJ_HANDLE)&msg0Init);
+
     /*** TMR Service Initialization Code ***/
     sysObj.sysTmr  = SYS_TMR_Initialize(SYS_TMR_INDEX_0, (const SYS_MODULE_INIT  * const)&sysTmrInitData);
 
@@ -268,7 +282,18 @@ void SYS_Initialize ( void* data )
     SYS_INT_Enable();
 
     /* Initialize the Application */
+#ifdef SOM_MASTER
+    // Needed only by Master
     BLEAPP_Initialize();
+#endif
+    
+#ifdef SOM_MASTER
+    SYS_PRINT("Speed o Meter (Master) starting...\n");
+#else
+    SYS_PRINT("Speed o Meter (Slave) starting...\n");
+#endif
+    
+    SYS_PRINT("Version: %s\n", GIT_COMMIT);
 }
 
 

@@ -122,6 +122,13 @@ inline void unregisterBuffer() {
 	bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 }
 
+void APP_MyBufferEventHandler( DRV_USART_BUFFER_EVENT event,
+                                   DRV_USART_BUFFER_HANDLE bufferHandle,
+                                   uintptr_t context ){
+	DEBUG("%s()\n", __func__);
+}
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Initialization and State Machine Functions

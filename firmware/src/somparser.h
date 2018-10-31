@@ -11,7 +11,8 @@
 #include <stdint.h> // uint8_t ecc
 #include <string.h> // memcpy
 #include <stdlib.h> // malloc, free
-#include "osal/osal.h"
+#include "osal/osal.h"  // mutex
+
 
 // Preamble
 #define PREAMBLE0_VAL		(0x53) // DEC 83
@@ -53,7 +54,9 @@ typedef struct _packetQueue {
 typedef enum queue_code {
 	PQUEUE_OK = 0,
 	PQUEUE_NO_MEM = -1,
-	PQUEUE_FAIL = -2
+	PQUEUE_FULL = -2,
+	PQUEUE_EMPTY = -3,
+	PQUEUE_FAIL = -4
 }PQUEUE_CODE;
 
 typedef enum packet_code {
@@ -61,6 +64,7 @@ typedef enum packet_code {
 	PACKET_NO_MEM = -1,
 	PACKET_FAIL = -2
 }PACKET_CODE;
+
 
 uint8_t PACKET_IsRawValid(const uint8_t *raw);
 void PACKET_Get(const uint8_t *raw, Packet *p);

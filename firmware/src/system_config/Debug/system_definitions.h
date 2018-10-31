@@ -58,7 +58,13 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "driver/usart/drv_usart.h"
 #include "system/ports/sys_ports.h"
 #include "system/debug/sys_debug.h"
+#include "system/msg/sys_msg.h"
+
+#include "git_commit.h"
+
+#ifdef SOM_MASTER
 #include "bleapp.h"
+#endif
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -97,6 +103,7 @@ typedef struct
     SYS_MODULE_OBJ  drvUsart0;
     SYS_MODULE_OBJ  drvUsart1;
     SYS_MODULE_OBJ  sysDebug;
+    SYS_MODULE_OBJ  sysMsg0;
     SYS_MODULE_OBJ  sysConsole0;
 
 } SYSTEM_OBJECTS;

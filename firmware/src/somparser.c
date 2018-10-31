@@ -10,6 +10,7 @@ PacketQueue packetQueue;
 
 OSAL_MUTEX_HANDLE_TYPE queueMutex;
 
+
 uint8_t PACKET_IsRawValid(const uint8_t *raw) {
 	return ((raw[FIELD_PREAMBLE0] == PREAMBLE0_VAL)
 			&& (raw[FIELD_PREAMBLE1] == PREAMBLE1_VAL));
@@ -59,7 +60,7 @@ void PQUEUE_Free() {
 PQUEUE_CODE PQUEUE_Enqueue(const Packet *p) {
 	if (OSAL_MUTEX_Lock(&queueMutex, 1000) == OSAL_RESULT_TRUE) {
 		if (packetQueue.count == packetQueue.capacity)
-			return PQUEUE_FAIL; // Overflow
+			return PQUEUE_FULL; // Overflow
 		Packet *dst = &packetQueue.queue[packetQueue.tail];
 		PACKET_CODE copyRes = copyPacket(p, dst);
 		packetQueue.tail = (packetQueue.tail + 1) % packetQueue.capacity;
@@ -82,7 +83,7 @@ PQUEUE_CODE PQUEUE_Dequeue(Packet *p) {
 		packetQueue.count--;
 		OSAL_MUTEX_Unlock(&queueMutex);
 		if (copyRes != PACKET_OK)
-			return PQUEUE_FAIL;
+			return PQUEUE_EMPTY;
 		return PQUEUE_OK;
 	}
 	return PQUEUE_FAIL;
@@ -101,17 +102,17 @@ uint8_t PQUEUE_IsEmpty() {
 }
 
 const char* PQUEUE_GetErrorStr(const PQUEUE_CODE code) {
-	const char *strOK = "OK";
-	const char *strNO_MEM = "No memory";
-	const char *strFAIL = "Failed";
-
 	switch (code) {
 	case PQUEUE_OK:
-		return strOK;
+		return "OK";
 	case PQUEUE_NO_MEM:
-		return strNO_MEM;
+		return "No memory";
+	case PQUEUE_FULL:
+		return "Queue is full";
+	case PQUEUE_EMPTY:
+		return "Queue is empty";
 	case PQUEUE_FAIL:
-		return strFAIL;
+		return "Fail";
 	}
 
 	return "Invalid error code";

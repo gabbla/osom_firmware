@@ -88,11 +88,20 @@
             <itemPath>../../../../framework/system/int/sys_int.h</itemPath>
             <itemPath>../../../../framework/system/int/sys_int_mapping.h</itemPath>
           </logicalFolder>
+          <logicalFolder name="f8" displayName="msg" projectFiles="true">
+            <logicalFolder name="f1" displayName="config" projectFiles="true">
+              <itemPath>../../../../framework/system/msg/config/sys_msg_config.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="src" projectFiles="true">
+              <itemPath>../../../../framework/system/msg/src/sys_msg_local.h</itemPath>
+            </logicalFolder>
+            <itemPath>../../../../framework/system/msg/sys_msg.h</itemPath>
+          </logicalFolder>
           <logicalFolder name="f5" displayName="ports" projectFiles="true">
             <itemPath>../../../../framework/system/ports/sys_ports.h</itemPath>
             <itemPath>../../../../framework/system/ports/sys_ports_definitions.h</itemPath>
           </logicalFolder>
-          <logicalFolder name="f8" displayName="tmr" projectFiles="true">
+          <logicalFolder name="f9" displayName="tmr" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/tmr/src/sys_tmr_local.h</itemPath>
             </logicalFolder>
@@ -178,7 +187,12 @@
               <itemPath>../../../../framework/system/int/src/sys_int_pic32.c</itemPath>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f4" displayName="tmr" projectFiles="true">
+          <logicalFolder name="f4" displayName="msg" projectFiles="true">
+            <logicalFolder name="f1" displayName="src" projectFiles="true">
+              <itemPath>../../../../framework/system/msg/src/sys_msg.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f5" displayName="tmr" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/tmr/src/sys_tmr.c</itemPath>
             </logicalFolder>
@@ -258,7 +272,7 @@
         <property key="place-data-into-section" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value=""/>
+        <property key="preprocessor-macros" value="SOM_MASTER"/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
         <property key="toplevel-reordering" value=""/>
@@ -350,7 +364,7 @@
         <property key="place-data-into-section" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value=""/>
+        <property key="preprocessor-macros" value="SOM_MASTER"/>
         <property key="rtti" value="true"/>
         <property key="strict-ansi" value="false"/>
         <property key="toplevel-reordering" value=""/>
@@ -408,7 +422,6 @@
         <property key="UART2" value="true"/>
         <property key="USB" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

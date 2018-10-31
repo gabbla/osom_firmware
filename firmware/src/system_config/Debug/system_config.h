@@ -126,6 +126,11 @@ extern "C" {
 
 /*** Interrupt System Service Configuration ***/
 #define SYS_INT                     true
+/*** Message System Service Configuration ***/
+
+#define SYS_MSG_MAX_MAILBOXES        2
+#define SYS_MSG_MAX_TYPES            2
+
 /*** Timer System Service Configuration ***/
 #define SYS_TMR_POWER_STATE             SYS_MODULE_POWER_RUN_FULL
 #define SYS_TMR_DRIVER_INDEX            DRV_TMR_INDEX_0
