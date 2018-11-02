@@ -11,9 +11,9 @@ uint8_t PACKET_IsRawValid(const uint8_t *raw) {
 			&& (raw[FIELD_PREAMBLE1] == PREAMBLE1_VAL));
 }
 
-void PACKET_Init(Packet *p){
+void PACKET_Init(Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
-	static const uint8_t preamble[] = {PREAMBLE0_VAL, PREAMBLE1_VAL};
+	static const uint8_t preamble[] = { PREAMBLE0_VAL, PREAMBLE1_VAL };
 	memcpy(p->preamble, preamble, sizeof(preamble));
 	p->pLen = 0;
 	p->payload = NULL;
@@ -39,24 +39,24 @@ PACKET_CODE copyPacket(const Packet *src, Packet *dst) {
 }
 
 void PACKET_Free(Packet *p) {
-    SYS_ASSERT(p != NULL, "Packet is null");
-    if(p->pLen)
-        free(p->payload);
+	SYS_ASSERT(p != NULL, "Packet is null");
+	if (p->pLen)
+		free(p->payload);
 }
 
-uint16_t PACKET_GetMessageId(const Packet *p){
+uint16_t PACKET_GetMessageId(const Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
 	return p->msgID;
 }
-uint8_t PACKET_GetCommand(const Packet *p){
+uint8_t PACKET_GetCommand(const Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
 	return p->cmd;
 }
 
-void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]){
+void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]) {
 	SYS_ASSERT(p != NULL, "Packet is null");
-	memcpy((void*)byteArray, (void*)p, PACKET_BASE_LEN);
-	if(p->pLen)
+	memcpy((void*) byteArray, (void*) p, PACKET_BASE_LEN);
+	if (p->pLen)
 		memcpy(&byteArray[PAYLOAD_START], p->payload, p->pLen);
 }
 
@@ -102,12 +102,12 @@ PQUEUE_CODE PQUEUE_Dequeue(PacketQueue *queue, Packet *p) {
 			return PQUEUE_EMPTY; // Empty
 		Packet *src = &queue->queue[queue->head];
 		PACKET_CODE copyRes = copyPacket(src, p);
+		if (copyRes != PACKET_OK)
+			return PQUEUE_FAIL;
 		PACKET_Free(src);
 		queue->head = (queue->head + 1) % queue->capacity;
 		queue->count--;
 		OSAL_MUTEX_Unlock(&queue->mutex);
-		if (copyRes != PACKET_OK)
-			return PQUEUE_FAIL;
 		return PQUEUE_OK;
 	}
 	return PQUEUE_FAIL;
