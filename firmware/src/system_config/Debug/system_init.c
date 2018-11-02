@@ -288,12 +288,13 @@ void SYS_Initialize ( void* data )
 #endif
     
 #ifdef SOM_MASTER
-    SYS_PRINT("Speed o Meter (Master) starting...\n");
+    INFO("Speed o Meter (Master) starting...\n");
 #else
-    SYS_PRINT("Speed o Meter (Slave) starting...\n");
+    INFO("Speed o Meter (Slave) starting...\n");
 #endif
     
-    SYS_PRINT("Version: %s\n", GIT_COMMIT);
+    INFO("Version: %s\n", GIT_COMMIT);
+    INFO("Compiled on %s at %s\n", __DATE__, __TIME__);
 }
 
 
