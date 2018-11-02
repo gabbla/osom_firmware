@@ -28,8 +28,13 @@
 #define FIELD_MIDHIGH		2
 #define FIELD_MIDLOW		3
 #define FIELD_PKTLEN		4
+#define FIELD_COMMAND		5
+#define PAYLOAD_START		6
 
-typedef enum _commands {
+// Command return code
+#define PING_OK				(0x00)
+
+typedef enum __attribute__((packed))_commands {
 	BLE_CMD_PING 		= 0,
 	BLE_CMD_GET_SN		= 1,
 	BLE_CMD_GET_INFO	= 2
@@ -68,8 +73,18 @@ typedef enum packet_code {
 
 
 uint8_t PACKET_IsRawValid(const uint8_t *raw);
+void PACKET_Init(Packet *p);
 void PACKET_Get(const uint8_t *raw, Packet *p);
 void PACKET_Free(Packet *p);
+
+// Utils
+
+inline uint16_t PACKET_GetMessageId(const Packet *p);
+inline BLECommand PACKET_GetCommand(const Packet *p);
+
+void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]);
+
+// -------------
 
 PQUEUE_CODE PQUEUE_Init(PacketQueue *queue, const size_t capacity);
 void PQUEUE_Free(PacketQueue *queue);

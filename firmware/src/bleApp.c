@@ -263,9 +263,6 @@ void BLEAPP_Tasks(void) {
 				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%01x ", bleappData.packet[i]);
 			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
 
-//			DRV_USART_BUFFER_HANDLE t;
-//			DRV_USART_BufferAddWrite(bleappData.hm10, &t, "OK!!", 4);
-
 			if (PACKET_IsRawValid(bleappData.packet)) {
 				// We can unregister the callback
 				stopPacketGuard();
@@ -294,10 +291,49 @@ void BLEAPP_Tasks(void) {
 		Packet packet;
 		PQUEUE_Dequeue(&bleappData.incoming, &packet);
 		DEBUG("Parsing command 0x%02x\n", packet.cmd);
-		// TODO parser
+        
+		Packet reply;
+		PACKET_Init(&reply);
+		reply.msgID = PACKET_GetMessageId(&packet);
+
+		switch (PACKET_GetCommand(&packet)) {
+		case BLE_CMD_PING:
+			// Simply reply the message
+			reply.cmd = PING_OK;
+			break;
+
+		default:
+			WARN("Unknown command 0x%02x\n", packet.cmd);
+			break;
+		}
+
+		PQUEUE_Enqueue(&bleappData.outgoing, &reply);
+		PACKET_Free(&packet);
+		PACKET_Free(&reply);
+		bleappData.state = BLEAPP_STATE_IDLE;
+		break;
+	}
+
+	case BLEAPP_STATE_REPLY: {
+		Packet packet;
+		PQUEUE_Dequeue(&bleappData.outgoing, &packet);
+		size_t size = PACKET_BASE_LEN + packet.pLen;
+		DEBUG("Sending a packet long %d bytes\n", size);
+		uint8_t byteArray[size];
+		PACKET_GetByteArray(&packet, byteArray);
+        byteArray[0] = 'A';
+		DRV_USART_BUFFER_HANDLE txHandler;
+		DRV_USART_BufferAddWrite(bleappData.hm10, &txHandler, byteArray, size);
+		if (DRV_USART_BUFFER_HANDLE_INVALID == txHandler){
+			WARN("Invalid txHandler!\n");
+//			PQUEUE_CODE enqueueResult;
+//			if((enqueueResult = PQUEUE_Enqueue(&bleappData.outgoing, &packet)) != PQUEUE_OK){
+//				ERROR("Packet enqueue failed: %s\n", PQUEUE_GetErrorStr(enqueueResult));
+//			}
+		}
 
 		PACKET_Free(&packet);
-		bleappData.state = BLEAPP_STATE_IDLE;
+        bleappData.state = BLEAPP_STATE_IDLE;
 		break;
 	}
 

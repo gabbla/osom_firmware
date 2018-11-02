@@ -11,11 +11,19 @@ uint8_t PACKET_IsRawValid(const uint8_t *raw) {
 			&& (raw[FIELD_PREAMBLE1] == PREAMBLE1_VAL));
 }
 
+void PACKET_Init(Packet *p){
+	SYS_ASSERT(p != NULL, "Packet is null");
+	static const uint8_t preamble[] = {PREAMBLE0_VAL, PREAMBLE1_VAL};
+	memcpy(p->preamble, preamble, sizeof(preamble));
+	p->pLen = 0;
+	p->payload = NULL;
+}
+
 void PACKET_Get(const uint8_t *raw, Packet *p) {
 	memcpy(p, raw, PACKET_BASE_LEN);
 	if (p->pLen) {
 		p->payload = malloc(p->pLen);
-		memcpy((void*) p->payload, &raw[FIELD_PKTLEN], p->pLen);
+		memcpy((void*) p->payload, &raw[PAYLOAD_START], p->pLen); // FIXME FIELD_PKTLEN may be wrong
 	}
 }
 
@@ -31,9 +39,26 @@ PACKET_CODE copyPacket(const Packet *src, Packet *dst) {
 }
 
 void PACKET_Free(Packet *p) {
-	free(p->payload);
+    SYS_ASSERT(p != NULL, "Packet is null");
+    if(p->pLen)
+        free(p->payload);
 }
 
+uint16_t PACKET_GetMessageId(const Packet *p){
+	SYS_ASSERT(p != NULL, "Packet is null");
+	return p->msgID;
+}
+uint8_t PACKET_GetCommand(const Packet *p){
+	SYS_ASSERT(p != NULL, "Packet is null");
+	return p->cmd;
+}
+
+void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]){
+	SYS_ASSERT(p != NULL, "Packet is null");
+	memcpy((void*)byteArray, (void*)p, PACKET_BASE_LEN);
+	if(p->pLen)
+		memcpy(&byteArray[PAYLOAD_START], p->payload, p->pLen);
+}
 
 //TODO check on null queue
 PQUEUE_CODE PQUEUE_Init(PacketQueue *queue, const size_t capacity) {
@@ -74,7 +99,7 @@ PQUEUE_CODE PQUEUE_Enqueue(PacketQueue *queue, const Packet *p) {
 PQUEUE_CODE PQUEUE_Dequeue(PacketQueue *queue, Packet *p) {
 	if (OSAL_MUTEX_Lock(&queue->mutex, 1000) == OSAL_RESULT_TRUE) {
 		if (queue->count == 0)
-			return PQUEUE_FAIL; // Empty
+			return PQUEUE_EMPTY; // Empty
 		Packet *src = &queue->queue[queue->head];
 		PACKET_CODE copyRes = copyPacket(src, p);
 		PACKET_Free(src);
@@ -82,7 +107,7 @@ PQUEUE_CODE PQUEUE_Dequeue(PacketQueue *queue, Packet *p) {
 		queue->count--;
 		OSAL_MUTEX_Unlock(&queue->mutex);
 		if (copyRes != PACKET_OK)
-			return PQUEUE_EMPTY;
+			return PQUEUE_FAIL;
 		return PQUEUE_OK;
 	}
 	return PQUEUE_FAIL;
