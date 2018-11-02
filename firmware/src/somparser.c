@@ -6,11 +6,6 @@
  */
 #include "somparser.h"
 
-PacketQueue packetQueue;
-
-OSAL_MUTEX_HANDLE_TYPE queueMutex;
-
-
 uint8_t PACKET_IsRawValid(const uint8_t *raw) {
 	return ((raw[FIELD_PREAMBLE0] == PREAMBLE0_VAL)
 			&& (raw[FIELD_PREAMBLE1] == PREAMBLE1_VAL));
@@ -39,33 +34,36 @@ void PACKET_Free(Packet *p) {
 	free(p->payload);
 }
 
-PQUEUE_CODE PQUEUE_Init(const size_t capacity) {
+
+//TODO check on null queue
+PQUEUE_CODE PQUEUE_Init(PacketQueue *queue, const size_t capacity) {
 	// Mutex initialization
-	OSAL_MUTEX_Create(&queueMutex);
-	packetQueue.head = 0;
-	packetQueue.tail = 0;
-	packetQueue.count = 0;
-	packetQueue.capacity = capacity;
-	packetQueue.queue = malloc(capacity * sizeof(Packet));
-	if (!packetQueue.queue)
+	OSAL_MUTEX_Create(&queue->mutex);
+	queue->head = 0;
+	queue->tail = 0;
+	queue->count = 0;
+	queue->capacity = capacity;
+	queue->queue = malloc(capacity * sizeof(Packet));
+	if (!queue->queue)
 		return PQUEUE_NO_MEM;
 	return PQUEUE_OK;
 }
 
-void PQUEUE_Free() {
-	free(packetQueue.queue);
-	memset(&packetQueue, 0, sizeof(PacketQueue));
+void PQUEUE_Free(PacketQueue *queue) {
+	free(queue->queue);
+	OSAL_MUTEX_Delete(&queue->mutex);
+	memset(&queue, 0, sizeof(PacketQueue));
 }
 
-PQUEUE_CODE PQUEUE_Enqueue(const Packet *p) {
-	if (OSAL_MUTEX_Lock(&queueMutex, 1000) == OSAL_RESULT_TRUE) {
-		if (packetQueue.count == packetQueue.capacity)
+PQUEUE_CODE PQUEUE_Enqueue(PacketQueue *queue, const Packet *p) {
+	if (OSAL_MUTEX_Lock(&queue->mutex, 1000) == OSAL_RESULT_TRUE) {
+		if (queue->count == queue->capacity)
 			return PQUEUE_FULL; // Overflow
-		Packet *dst = &packetQueue.queue[packetQueue.tail];
+		Packet *dst = &queue->queue[queue->tail];
 		PACKET_CODE copyRes = copyPacket(p, dst);
-		packetQueue.tail = (packetQueue.tail + 1) % packetQueue.capacity;
-		packetQueue.count++;
-		OSAL_MUTEX_Unlock(&queueMutex);
+		queue->tail = (queue->tail + 1) % queue->capacity;
+		queue->count++;
+		OSAL_MUTEX_Unlock(&queue->mutex);
 		if (copyRes != PACKET_OK)
 			return PQUEUE_NO_MEM;
 		return PQUEUE_OK;
@@ -73,15 +71,16 @@ PQUEUE_CODE PQUEUE_Enqueue(const Packet *p) {
 	return PQUEUE_FAIL;
 }
 
-PQUEUE_CODE PQUEUE_Dequeue(Packet *p) {
-	if (OSAL_MUTEX_Lock(&queueMutex, 1000) == OSAL_RESULT_TRUE) {
-		if (packetQueue.count == 0)
+PQUEUE_CODE PQUEUE_Dequeue(PacketQueue *queue, Packet *p) {
+	if (OSAL_MUTEX_Lock(&queue->mutex, 1000) == OSAL_RESULT_TRUE) {
+		if (queue->count == 0)
 			return PQUEUE_FAIL; // Empty
-		Packet *src = &packetQueue.queue[packetQueue.head];
+		Packet *src = &queue->queue[queue->head];
 		PACKET_CODE copyRes = copyPacket(src, p);
-		packetQueue.head = (packetQueue.head + 1) % packetQueue.capacity;
-		packetQueue.count--;
-		OSAL_MUTEX_Unlock(&queueMutex);
+		PACKET_Free(src);
+		queue->head = (queue->head + 1) % queue->capacity;
+		queue->count--;
+		OSAL_MUTEX_Unlock(&queue->mutex);
 		if (copyRes != PACKET_OK)
 			return PQUEUE_EMPTY;
 		return PQUEUE_OK;
@@ -89,16 +88,16 @@ PQUEUE_CODE PQUEUE_Dequeue(Packet *p) {
 	return PQUEUE_FAIL;
 }
 
-size_t PQUEUE_GetSize() {
-	return packetQueue.count;
+size_t PQUEUE_GetSize(PacketQueue *queue) {
+	return queue->count;
 }
 
-uint8_t PQUEUE_IsFull() {
-	return packetQueue.count == packetQueue.capacity;
+uint8_t PQUEUE_IsFull(PacketQueue *queue) {
+	return queue->count == queue->capacity;
 }
 
-uint8_t PQUEUE_IsEmpty() {
-	return packetQueue.count == 0;
+uint8_t PQUEUE_IsEmpty(PacketQueue *queue) {
+	return queue->count == 0;
 }
 
 const char* PQUEUE_GetErrorStr(const PQUEUE_CODE code) {

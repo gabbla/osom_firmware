@@ -49,6 +49,7 @@ typedef struct _packetQueue {
 	Packet 	*queue;
 	size_t	count;
 	size_t	capacity;
+	OSAL_MUTEX_HANDLE_TYPE mutex;
 } PacketQueue;
 
 typedef enum queue_code {
@@ -70,14 +71,14 @@ uint8_t PACKET_IsRawValid(const uint8_t *raw);
 void PACKET_Get(const uint8_t *raw, Packet *p);
 void PACKET_Free(Packet *p);
 
-PQUEUE_CODE PQUEUE_Init();
-void PQUEUE_Free();
-void PQUEUE_Reset();
-PQUEUE_CODE PQUEUE_Enqueue(const Packet *p);
-PQUEUE_CODE PQUEUE_Dequeue(Packet *p);
-size_t PQUEUE_GetSize();
-uint8_t PQUEUE_IsFull();
-uint8_t PQUEUE_IsEmpty();
+PQUEUE_CODE PQUEUE_Init(PacketQueue *queue, const size_t capacity);
+void PQUEUE_Free(PacketQueue *queue);
+void PQUEUE_Reset(PacketQueue *queue);
+PQUEUE_CODE PQUEUE_Enqueue(PacketQueue *queue, const Packet *p);
+PQUEUE_CODE PQUEUE_Dequeue(PacketQueue *queue, Packet *p);
+size_t PQUEUE_GetSize(PacketQueue *queue);
+uint8_t PQUEUE_IsFull(PacketQueue *queue);
+uint8_t PQUEUE_IsEmpty(PacketQueue *queue);
 
 const char* PQUEUE_GetErrorStr(const PQUEUE_CODE code);
 
