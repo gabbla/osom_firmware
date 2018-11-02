@@ -84,12 +84,21 @@ BLEAPP_DATA bleappData;
 
 /* TODO:  Add any necessary callback functions.
  */
-inline void unregisterBuffer(); //Forward declaration
+void registerBuffer();
+void unregisterBuffer(); //Forward declaration
+void reregisterBuffer();
 void rxPacketTimeout(uintptr_t context, uint32_t currTick) {
 	// To avoid task block, reset the buffer
 	WARN("%s()\n", __func__);
-	unregisterBuffer();
+//	unregisterBuffer();
+//	registerBuffer();
+	reregisterBuffer();
 }
+
+//void __ISR(_UART_1_VECTOR, IPL2SOFT) rxBTActivity(void){
+//	DEBUG("%s()\n", __func__);
+//	PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_USART_1_RECEIVE);
+//}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -107,7 +116,7 @@ void restartApp(const char *reason) {
 /**
  * @brief Register a buffer to HM10 UART, restart the app if something wrong
  */
-inline void registerBuffer() {
+void registerBuffer() {
 	DEBUG("Registering buffer...\n");
 	DRV_USART_BufferAddRead(bleappData.hm10, &bleappData.packetHandler, bleappData.packet, MAX_PACKET_LEN);
 	if (DRV_USART_BUFFER_HANDLE_INVALID == bleappData.packetHandler) {
@@ -117,18 +126,40 @@ inline void registerBuffer() {
 	}
 }
 
-inline void unregisterBuffer() {
+void unregisterBuffer() {
+	DEBUG("%s()\n", __func__);
 	DRV_USART_BufferRemove(bleappData.packetHandler);
 	bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 }
 
-void APP_MyBufferEventHandler( DRV_USART_BUFFER_EVENT event,
-                                   DRV_USART_BUFFER_HANDLE bufferHandle,
-                                   uintptr_t context ){
-	DEBUG("%s()\n", __func__);
+void reregisterBuffer() {
+	DRV_USART_BufferRemove(bleappData.packetHandler);
+	bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
+	DEBUG("Registering buffer...\n");
+	DRV_USART_BufferAddRead(bleappData.hm10, &bleappData.packetHandler, bleappData.packet, MAX_PACKET_LEN);
+	if (DRV_USART_BUFFER_HANDLE_INVALID == bleappData.packetHandler) {
+		restartApp("Error while registering the packet buffer!");
+	} else {
+		DEBUG("Buffer registered!\n");
+	}
 }
 
+size_t dataReadyFromBLE() {
+	size_t cnt = DRV_USART_BufferCompletedBytesGet(bleappData.packetHandler);
+	return ((cnt == ((size_t) -1)) ? 0 : cnt);
+}
 
+void startPacketGuard() {
+	DEBUG("%s()\n", __func__);
+	bleappData.packetTimeout =
+			SYS_TMR_CallbackSingle(PACKET_RX_TIMEOUT, NULL, rxPacketTimeout);
+}
+
+void stopPacketGuard() {
+	DEBUG("%s()\n", __func__);
+	SYS_TMR_CallbackStop(bleappData.packetTimeout);
+	bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
+}
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Initialization and State Machine Functions
@@ -174,11 +205,18 @@ void BLEAPP_Tasks(void) {
 				DRV_USART_Open(DRV_USART_INDEX_1, DRV_IO_INTENT_READWRITE);
 
 		// TODO: why mcp handler == DRV_HANDLE_INVALID but it still works? && bleappData.mcp2200 != DRV_HANDLE_INVALID)
-		DEBUG("MCP UART handle is valid? %d\n",
-				bleappData.mcp2200 != DRV_HANDLE_INVALID);
+		DEBUG("MCP UART handle is valid? %d\n", bleappData.mcp2200 != DRV_HANDLE_INVALID);
+
+		// Interrupt
+//		PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_USART_1_RECEIVE);
 
 		// Initialize the packet queue
-		PQUEUE_Init(MAX_PACKET_IN_QUEUE);
+		PQUEUE_Init(&bleappData.incoming, MAX_PACKET_IN_QUEUE_IN);
+		PQUEUE_Init(&bleappData.outgoing, MAX_PACKET_IN_QUEUE_OUT);
+
+		// Register the HM10 rx buffer
+		//registerBuffer();
+		reregisterBuffer();
 
 		if (bleappData.hm10 != DRV_HANDLE_INVALID) {
 			INFO("BLE App started\n");
@@ -190,58 +228,79 @@ void BLEAPP_Tasks(void) {
 		break;
 	}
 
+	case BLEAPP_STATE_IDLE: {
+		if (dataReadyFromBLE() > 0) {
+			bleappData.state = BLEAPP_COLLECT_PACKET;
+			if (bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
+				startPacketGuard();
+			}
+		} else if (!PQUEUE_IsEmpty(&bleappData.incoming)) {
+			bleappData.state = BLEAPP_STATE_PARSE;
+		} else if (!PQUEUE_IsEmpty(&bleappData.outgoing)) {
+			bleappData.state = BLEAPP_STATE_REPLY;
+		}
+		break;
+	}
 	case BLEAPP_COLLECT_PACKET: {
 
-		if (bleappData.packetHandler == DRV_USART_BUFFER_HANDLE_INVALID) {
-			registerBuffer();
-		}
-
-		size_t processedSize =
-				DRV_USART_BufferCompletedBytesGet(bleappData.packetHandler);
+		size_t processedSize = dataReadyFromBLE();
 
 		// If we receive a corrupted packet, we will stuck, so let's add a timeout
-		if (processedSize && bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
-			// register the callback
-			bleappData.packetTimeout =
-					SYS_TMR_CallbackSingle(PACKET_RX_TIMEOUT, NULL, rxPacketTimeout);
-		}
+//		if (processedSize && bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
+//			// register the callback
+//			bleappData.packetTimeout =
+//					SYS_TMR_CallbackSingle(PACKET_RX_TIMEOUT, NULL, rxPacketTimeout);
+//		}
 
 		if (processedSize >= PACKET_BASE_LEN
 				&& processedSize
 						== (PACKET_BASE_LEN + bleappData.packet[FIELD_PKTLEN])) {
-			// We may have a valid packet, that won't stuck the app aat this stage, we can deregister the callback
-			SYS_TMR_CallbackStop(bleappData.packetTimeout);
-			bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 
 			size_t payLen = bleappData.packet[FIELD_PKTLEN];
 			DEBUG("Packet length: %d bytes, Payload length: %d bytes\n", processedSize, payLen);
 			size_t i;
 			for (i = 0; i < processedSize; i++)
-				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG,"0x%01x ", bleappData.packet[i]);SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
+				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%01x ", bleappData.packet[i]);
+			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
 
 //			DRV_USART_BUFFER_HANDLE t;
 //			DRV_USART_BufferAddWrite(bleappData.hm10, &t, "OK!!", 4);
 
 			if (PACKET_IsRawValid(bleappData.packet)) {
+				// We can unregister the callback
+				stopPacketGuard();
+
 				Packet p;
 				PACKET_Get(bleappData.packet, &p);
-				PQUEUE_CODE res = PQUEUE_Enqueue(&p);
+				PQUEUE_CODE res = PQUEUE_Enqueue(&bleappData.incoming, &p);
 				if (res != PQUEUE_OK) {
 					ERROR("Cannot enqueue the packet! %s\n", PQUEUE_GetErrorStr(res));
-				}DEBUG("Packet(s) in queue: %d\n", PQUEUE_GetSize());
+				}
+				DEBUG("Packet(s) in queue: %d\n", PQUEUE_GetSize(&bleappData.incoming));
 				PACKET_Free(&p);
 			} else {
 				ERROR("The received packet is not valid\n");
 			}
 
-			unregisterBuffer();
+//			unregisterBuffer();
+//			registerBuffer();
+			reregisterBuffer();
 		}
+		bleappData.state = BLEAPP_STATE_IDLE;
 		break;
 	}
 
-		/* TODO: implement your application state machine.*/
+	case BLEAPP_STATE_PARSE: {
+		Packet packet;
+		PQUEUE_Dequeue(&bleappData.incoming, &packet);
+		DEBUG("Parsing command 0x%02x\n", packet.cmd);
+		// TODO parser
 
-		/* The default state should never be executed. */
+		PACKET_Free(&packet);
+		bleappData.state = BLEAPP_STATE_IDLE;
+		break;
+	}
+
 	default: {
 		/* TODO: Handle error in application's state machine. */
 		break;

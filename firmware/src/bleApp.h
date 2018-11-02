@@ -63,6 +63,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "osal/osal_definitions.h"
 
+//#include <xc.h>
+//#include <sys/attribs.h>
+//#include "peripheral/int/plib_int.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -78,8 +81,9 @@ extern "C" {
 // *****************************************************************************
 // *****************************************************************************
 
-#define MAX_PACKET_IN_QUEUE	1
-#define PACKET_RX_TIMEOUT	1000 // ms
+#define MAX_PACKET_IN_QUEUE_IN	10
+#define MAX_PACKET_IN_QUEUE_OUT	10
+#define PACKET_RX_TIMEOUT		1000 // ms
 
 // *****************************************************************************
 /* Application states
@@ -96,9 +100,10 @@ typedef enum
 {
 	/* Application's state machine's initial state. */
 	BLEAPP_STATE_INIT=0,
+	BLEAPP_STATE_IDLE,
 	BLEAPP_COLLECT_PACKET,
-
-	/* TODO: Define states used by the application state machine. */
+	BLEAPP_STATE_PARSE,
+	BLEAPP_STATE_REPLY
 
 } BLEAPP_STATES;
 
@@ -126,6 +131,8 @@ typedef struct
     DRV_HANDLE mcp2200;
 
     // Packet suff
+    PacketQueue incoming;
+    PacketQueue outgoing;
     uint8_t packet[MAX_PACKET_LEN];
     DRV_USART_BUFFER_HANDLE packetHandler;
     SYS_TMR_HANDLE packetTimeout;
