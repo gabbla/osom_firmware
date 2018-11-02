@@ -60,6 +60,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system/debug/sys_debug.h"
 #include "system/msg/sys_msg.h"
 
+#include "logger.h"
 #include "git_commit.h"
 
 #ifdef SOM_MASTER
