@@ -180,6 +180,7 @@ void BLEAPP_Initialize(void) {
 	// Handlers
 	bleappData.hm10 = DRV_HANDLE_INVALID;
 	bleappData.mcp2200 = DRV_HANDLE_INVALID;
+	bleappData.i2cHandle = DRV_HANDLE_INVALID;
 
 	// Packet stuff
 	bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID;
@@ -203,6 +204,16 @@ void BLEAPP_Tasks(void) {
 				DRV_USART_Open(DRV_USART_INDEX_0, DRV_IO_INTENT_READWRITE);
 		bleappData.mcp2200 =
 				DRV_USART_Open(DRV_USART_INDEX_1, DRV_IO_INTENT_READWRITE);
+
+		bleappData.i2cHandle = DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE);
+
+		bleappData.eeprom.i2cHandle = bleappData.i2cHandle;
+		bleappData.eeprom.address = 0b10100000;
+
+		bleappData.ioexp.i2cHandle = bleappData.i2cHandle;
+		bleappData.ioexp.address = 0x40;
+
+		PCF_BankWrite(&bleappData.ioexp, 0);
 
 		// TODO: why mcp handler == DRV_HANDLE_INVALID but it still works? && bleappData.mcp2200 != DRV_HANDLE_INVALID)
 		DEBUG("MCP UART handle is valid? %d\n", bleappData.mcp2200 != DRV_HANDLE_INVALID);

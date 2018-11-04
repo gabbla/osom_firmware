@@ -60,8 +60,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system_definitions.h"
 #include "somparser.h"
 #include "logger.h"
-
+#include "i2c_device.h"
 #include "osal/osal_definitions.h"
+
+#include "PCF8574.h"
 
 //#include <xc.h>
 //#include <sys/attribs.h>
@@ -126,9 +128,16 @@ typedef struct
     /* The application's current state */
     BLEAPP_STATES state;
 
-    /* TODO: Define any additional data used by the application. */
+    // UART handlers
     DRV_HANDLE hm10;
     DRV_HANDLE mcp2200;
+
+    // I2C handler
+    DRV_HANDLE i2cHandle;
+
+    // I2C Device
+    I2CDevice eeprom;
+    I2CDevice ioexp;
 
     // Packet suff
     PacketQueue incoming;
