@@ -1,4 +1,13 @@
-/firmware/speedometer.X/build/
-/firmware/speedometer.X/dist/
+# Ignore eclipse metadata
 .cproject
 .project
+
+# Ignore generated file
+firmware/speedometer.X/nbproject/Makefile-genesis.properties
+firmware/speedometer.X/nbproject/Makefile-*.mk
+firmware/speedometer.X/nbproject/Package-*.bash
+firmware/speedometer.X/nbproject/private/
+firmware/speedometer.X/build/
+firmware/speedometer.X/dist
+firmware/speedometer.X/funclist
+firmware/speedometer.X/disassembly/
