@@ -69,7 +69,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "git_commit.h"
 
 #ifdef SOM_MASTER
-#include "bleapp.h"
+#include "bleApp.h"
 #endif
 
 // DOM-IGNORE-BEGIN

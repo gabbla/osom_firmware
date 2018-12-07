@@ -60,7 +60,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 #include "system/common/sys_common.h"
-#include "bleapp.h"
+#include "bleApp.h"
 #include "system_definitions.h"
 
 // *****************************************************************************
