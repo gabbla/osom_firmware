@@ -22,6 +22,7 @@
           </logicalFolder>
         </logicalFolder>
         <itemPath>../src/bleApp.h</itemPath>
+        <itemPath>../src/laserApp.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
@@ -163,6 +164,7 @@
         <itemPath>../src/bleApp.c</itemPath>
         <itemPath>../src/main.c</itemPath>
         <itemPath>../src/somparser.c</itemPath>
+        <itemPath>../src/laserApp.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
@@ -234,6 +236,8 @@
     <Elem>..\src</Elem>
     <Elem>..\src\Debug</Elem>
     <Elem>..\src\system_config\Debug</Elem>
+    <Elem>../src/Debug</Elem>
+    <Elem>../src/system_config/Debug</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -246,7 +250,7 @@
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>2.05</languageToolchainVersion>
-        <platform>3</platform>
+        <platform>2</platform>
       </toolsSet>
       <packs>
         <pack name="PIC32MX_DFP" vendor="Microchip" version="1.0.23"/>
@@ -285,7 +289,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework"/>
+                  value="../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework;"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>

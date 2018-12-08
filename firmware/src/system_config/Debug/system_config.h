@@ -88,8 +88,8 @@ extern "C" {
 #define SYS_CLK_CONFIG_SECONDARY_XTAL       32768ul
    
 /*** Ports System Service Configuration ***/
-#define SYS_PORT_A_ANSEL        0xFFFD
-#define SYS_PORT_A_TRIS         0xFFFD
+#define SYS_PORT_A_ANSEL        0xFFFC
+#define SYS_PORT_A_TRIS         0xFFFC
 #define SYS_PORT_A_LAT          0x0000
 #define SYS_PORT_A_ODC          0x0000
 #define SYS_PORT_A_CNPU         0x0000
@@ -284,6 +284,8 @@ extern "C" {
 
 
 /*** Application Instance 0 Configuration ***/
+
+/*** Application Instance 1 Configuration ***/
 
 //DOM-IGNORE-BEGIN
 #ifdef __cplusplus
