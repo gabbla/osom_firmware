@@ -109,7 +109,7 @@ void rxPacketTimeout(uintptr_t context, uint32_t currTick) {
  */
 
 void restartApp(const char *reason) {
-	SYS_DEBUG_PRINT(SYS_ERROR_WARNING, "Resetting BLEAPP. Reason: %s\n", reason);
+	DEBUG("Resetting BLEAPP. Reason: %s\n", reason);
 	bleappData.state = BLEAPP_STATE_INIT;
 }
 
