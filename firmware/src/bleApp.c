@@ -89,7 +89,7 @@ void unregisterBuffer(); //Forward declaration
 void reregisterBuffer();
 void rxPacketTimeout(uintptr_t context, uint32_t currTick) {
 	// To avoid task block, reset the buffer
-	WARN("%s()\n", __func__);
+	WARN("%s()", __func__);
 //	unregisterBuffer();
 //	registerBuffer();
 	reregisterBuffer();
@@ -109,7 +109,7 @@ void rxPacketTimeout(uintptr_t context, uint32_t currTick) {
  */
 
 void restartApp(const char *reason) {
-	SYS_DEBUG_PRINT(SYS_ERROR_WARNING, "Resetting BLEAPP. Reason: %s\n", reason);
+	SYS_DEBUG_PRINT(SYS_ERROR_WARNING, "Resetting BLEAPP. Reason: %s", reason);
 	bleappData.state = BLEAPP_STATE_INIT;
 }
 
@@ -117,17 +117,17 @@ void restartApp(const char *reason) {
  * @brief Register a buffer to HM10 UART, restart the app if something wrong
  */
 void registerBuffer() {
-	DEBUG("Registering buffer...\n");
+	DEBUG("Registering buffer...");
 	DRV_USART_BufferAddRead(bleappData.hm10, &bleappData.packetHandler, bleappData.packet, MAX_PACKET_LEN);
 	if (DRV_USART_BUFFER_HANDLE_INVALID == bleappData.packetHandler) {
 		restartApp("Error while registering the packet buffer!");
 	} else {
-		DEBUG("Buffer registered!\n");
+		DEBUG("Buffer registered!");
 	}
 }
 
 void unregisterBuffer() {
-	DEBUG("%s()\n", __func__);
+	DEBUG("%s()", __func__);
 	DRV_USART_BufferRemove(bleappData.packetHandler);
 	bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 }
@@ -135,12 +135,12 @@ void unregisterBuffer() {
 void reregisterBuffer() {
 	DRV_USART_BufferRemove(bleappData.packetHandler);
 	bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
-	DEBUG("Registering buffer...\n");
+	DEBUG("Registering buffer...");
 	DRV_USART_BufferAddRead(bleappData.hm10, &bleappData.packetHandler, bleappData.packet, MAX_PACKET_LEN);
 	if (DRV_USART_BUFFER_HANDLE_INVALID == bleappData.packetHandler) {
 		restartApp("Error while registering the packet buffer!");
 	} else {
-		DEBUG("Buffer registered!\n");
+		DEBUG("Buffer registered!");
 	}
 }
 
@@ -150,13 +150,13 @@ size_t dataReadyFromBLE() {
 }
 
 void startPacketGuard() {
-	DEBUG("%s()\n", __func__);
+	DEBUG("%s()", __func__);
 	bleappData.packetTimeout =
 			SYS_TMR_CallbackSingle(PACKET_RX_TIMEOUT, NULL, rxPacketTimeout);
 }
 
 void stopPacketGuard() {
-	DEBUG("%s()\n", __func__);
+	DEBUG("%s()", __func__);
 	SYS_TMR_CallbackStop(bleappData.packetTimeout);
 	bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 }
@@ -216,7 +216,7 @@ void BLEAPP_Tasks(void) {
 		PCF_BankWrite(&bleappData.ioexp, 0);
 
 		// TODO: why mcp handler == DRV_HANDLE_INVALID but it still works? && bleappData.mcp2200 != DRV_HANDLE_INVALID)
-		DEBUG("MCP UART handle is valid? %d\n", bleappData.mcp2200 != DRV_HANDLE_INVALID);
+		DEBUG("MCP UART handle is valid? %d", bleappData.mcp2200 != DRV_HANDLE_INVALID);
 
 		// Interrupt
 //		PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_USART_1_RECEIVE);
@@ -230,10 +230,10 @@ void BLEAPP_Tasks(void) {
 		reregisterBuffer();
 
 		if (bleappData.hm10 != DRV_HANDLE_INVALID) {
-			INFO("BLE App started\n");
+			INFO("BLE App started");
 			bleappData.state = BLEAPP_COLLECT_PACKET;
 		} else {
-			ERROR("HM10 handler is invalid!\n");
+			ERROR("HM10 handler is invalid!");
 			// TODO reset PIC
 		}
 		break;
@@ -268,11 +268,11 @@ void BLEAPP_Tasks(void) {
 						== (PACKET_BASE_LEN + bleappData.packet[FIELD_PKTLEN])) {
 
 			size_t payLen = bleappData.packet[FIELD_PKTLEN];
-			DEBUG("Packet length: %d bytes, Payload length: %d bytes\n", processedSize, payLen);
+			DEBUG("Packet length: %d bytes, Payload length: %d bytes", processedSize, payLen);
 			size_t i;
 			for (i = 0; i < processedSize; i++)
 				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%01x ", bleappData.packet[i]);
-			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
+			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "");
 
 			if (PACKET_IsRawValid(bleappData.packet)) {
 				// We can unregister the callback
@@ -282,12 +282,12 @@ void BLEAPP_Tasks(void) {
 				PACKET_Get(bleappData.packet, &p);
 				PQUEUE_CODE res = PQUEUE_Enqueue(&bleappData.incoming, &p);
 				if (res != PQUEUE_OK) {
-					ERROR("Cannot enqueue the packet! %s\n", PQUEUE_GetErrorStr(res));
+					ERROR("Cannot enqueue the packet! %s", PQUEUE_GetErrorStr(res));
 				}
 				DEBUG("Packet(s) in queue: %d\n", PQUEUE_GetSize(&bleappData.incoming));
 				PACKET_Free(&p);
 			} else {
-				ERROR("The received packet is not valid\n");
+				ERROR("The received packet is not valid");
 			}
 
 //			unregisterBuffer();
@@ -314,7 +314,7 @@ void BLEAPP_Tasks(void) {
 				break;
 
 			default:
-				WARN("Unknown command 0x%02x\n", packet.cmd);
+				WARN("Unknown command 0x%02x", packet.cmd);
 				break;
 			}
 
@@ -322,7 +322,7 @@ void BLEAPP_Tasks(void) {
 			PACKET_Free(&packet);
 			PACKET_Free(&reply);
 		} else
-            WARN("Parser dequeue fail\n");
+            WARN("Parser dequeue fail");
 		bleappData.state = BLEAPP_STATE_IDLE;
 		break;
 	}
@@ -331,13 +331,13 @@ void BLEAPP_Tasks(void) {
 		Packet packet;
 		if (PQUEUE_Dequeue(&bleappData.outgoing, &packet) == PQUEUE_OK) {
 			size_t size = PACKET_BASE_LEN + packet.pLen;
-			DEBUG("Sending a packet long %d bytes\n", size);
+			DEBUG("Sending a packet long %d bytes", size);
 			uint8_t byteArray[size];
 			PACKET_GetByteArray(&packet, byteArray);
 			DRV_USART_BUFFER_HANDLE txHandler;
 			DRV_USART_BufferAddWrite(bleappData.hm10, &txHandler, byteArray, size);
 			if (DRV_USART_BUFFER_HANDLE_INVALID == txHandler) {
-				WARN("Invalid txHandler!\n");
+				WARN("Invalid txHandler!");
 //			PQUEUE_CODE enqueueResult;
 //			if((enqueueResult = PQUEUE_Enqueue(&bleappData.outgoing, &packet)) != PQUEUE_OK){
 //				ERROR("Packet enqueue failed: %s\n", PQUEUE_GetErrorStr(enqueueResult));
@@ -346,7 +346,7 @@ void BLEAPP_Tasks(void) {
 
 			PACKET_Free(&packet);
 		} else 
-            WARN("Sender dequeue fail\n");
+            WARN("Sender dequeue fail");
 		bleappData.state = BLEAPP_STATE_IDLE;
 		break;
 	}

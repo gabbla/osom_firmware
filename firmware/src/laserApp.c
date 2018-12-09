@@ -87,7 +87,7 @@ LASERAPP_DATA laserappData;
 /* TODO:  Add any necessary callback functions.
 */
 void laserCommandCallback(SYS_MSG_OBJECT *pMessage) {
-
+    DEBUG("New laser command received");
 }
 // *****************************************************************************
 // *****************************************************************************
@@ -152,9 +152,9 @@ void LASERAPP_Tasks ( void )
             );
             
             if(laserappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
-                ERROR("Failed to open Laser mailbox\n");
+                ERROR("Failed to open Laser mailbox");
             } else {
-                DEBUG("Laser command mailbox is open\n");
+                DEBUG("Laser command mailbox is open");
                 appInitialized = true;
             }
 
@@ -162,7 +162,7 @@ void LASERAPP_Tasks ( void )
             SYS_OBJ_HANDLE msgType = getLaserMessageType();
             if(msgType != SYS_OBJ_HANDLE_INVALID){
                 SYS_MSG_MailboxMsgAdd(laserappData.laserCmd, msgType);
-                DEBUG("Subuscribed to laser command\n");
+                DEBUG("Subuscribed to laser command");
             }
                     
             if (appInitialized)
@@ -197,7 +197,7 @@ static const SYS_OBJ_HANDLE getLaserMessageType() {
         msgType = SYS_MSG_TypeCreate(LASER_MAILBOX, LASER_MSG_ID, LASER_MSG_PRIORITY);
         if(msgType == SYS_OBJ_HANDLE_INVALID) {
             // error, but propagate the failure
-            ERROR("Laser message type creation failed\n");
+            ERROR("Laser message type creation failed");
         }
     }
     return msgType;

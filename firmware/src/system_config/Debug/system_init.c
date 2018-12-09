@@ -318,13 +318,13 @@ void SYS_Initialize ( void* data )
 #endif
     LASERAPP_Initialize();
 #ifdef SOM_MASTER
-    INFO("Speed o Meter (Master) starting...\n");
+    INFO("Speed o Meter (Master) starting...");
 #else
     INFO("Speed o Meter (Slave) starting...\n");
 #endif
     
-    INFO("Version: %s\n", GIT_COMMIT);
-    INFO("Compiled on %s at %s\n", __DATE__, __TIME__);
+    INFO("Version: %s", GIT_COMMIT);
+    INFO("Compiled on %s at %s", __DATE__, __TIME__);
 }
 
 
