@@ -62,6 +62,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "logger.h"
 #include "i2c_device.h"
 #include "osal/osal_definitions.h"
+#include "mailbox.h"
+#include "laserApp.h"
 
 #include "PCF8574.h"
 
@@ -139,12 +141,15 @@ typedef struct
     I2CDevice eeprom;
     I2CDevice ioexp;
 
-    // Packet suff
+    // Packet stuff
     PacketQueue incoming;
     PacketQueue outgoing;
     uint8_t packet[MAX_PACKET_LEN];
     DRV_USART_BUFFER_HANDLE packetHandler;
     SYS_TMR_HANDLE packetTimeout;
+
+    // mailbox
+    SYS_OBJ_HANDLE laserCmd; // Laser mailbox
 } BLEAPP_DATA;
 
 

@@ -205,21 +205,24 @@ void BLEAPP_Tasks(void) {
 		bleappData.mcp2200 =
 				DRV_USART_Open(DRV_USART_INDEX_1, DRV_IO_INTENT_READWRITE);
 
-		bleappData.i2cHandle = DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE);
+//		bleappData.i2cHandle = DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE);
 
-		bleappData.eeprom.i2cHandle = bleappData.i2cHandle;
-		bleappData.eeprom.address = 0b10100000;
-
-		bleappData.ioexp.i2cHandle = bleappData.i2cHandle;
-		bleappData.ioexp.address = 0x40;
-
-		PCF_BankWrite(&bleappData.ioexp, 0);
+//		bleappData.eeprom.i2cHandle = bleappData.i2cHandle;
+//		bleappData.eeprom.address = 0b10100000;
+//
+//		bleappData.ioexp.i2cHandle = bleappData.i2cHandle;
+//		bleappData.ioexp.address = 0x40;
+//
+//		PCF_BankWrite(&bleappData.ioexp, 0);
 
 		// TODO: why mcp handler == DRV_HANDLE_INVALID but it still works? && bleappData.mcp2200 != DRV_HANDLE_INVALID)
 		DEBUG("MCP UART handle is valid? %d", bleappData.mcp2200 != DRV_HANDLE_INVALID);
 
 		// Interrupt
 //		PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_USART_1_RECEIVE);
+
+        // Mailbox stuff
+        
 
 		// Initialize the packet queue
 		PQUEUE_Init(&bleappData.incoming, MAX_PACKET_IN_QUEUE_IN);
@@ -272,7 +275,7 @@ void BLEAPP_Tasks(void) {
 			size_t i;
 			for (i = 0; i < processedSize; i++)
 				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%01x ", bleappData.packet[i]);
-			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "");
+			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
 
 			if (PACKET_IsRawValid(bleappData.packet)) {
 				// We can unregister the callback
@@ -301,7 +304,7 @@ void BLEAPP_Tasks(void) {
 	case BLEAPP_STATE_PARSE: {
 		Packet packet;
 		if (PQUEUE_Dequeue(&bleappData.incoming, &packet) == PQUEUE_OK) {
-			DEBUG("Parsing command 0x%02x\n", packet.cmd);
+			DEBUG("Parsing command 0x%02x", packet.cmd);
 
 			Packet reply;
 			PACKET_Init(&reply);
@@ -311,6 +314,14 @@ void BLEAPP_Tasks(void) {
 			case BLE_CMD_PING:
 				// Simply reply the message
 				reply.cmd = PING_OK;
+                // TEST
+                SYS_MSG_OBJECT msgTest;
+                msgTest.nMessageTypeID = LASER_MSG_ID;
+                msgTest.nSource = 1;
+                msgTest.param1 = 1234;
+                SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(LASER_MAILBOX, &msgTest);
+                if(myRes != SYS_MSG_SENT)
+                    ERROR("Failed to send!! %d", myRes);
 				break;
 
 			default:

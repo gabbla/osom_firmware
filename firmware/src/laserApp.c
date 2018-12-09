@@ -88,6 +88,8 @@ LASERAPP_DATA laserappData;
 */
 void laserCommandCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("New laser command received");
+    DEBUG("   Source: %d", pMessage->nSource);
+    DEBUG("   Param1: %d", pMessage->param1);
 }
 // *****************************************************************************
 // *****************************************************************************
@@ -145,12 +147,11 @@ void LASERAPP_Tasks ( void )
         {
             volatile bool appInitialized = false;
 
-            // Open the mailbox
+            // Open the mailbox TODO: move to function
             laserappData.laserCmd = SYS_MSG_MailboxOpen(
                     LASER_MAILBOX,
                     &laserCommandCallback
             );
-            
             if(laserappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
                 ERROR("Failed to open Laser mailbox");
             } else {
@@ -167,7 +168,7 @@ void LASERAPP_Tasks ( void )
                     
             if (appInitialized)
             {
-                INFO("Laser App started\n");
+                INFO("Laser App started");
                 laserappData.state = LASERAPP_STATE_SERVICE_TASKS;
             }
             break;
