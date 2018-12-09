@@ -124,6 +124,7 @@
       <itemPath>../src/i2c_device.h</itemPath>
       <itemPath>../src/somparser.h</itemPath>
       <itemPath>../src/PCF8574.h</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/mailbox.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -249,7 +250,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>2.05</languageToolchainVersion>
+        <languageToolchainVersion>1.43</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <packs>
@@ -258,7 +259,7 @@
       <compileType>
         <linkerTool>
           <linkerLibItems>
-            <linkerLibFileItem>../../../../bin/framework/peripheral/PIC32MX170F256B_peripherals.a</linkerLibFileItem>
+            <linkerLibFileItem>/opt/microchip/harmony/v2_06/bin/framework/peripheral/PIC32MX170F256B_peripherals.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
@@ -289,7 +290,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework;"/>
+                  value="../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -361,7 +362,7 @@
         <property key="oXC32ld-extra-opts" value=""/>
         <property key="optimization-level" value=""/>
         <property key="preprocessor-macros" value=""/>
-        <property key="remove-unused-sections" value="true"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="report-memory-usage" value="false"/>
         <property key="serial-length" value=""/>
         <property key="serial-origin" value=""/>
