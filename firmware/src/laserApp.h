@@ -58,7 +58,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
-
+#include "logger.h"
+#include "mailbox.h"
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -112,11 +113,14 @@ typedef struct
 {
     /* The application's current state */
     LASERAPP_STATES state;
+    SYS_OBJ_HANDLE laserCmd; // Here the app receives the commands
+    
 
     /* TODO: Define any additional data used by the application. */
 
 } LASERAPP_DATA;
 
+static const SYS_OBJ_HANDLE getLaserMessageType(); 
 
 // *****************************************************************************
 // *****************************************************************************

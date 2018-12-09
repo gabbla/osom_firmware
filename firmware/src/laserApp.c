@@ -86,7 +86,9 @@ LASERAPP_DATA laserappData;
 
 /* TODO:  Add any necessary callback functions.
 */
+void laserCommandCallback(SYS_MSG_OBJECT *pMessage) {
 
+}
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Local Functions
@@ -141,12 +143,31 @@ void LASERAPP_Tasks ( void )
         /* Application's initial state. */
         case LASERAPP_STATE_INIT:
         {
-            bool appInitialized = true;
+            volatile bool appInitialized = false;
+
+            // Open the mailbox
+            laserappData.laserCmd = SYS_MSG_MailboxOpen(
+                    LASER_MAILBOX,
+                    &laserCommandCallback
+            );
             
-        
+            if(laserappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
+                ERROR("Failed to open Laser mailbox\n");
+            } else {
+                DEBUG("Laser command mailbox is open\n");
+                appInitialized = true;
+            }
+
+            // Add the message type
+            SYS_OBJ_HANDLE msgType = getLaserMessageType();
+            if(msgType != SYS_OBJ_HANDLE_INVALID){
+                SYS_MSG_MailboxMsgAdd(laserappData.laserCmd, msgType);
+                DEBUG("Subuscribed to laser command\n");
+            }
+                    
             if (appInitialized)
             {
-            
+                INFO("Laser App started\n");
                 laserappData.state = LASERAPP_STATE_SERVICE_TASKS;
             }
             break;
@@ -170,7 +191,17 @@ void LASERAPP_Tasks ( void )
     }
 }
 
- 
+static const SYS_OBJ_HANDLE getLaserMessageType() {
+    static SYS_OBJ_HANDLE msgType = NULL;
+    if(!msgType) {
+        msgType = SYS_MSG_TypeCreate(LASER_MAILBOX, LASER_MSG_ID, LASER_MSG_PRIORITY);
+        if(msgType == SYS_OBJ_HANDLE_INVALID) {
+            // error, but propagate the failure
+            ERROR("Laser message type creation failed\n");
+        }
+    }
+    return msgType;
+}
 
 /*******************************************************************************
  End of File

@@ -86,6 +86,7 @@ void SYS_Tasks ( void )
     // Needed only by master
     BLEAPP_Tasks();
 #endif
+    LASERAPP_Tasks();
 }
 
 
