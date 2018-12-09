@@ -1,5 +1,9 @@
 # Speedometer firmware
 
+## Note
+
+It's not possible to debug the project with `XC32 v2.10`. `XC32 v1.43` still works. It's seems that there is a missing library.
+
 ## Packets
 
 Every packet, both received or transmitted, is made as follow:
