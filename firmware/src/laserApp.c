@@ -53,7 +53,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-#include "laserapp.h"
+#include "laserApp.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -142,7 +142,7 @@ void LASERAPP_Tasks ( void )
         case LASERAPP_STATE_INIT:
         {
             bool appInitialized = true;
-       
+            
         
             if (appInitialized)
             {
