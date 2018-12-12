@@ -316,7 +316,7 @@ void SYS_Initialize ( void* data )
     // Needed only by Master
     BLEAPP_Initialize();
 #endif
-    LASERAPP_Initialize();
+    MAINAPP_Initialize();
 #ifdef SOM_MASTER
     INFO("Speed o Meter (Master) starting...");
 #else
@@ -331,3 +331,4 @@ void SYS_Initialize ( void* data )
 /*******************************************************************************
  End of File
 */
+

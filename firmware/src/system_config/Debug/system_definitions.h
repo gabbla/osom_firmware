@@ -64,6 +64,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system/ports/sys_ports.h"
 #include "system/debug/sys_debug.h"
 #include "system/msg/sys_msg.h"
+#include "mainapp.h"
 
 #include "logger.h"
 #include "git_commit.h"
@@ -133,3 +134,4 @@ extern SYSTEM_OBJECTS sysObj;
 /*******************************************************************************
  End of File
 */
+

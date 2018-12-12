@@ -62,6 +62,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system/common/sys_common.h"
 #include "bleApp.h"
 #include "laserApp.h"
+#include "mainapp.h"
 #include "system_definitions.h"
 
 // *****************************************************************************

@@ -253,34 +253,34 @@
         <Path dnOrder="1">Source&amp;#160;Files/app</Path>
       </Template>
       <Template dnOrder="2">
-        <Name dnOrder="0">system_interrupt.c</Name>
-        <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug</Path>
-        <Checksum dnOrder="2">8217027C2292BD66465DB7C3C71E9E79</Checksum>
-        <ProjectFileChecksum dnOrder="3">A2C57A3F00E30BCC44308CCC717E5DC7</ProjectFileChecksum>
+        <Name dnOrder="0">mainapp.c</Name>
+        <Path dnOrder="1">Source&amp;#160;Files/app</Path>
       </Template>
       <Template dnOrder="3">
+        <Name dnOrder="0">system_interrupt.c</Name>
+        <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug</Path>
+        <Checksum dnOrder="2">C6F899FDC479390E7EADC107E0B2F860</Checksum>
+        <ProjectFileChecksum dnOrder="3">A2C57A3F00E30BCC44308CCC717E5DC7</ProjectFileChecksum>
+      </Template>
+      <Template dnOrder="4">
         <Name dnOrder="0">system_exceptions.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug</Path>
         <Checksum dnOrder="2">9836A04F3E98D3971DB91DF539160F34</Checksum>
       </Template>
-      <Template dnOrder="4">
+      <Template dnOrder="5">
         <Name dnOrder="0">system_tasks.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug</Path>
-        <Checksum dnOrder="2">BB47AC3EB7D8D99B8AC276FE19FBF44A</Checksum>
+        <Checksum dnOrder="2">8D11EFB1517D7A07F67336A6CED8BED1</Checksum>
         <ProjectFileChecksum dnOrder="3">DC0BF33E5200F338EB3E9988210F4CCC</ProjectFileChecksum>
       </Template>
-      <Template dnOrder="5">
+      <Template dnOrder="6">
         <Name dnOrder="0">bleApp.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app</Path>
       </Template>
-      <Template dnOrder="6">
+      <Template dnOrder="7">
         <Name dnOrder="0">sys_clk_pic32mx.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug/framework/system/clk/src</Path>
         <Checksum dnOrder="2">9E1735DC00A06796E5D2C1A7FF8668AC</Checksum>
-      </Template>
-      <Template dnOrder="7">
-        <Name dnOrder="0">laserApp.h</Name>
-        <Path dnOrder="1">Header&amp;#160;Files/app</Path>
       </Template>
       <Template dnOrder="8">
         <Name dnOrder="0">sys_ports_static.c</Name>
@@ -288,44 +288,44 @@
         <Checksum dnOrder="2">B7E80F9DAD0ED435319F92290F0E418F</Checksum>
       </Template>
       <Template dnOrder="9">
-        <Name dnOrder="0">laserApp.c</Name>
-        <Path dnOrder="1">Source&amp;#160;Files/app</Path>
-      </Template>
-      <Template dnOrder="10">
         <Name dnOrder="0">system_definitions.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/Debug</Path>
-        <Checksum dnOrder="2">F1EDFBC7349761EBA9534C48E4859484</Checksum>
+        <Checksum dnOrder="2">96AB45945051BA5A55898A839B55ED9B</Checksum>
         <ProjectFileChecksum dnOrder="3">9BAD92798FA2F67CBDF17A9E8B31CCD0</ProjectFileChecksum>
       </Template>
-      <Template dnOrder="11">
+      <Template dnOrder="10">
         <Name dnOrder="0">sys_devcon.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/Debug/framework/system/devcon</Path>
         <Checksum dnOrder="2">07580DCDEF89D9C79B062544109C5367</Checksum>
       </Template>
-      <Template dnOrder="12">
+      <Template dnOrder="11">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/Debug</Path>
         <Checksum dnOrder="2">5C8A3B8B0AF6FC517D947AC0C7007007</Checksum>
       </Template>
-      <Template dnOrder="13">
+      <Template dnOrder="12">
         <Name dnOrder="0">system_init.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug</Path>
-        <Checksum dnOrder="2">B087ECA7DEE731B13024CA1AEC5FEC24</Checksum>
+        <Checksum dnOrder="2">90298C45BFFBCF79808ED3B2CD69DB4B</Checksum>
         <ProjectFileChecksum dnOrder="3">8AF3EB03D8EF355CEF60DE1F3402F781</ProjectFileChecksum>
       </Template>
-      <Template dnOrder="14">
+      <Template dnOrder="13">
         <Name dnOrder="0">sys_devcon_pic32mx.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug/framework/system/devcon/src</Path>
         <Checksum dnOrder="2">5141464248E33ABE9E7D144A2D4DC129</Checksum>
       </Template>
-      <Template dnOrder="15">
+      <Template dnOrder="14">
         <Name dnOrder="0">bleApp.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app</Path>
       </Template>
-      <Template dnOrder="16">
+      <Template dnOrder="15">
         <Name dnOrder="0">sys_devcon.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug/framework/system/devcon/src</Path>
         <Checksum dnOrder="2">54ADBD4A35BCA03C42C74182FCE41849</Checksum>
+      </Template>
+      <Template dnOrder="16">
+        <Name dnOrder="0">mainapp.h</Name>
+        <Path dnOrder="1">Header&amp;#160;Files/app</Path>
       </Template>
     </Templates>
     <CompilerItems dnOrder="2">
