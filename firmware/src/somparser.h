@@ -35,9 +35,15 @@
 #define PING_OK				(0x00)
 
 typedef enum __attribute__((packed))_commands {
-	BLE_CMD_PING 		= 0,
-	BLE_CMD_GET_SN		= 1,
-	BLE_CMD_GET_INFO	= 2
+	BLE_CMD_PING 		= 0x00,
+	BLE_CMD_GET_SN		= 0x01,
+	BLE_CMD_GET_INFO	= 0x02,
+    BLE_CMD_ACK         = 0x03,
+
+    BLE_CMD_MODE        = 0x10,
+    BLE_CMD_START_GATE  = 0x11,
+
+    BLE_CMD_RUN_RESULTS = 0x20
 } BLECommand;
 
 typedef struct _packet {
