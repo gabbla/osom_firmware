@@ -22,7 +22,6 @@
           </logicalFolder>
         </logicalFolder>
         <itemPath>../src/bleApp.h</itemPath>
-        <itemPath>../src/laserApp.h</itemPath>
         <itemPath>../src/mainapp.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
@@ -166,7 +165,6 @@
         <itemPath>../src/bleApp.c</itemPath>
         <itemPath>../src/main.c</itemPath>
         <itemPath>../src/somparser.c</itemPath>
-        <itemPath>../src/laserApp.c</itemPath>
         <itemPath>../src/mainapp.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">

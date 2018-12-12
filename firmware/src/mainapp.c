@@ -103,7 +103,50 @@ void laserCommandCallback(SYS_MSG_OBJECT *pMessage) {
 
 /* TODO:  Add any necessary local functions.
 */
+int8_t initializeLaserMailbox(){
+    return 0;
+    mainappData.laserCmd = SYS_MSG_MailboxOpen(
+            LASER_MAILBOX,
+            &laserCommandCallback
+    );
+    if(mainappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
+        ERROR("Failed to open Laser mailbox");
+        return -1;
+    } else {
+        DEBUG("Laser command mailbox is open");
+    }
 
+    SYS_OBJ_HANDLE msgType = SYS_MSG_TypeCreate(LASER_MAILBOX, LASER_MSG_ID, LASER_MSG_PRIORITY);
+    // Add the message type
+    if(msgType != SYS_OBJ_HANDLE_INVALID){
+        SYS_MSG_MailboxMsgAdd(mainappData.laserCmd, msgType);
+        DEBUG("Subuscribed to laser command");
+        return 0;
+    }
+    return -2;
+}
+
+int8_t initializeMainappMailbox(){
+    mainappData.laserCmd = SYS_MSG_MailboxOpen(
+            MAIN_MAILBOX,
+            NULL
+    );
+    if(mainappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
+        ERROR("Failed to open Main mailbox");
+        return -1;
+    } else {
+        DEBUG("Main command mailbox is open");
+    }
+
+    SYS_OBJ_HANDLE msgType = SYS_MSG_TypeCreate(MAIN_MAILBOX, MAIN_MSG_ID, MAIN_MSG_PRIORITY);
+    // Add the message type
+    if(msgType != SYS_OBJ_HANDLE_INVALID){
+        SYS_MSG_MailboxMsgAdd(mainappData.laserCmd, msgType);
+        DEBUG("Subuscribed to Main command");
+        return 0;
+    }
+    return -2;
+}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -149,25 +192,9 @@ void MAINAPP_Tasks ( void )
         case MAINAPP_STATE_INIT:
         {
             bool appInitialized = true;
-            // Open the mailbox TODO: move to function
-            mainappData.laserCmd = SYS_MSG_MailboxOpen(
-                    LASER_MAILBOX,
-                    &laserCommandCallback
-            );
-            if(mainappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
-                ERROR("Failed to open Laser mailbox");
-            } else {
-                DEBUG("Laser command mailbox is open");
-                appInitialized = true;
-            }
-
-            SYS_OBJ_HANDLE msgType = SYS_MSG_TypeCreate(LASER_MAILBOX, LASER_MSG_ID, LASER_MSG_PRIORITY);
-            // Add the message type
-            if(msgType != SYS_OBJ_HANDLE_INVALID){
-                SYS_MSG_MailboxMsgAdd(mainappData.laserCmd, msgType);
-                DEBUG("Subuscribed to laser command");
-            }
-       
+            
+            appInitialized = (initializeLaserMailbox() == 0); 
+            appInitialized = (initializeMainappMailbox() == 0);
         
             if (appInitialized)
             {

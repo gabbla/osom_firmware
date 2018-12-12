@@ -8,5 +8,9 @@
 #define LASER_MSG_PRIORITY      (0)
 #define LASER_MSG_ID            (0)
 
+// LASER
+#define MAIN_MAILBOX           (SYS_MSG_0)
+#define MAIN_MSG_PRIORITY      (0)
+#define MAIN_MSG_ID            (0)
 
 #endif /* end of include guard: MAILBOX_H_VY2CRLWE */

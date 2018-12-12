@@ -63,7 +63,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "i2c_device.h"
 #include "osal/osal_definitions.h"
 #include "mailbox.h"
-#include "laserApp.h"
+
 
 #include "PCF8574.h"
 

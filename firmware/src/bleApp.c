@@ -315,14 +315,19 @@ void BLEAPP_Tasks(void) {
 				// Simply reply the message
 				reply.cmd = PING_OK;
                 // TEST
-                SYS_MSG_OBJECT msgTest;
-                msgTest.nMessageTypeID = LASER_MSG_ID;
-                msgTest.nSource = 1;
-                msgTest.param1 = 1234;
-                SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(LASER_MAILBOX, &msgTest);
-                if(myRes != SYS_MSG_SENT)
-                    ERROR("Failed to send!! %d", myRes);
+                //SYS_MSG_OBJECT msgTest;
+                //msgTest.nMessageTypeID = LASER_MSG_ID;
+                //msgTest.nSource = 1;
+                //msgTest.param1 = 1234;
+                //SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(LASER_MAILBOX, &msgTest);
+                //if(myRes != SYS_MSG_SENT)
+                //    ERROR("Failed to send!! %d", myRes);
 				break;
+
+            case BLE_CMD_MODE:
+                // TODO forward to slave
+                
+                break;
 
 			default:
 				WARN("Unknown command 0x%02x", packet.cmd);
