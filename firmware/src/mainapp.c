@@ -5,7 +5,7 @@
     Microchip Technology Inc.
   
   File Name:
-    laserapp.c
+    mainapp.c
 
   Summary:
     This file contains the source code for the MPLAB Harmony application.
@@ -53,7 +53,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-#include "laserApp.h"
+#include "mainapp.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -76,7 +76,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
     Application strings and buffers are be defined outside this structure.
 */
 
-LASERAPP_DATA laserappData;
+MAINAPP_DATA mainappData;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -113,16 +113,16 @@ void laserCommandCallback(SYS_MSG_OBJECT *pMessage) {
 
 /*******************************************************************************
   Function:
-    void LASERAPP_Initialize ( void )
+    void MAINAPP_Initialize ( void )
 
   Remarks:
-    See prototype in laserapp.h.
+    See prototype in mainapp.h.
  */
 
-void LASERAPP_Initialize ( void )
+void MAINAPP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
-    laserappData.state = LASERAPP_STATE_INIT;
+    mainappData.state = MAINAPP_STATE_INIT;
 
     
     /* TODO: Initialize your application's state machine and other
@@ -133,51 +133,51 @@ void LASERAPP_Initialize ( void )
 
 /******************************************************************************
   Function:
-    void LASERAPP_Tasks ( void )
+    void MAINAPP_Tasks ( void )
 
   Remarks:
-    See prototype in laserapp.h.
+    See prototype in mainapp.h.
  */
 
-void LASERAPP_Tasks ( void )
+void MAINAPP_Tasks ( void )
 {
 
     /* Check the application's current state. */
-    switch ( laserappData.state )
+    switch ( mainappData.state )
     {
         /* Application's initial state. */
-        case LASERAPP_STATE_INIT:
+        case MAINAPP_STATE_INIT:
         {
-            volatile bool appInitialized = false;
-
+            bool appInitialized = true;
             // Open the mailbox TODO: move to function
-            laserappData.laserCmd = SYS_MSG_MailboxOpen(
+            mainappData.laserCmd = SYS_MSG_MailboxOpen(
                     LASER_MAILBOX,
                     &laserCommandCallback
             );
-            if(laserappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
+            if(mainappData.laserCmd == SYS_OBJ_HANDLE_INVALID) {
                 ERROR("Failed to open Laser mailbox");
             } else {
                 DEBUG("Laser command mailbox is open");
                 appInitialized = true;
             }
 
+            SYS_OBJ_HANDLE msgType = SYS_MSG_TypeCreate(LASER_MAILBOX, LASER_MSG_ID, LASER_MSG_PRIORITY);
             // Add the message type
-            SYS_OBJ_HANDLE msgType = getLaserMessageType();
             if(msgType != SYS_OBJ_HANDLE_INVALID){
-                SYS_MSG_MailboxMsgAdd(laserappData.laserCmd, msgType);
+                SYS_MSG_MailboxMsgAdd(mainappData.laserCmd, msgType);
                 DEBUG("Subuscribed to laser command");
             }
-                    
+       
+        
             if (appInitialized)
             {
-                INFO("Laser App started");
-                laserappData.state = LASERAPP_STATE_SERVICE_TASKS;
+                INFO("Main App started!");
+                mainappData.state = MAINAPP_STATE_SERVICE_TASKS;
             }
             break;
         }
 
-        case LASERAPP_STATE_SERVICE_TASKS:
+        case MAINAPP_STATE_SERVICE_TASKS:
         {
         
             break;
@@ -195,17 +195,7 @@ void LASERAPP_Tasks ( void )
     }
 }
 
-static const SYS_OBJ_HANDLE getLaserMessageType() {
-    static SYS_OBJ_HANDLE msgType = NULL;
-    if(!msgType) {
-        msgType = SYS_MSG_TypeCreate(LASER_MAILBOX, LASER_MSG_ID, LASER_MSG_PRIORITY);
-        if(msgType == SYS_OBJ_HANDLE_INVALID) {
-            // error, but propagate the failure
-            ERROR("Laser message type creation failed");
-        }
-    }
-    return msgType;
-}
+ 
 
 /*******************************************************************************
  End of File
