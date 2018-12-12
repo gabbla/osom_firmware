@@ -68,6 +68,14 @@ extern "C" {
 #endif
 // DOM-IGNORE-END 
 
+// LASER COMMANDS
+#define LASER_OFF           (0x0000)
+#define LASER_ON_DX         (0x0001)
+#define LASER_ON_SX         (0x0002)
+#define LASER_ON_ALL        (0x0003)
+#define MASK_LASER_DX       (0x0001)
+#define MASK_LASER_SX       (0x0002)
+    
 // *****************************************************************************
 // *****************************************************************************
 // Section: Type Definitions
