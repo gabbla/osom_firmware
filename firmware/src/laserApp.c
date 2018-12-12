@@ -89,7 +89,10 @@ LASERAPP_DATA laserappData;
 void laserCommandCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("New laser command received");
     DEBUG("   Source: %d", pMessage->nSource);
+    DEBUG("   Param0: %d", pMessage->param0);
     DEBUG("   Param1: %d", pMessage->param1);
+    DEBUG("   Param2: %d", pMessage->param2);
+    PLIB_PORTS_PinToggle(PORTS_ID_0, PORT_CHANNEL_A, PORTS_BIT_POS_0);
 }
 // *****************************************************************************
 // *****************************************************************************
