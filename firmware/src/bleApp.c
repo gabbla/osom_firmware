@@ -193,7 +193,7 @@ void BLEAPP_Initialize(void) {
  Remarks:
  See prototype in bleapp.h.
  */
-
+uint8_t dummyData[5] = {5, 4, 56, 2, 77};
 void BLEAPP_Tasks(void) {
 
 	/* Check the application's current state. */
@@ -315,13 +315,14 @@ void BLEAPP_Tasks(void) {
 				// Simply reply the message
 				reply.cmd = PING_OK;
                 // TEST
-                //SYS_MSG_OBJECT msgTest;
-                //msgTest.nMessageTypeID = LASER_MSG_ID;
-                //msgTest.nSource = 1;
-                //msgTest.param1 = 1234;
-                //SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(LASER_MAILBOX, &msgTest);
-                //if(myRes != SYS_MSG_SENT)
-                //    ERROR("Failed to send!! %d", myRes);
+                SYS_MSG_OBJECT msgTest;
+                msgTest.nMessageTypeID = MAIN_MSG_ID;
+                msgTest.nSource = MSG_SRC_MAIN;
+                msgTest.nSizeData = 5;
+                msgTest.pData = (uintptr_t *)dummyData;
+                SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(MAIN_MAILBOX, &msgTest);
+                if(myRes != SYS_MSG_SENT)
+                    ERROR("Failed to send!! %d", myRes);
 				break;
 
             case BLE_CMD_MODE:
