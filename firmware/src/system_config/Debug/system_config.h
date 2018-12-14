@@ -128,7 +128,7 @@ extern "C" {
 #define SYS_INT                     true
 /*** Message System Service Configuration ***/
 
-#define SYS_MSG_MAX_MAILBOXES        2
+#define SYS_MSG_MAX_MAILBOXES        4
 #define SYS_MSG_MAX_TYPES            2
 
 /*** Timer System Service Configuration ***/
