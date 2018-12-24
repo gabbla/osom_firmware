@@ -42,6 +42,13 @@ Packet *PACKET_Create(){
     return p;
 }
 
+Packet *PACKET_CreateForReply(const Packet *p) {
+    Packet *pp = PACKET_Create();
+    pp->cmd = p->cmd;
+    pp->msgID = p->msgID;
+    return pp;
+}
+
 PACKET_CODE copyPacket(const Packet *src, Packet *dst) {
 	memcpy((void*) dst, (void*) src, PACKET_BASE_LEN);
 	if (src->pLen) {

@@ -66,6 +66,7 @@ void PACKET_Init(Packet *p);
 
 Packet *PACKET_Get(const uint8_t *raw);
 Packet *PACKET_Create();
+Packet *PACKET_CreateForReply(const Packet *p);
 void PACKET_Free(Packet *p);
 
 // Utils
