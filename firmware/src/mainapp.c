@@ -34,31 +34,30 @@ void mainCommandCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("New laser command received");
     DEBUG("   Source: %d", pMessage->nSource);
     DEBUG("   Len: %d", pMessage->nSizeData);
-    DEBUG("   Dummy: %d", pMessage->dummy);
     char *data = (char *)pMessage->pData;
     size_t i;
     for (i = 0; i < pMessage->nSizeData; ++i) {
         DEBUG("   data[%d] => %d", i, data[i]);
     }
-    turnOnLaser(LASER_DX | LASER_SX);
 }
 
 int8_t initializeMainappMailbox(){
-    mainappData.mainCmd = SYS_MSG_MailboxOpen(
+    mainappData.commandMailBox = SYS_MSG_MailboxOpen(
             MAIN_MAILBOX,
-            &mainCommandCallback 
+//            &mainCommandCallback 
+              NULL
     );
-    if(mainappData.mainCmd == SYS_OBJ_HANDLE_INVALID) {
-        ERROR("Failed to open Main command mailbox");
+    if(mainappData.commandMailBox == SYS_OBJ_HANDLE_INVALID) {
+        ERROR("Failed to open Command Mail Box");
         return -1;
     } else {
-        DEBUG("Main command mailbox is open");
+        DEBUG("Command Mail Box is open");
     }
 
     SYS_OBJ_HANDLE msgType = SYS_MSG_TypeCreate(MAIN_MAILBOX, MAIN_MSG_ID, MAIN_MSG_PRIORITY);
     // Add the message type
     if(msgType != SYS_OBJ_HANDLE_INVALID){
-        SYS_MSG_MailboxMsgAdd(mainappData.mainCmd, msgType);
+        SYS_MSG_MailboxMsgAdd(mainappData.commandMailBox, msgType);
         DEBUG("Subuscribed to Main command");
         return 0;
     }
@@ -94,14 +93,21 @@ void MAINAPP_Tasks ( void )
 
         case MAINAPP_STATE_SERVICE_TASKS:
         {
-        
+            // Check for messages
+            SYS_MSG_OBJECT *next;
+            if((next = SYS_MSG_MailboxMessagesGet(mainappData.commandMailBox)) 
+                    != NULL){
+                DEBUG("Found a message from %d", next->nSource);
+                size_t len = next->nSizeData;
+                size_t i;
+                uint8_t *rec = (uint8_t *)next->pData;
+                for(i = 0; i<len; ++i)
+                    DEBUG("%d => %d", i, rec[i]);
+                free(next->pData); // really important
+            }
             break;
         }
 
-        /* TODO: implement your application state machine.*/
-        
-
-        /* The default state should never be executed. */
         default:
         {
             /* TODO: Handle error in application's state machine. */

@@ -61,8 +61,7 @@ typedef struct
 {
     /* The application's current state */
     MAINAPP_STATES state;
-    SYS_OBJ_HANDLE laserCmd; // Here the app receives the commands
-    SYS_OBJ_HANDLE mainCmd; // Here the app receives the commands
+    SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
 
     /* TODO: Define any additional data used by the application. */
 

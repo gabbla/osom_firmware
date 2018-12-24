@@ -211,8 +211,11 @@ void BLEAPP_Tasks(void) {
                 SYS_MSG_OBJECT msgTest;
                 msgTest.nMessageTypeID = MAIN_MSG_ID;
                 msgTest.nSource = MSG_SRC_MAIN;
-                msgTest.nSizeData = 5;
-                msgTest.pData = (uintptr_t *)dummyData;
+                static size_t s = 4;
+                msgTest.nSizeData = s++;
+                uint8_t *t = malloc(s);
+                memset(t, 100-s, s); 
+                msgTest.pData = (uintptr_t*)t;
                 SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(MAIN_MAILBOX, &msgTest);
                 if(myRes != SYS_MSG_SENT)
                     ERROR("Failed to send!! %d", myRes);
