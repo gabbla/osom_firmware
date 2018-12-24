@@ -10,6 +10,7 @@
 #include "logger.h"
 #include "mailbox.h"
 #include "somparser.h"
+#include "cmdUtils.h"
 #include "peripheral/ports/plib_ports.h"
 
 #ifdef __cplusplus  // Provide C++ Compatibility

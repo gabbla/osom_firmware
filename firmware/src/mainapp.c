@@ -103,18 +103,12 @@ void MAINAPP_Tasks ( void )
                 // TODO parse
                 switch(p->cmd){
                     case BLE_CMD_MODE: {
-                        Packet *reply = PACKET_Create();
-                        reply->msgID = p->msgID;
-                        reply->cmd = BLE_CMD_MODE;
-                        SYS_MSG_OBJECT message;
-                        message.nMessageTypeID = BLEOUT_MSG_ID;
-                        message.nSource = MSG_SRC_MAIN;
-                        message.nSizeData = sizeof(Packet);
-                        message.pData = (uintptr_t*)reply;
-                        SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(BLEOUT_MAILBOX, &message);
-                        if(myRes != SYS_MSG_SENT) {
-                            ERROR("Failed to send!! %d", myRes);
-                        } 
+                        // TODO forward to slave (only if master)
+                        uint8_t laser = MODE_GetLaser(p->payload);
+                        turnOnLaser(laser);
+                        // XXX just test
+                        Packet *reply = PACKET_CreateForReply(p);
+                        SendPacketToBle(MSG_SRC_MAIN, reply);
                         break;
                     }
                     default:
