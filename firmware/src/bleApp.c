@@ -72,11 +72,27 @@ void stopPacketGuard() {
 	bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 }
 
+void bleOutgoingCallback(SYS_MSG_OBJECT *pMessage) {
+    DEBUG("Dispatching message for %d", pMessage->nSource);
+    Packet *p = (Packet*)pMessage->pData;
+    DEBUG("Cmd: 0x%02X Seq: 0x%04X", p->cmd, p->msgID);
+    size_t size = PACKET_GetFullSize(p);
+    uint8_t byteArray[size];
+    PACKET_GetByteArray(p, byteArray);
+    DRV_USART_BUFFER_HANDLE txHandler;
+	DRV_USART_BufferAddWrite(bleappData.hm10, &txHandler, byteArray, size);
+
+	if (DRV_USART_BUFFER_HANDLE_INVALID == txHandler) {
+		WARN("Invalid txHandler!");
+	}
+
+    PACKET_Free(p); // really important
+}
+
 int8_t initializeBleAppMailbox(){
     bleappData.bleOutgoing = SYS_MSG_MailboxOpen(
             BLEOUT_MAILBOX,
-//            &mainCommandCallback 
-              NULL
+            &bleOutgoingCallback 
     );
 
     if(bleappData.bleOutgoing == SYS_OBJ_HANDLE_INVALID) {
@@ -150,7 +166,7 @@ void BLEAPP_Tasks(void) {
 
 		if (bleappData.hm10 != DRV_HANDLE_INVALID) {
 			INFO("BLE App started");
-			bleappData.state = BLEAPP_STATE_IDLE;
+			bleappData.state = BLEAPP_COLLECT_PACKET;
 		} else {
 			ERROR("HM10 handler is invalid!");
 			// TODO reset PIC
@@ -158,28 +174,16 @@ void BLEAPP_Tasks(void) {
 		break;
 	}
 
-	case BLEAPP_STATE_IDLE: {
-		if (dataReadyFromBLE() > 0) {
-			bleappData.state = BLEAPP_COLLECT_PACKET;
-			if (bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
-				startPacketGuard();
-			}
-		} else {
-            // Ugly way
-			bleappData.state = BLEAPP_STATE_DISPATCH;
-		}
-		break;
-	}
 	case BLEAPP_COLLECT_PACKET: {
 
 		size_t processedSize = dataReadyFromBLE();
 
 		// If we receive a corrupted packet, we will stuck, so let's add a timeout
-//		if (processedSize && bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
-//			// register the callback
-//			bleappData.packetTimeout =
-//					SYS_TMR_CallbackSingle(PACKET_RX_TIMEOUT, NULL, rxPacketTimeout);
-//		}
+		if (processedSize && bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
+			// register the callback
+			bleappData.packetTimeout =
+					SYS_TMR_CallbackSingle(PACKET_RX_TIMEOUT, NULL, rxPacketTimeout);
+		}
 
 		if (processedSize >= PACKET_BASE_LEN
 				&& processedSize
@@ -189,7 +193,7 @@ void BLEAPP_Tasks(void) {
 			DEBUG("Packet length: %d bytes, Payload length: %d bytes", processedSize, payLen);
 			size_t i;
 			for (i = 0; i < processedSize; i++)
-				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%01x ", bleappData.packet[i]);
+				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%02x ", bleappData.packet[i]);
 			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
 
 			if (PACKET_IsRawValid(bleappData.packet)) {
@@ -228,30 +232,15 @@ void BLEAPP_Tasks(void) {
 //			registerBuffer();
 			reregisterBuffer();
 		}
-		bleappData.state = BLEAPP_STATE_IDLE;
+        
 		break;
 	}
 
 	case BLEAPP_STATE_DISPATCH: {
-
         SYS_MSG_OBJECT *next;
-            if((next = SYS_MSG_MailboxMessagesGet(bleappData.bleOutgoing)) 
-                != NULL){
-            DEBUG("Dispatching message from %d", next->nSource);
-            Packet *p = (Packet*)next->pData;
-            DEBUG("Cmd: 0x%02X Seq: 0x%02X", p->cmd, p->msgID);
-            size_t size = PACKET_GetFullSize(p);
-            uint8_t byteArray[size];
-            PACKET_GetByteArray(p, byteArray);
-            DRV_USART_BUFFER_HANDLE txHandler;
-			DRV_USART_BufferAddWrite(bleappData.hm10, &txHandler, byteArray, size);
-
-			if (DRV_USART_BUFFER_HANDLE_INVALID == txHandler) {
-				WARN("Invalid txHandler!");
-			}
-
-            free(next->pData); // really important
-        }
+        if((next = SYS_MSG_MailboxMessagesGet(bleappData.bleOutgoing)) 
+            != NULL){
+                    }
         bleappData.state = BLEAPP_STATE_IDLE;
 		break;
 	}
