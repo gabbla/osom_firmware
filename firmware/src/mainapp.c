@@ -98,12 +98,10 @@ void MAINAPP_Tasks ( void )
             if((next = SYS_MSG_MailboxMessagesGet(mainappData.commandMailBox)) 
                     != NULL){
                 DEBUG("Found a message from %d", next->nSource);
-                size_t len = next->nSizeData;
-                size_t i;
-                uint8_t *rec = (uint8_t *)next->pData;
-                for(i = 0; i<len; ++i)
-                    DEBUG("%d => %d", i, rec[i]);
-                free(next->pData); // really important
+                Packet *p = (Packet*)next->pData;
+                DEBUG("Cmd: 0x%02X", p->cmd);
+                // TODO parse
+                PACKET_Free(next->pData); // really important
             }
             break;
         }
