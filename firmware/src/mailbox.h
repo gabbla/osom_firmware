@@ -1,6 +1,9 @@
 #ifndef MAILBOX_H_VY2CRLWE
 #define MAILBOX_H_VY2CRLWE
 
+#include "somparser.h" // For packet
+#include "logger.h" // log utils
+#include "system_config/Debug/system_definitions.h"
 // Useful stuff about mailboxes
 // Sources
 #define MSG_SRC_BLE             (0)
@@ -17,5 +20,9 @@
 #define MAIN_MSG_PRIORITY      (0)
 #define MAIN_MSG_ID            (1)
 
+
+// Utils
+
+int8_t SendPacketToBle(uint8_t src, Packet *packet);
 
 #endif /* end of include guard: MAILBOX_H_VY2CRLWE */
