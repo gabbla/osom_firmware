@@ -2,6 +2,34 @@
 
 MAINAPP_DATA mainappData;
 
+/*
+ * @brief Turn on the given laser(s)
+ * @param which Laser to be turned on, can be ORed (LASER_DX | LASER_SX)
+ */
+void turnOnLaser(uint8_t which){
+    size_t i;
+    Laser *laser;
+    for(i = 0; i < 2; ++i){
+        laser = &lasers[i];
+        if(i & which)
+            PLIB_PORTS_PinSet(PORTS_ID_0, laser->port, laser->pin);
+    }
+}
+
+/*
+ * @brief Turn off the given laser(s)
+ * @param which Laser to be turned off, can be ORed (LASER_DX | LASER_SX)
+ */
+void turnOffLaser(uint8_t which){
+    size_t i;
+    Laser *laser;
+    for(i = 0; i < 2; ++i){
+        laser = &lasers[i];
+        if(i & which)
+            PLIB_PORTS_PinClear(PORTS_ID_0, laser->port, laser->pin);
+    }
+}
+
 void mainCommandCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("New laser command received");
     DEBUG("   Source: %d", pMessage->nSource);
@@ -12,7 +40,7 @@ void mainCommandCallback(SYS_MSG_OBJECT *pMessage) {
     for (i = 0; i < pMessage->nSizeData; ++i) {
         DEBUG("   data[%d] => %d", i, data[i]);
     }
-    PLIB_PORTS_PinToggle(PORTS_ID_0, PORT_CHANNEL_A, PORTS_BIT_POS_0);
+    turnOnLaser(LASER_DX | LASER_SX);
 }
 
 int8_t initializeMainappMailbox(){
