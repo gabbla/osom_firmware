@@ -72,6 +72,31 @@ void stopPacketGuard() {
 	bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why I should make it invalid? is there a function that do it for me?
 }
 
+int8_t initializeBleAppMailbox(){
+    bleappData.bleOutgoing = SYS_MSG_MailboxOpen(
+            BLEOUT_MAILBOX,
+//            &mainCommandCallback 
+              NULL
+    );
+
+    if(bleappData.bleOutgoing == SYS_OBJ_HANDLE_INVALID) {
+        ERROR("Failed to open BLE Outgoing Mail Box");
+        return -1;
+    } else {
+        DEBUG("BLE Outgoing Mail Box is open");
+    }
+
+    SYS_OBJ_HANDLE msgType = SYS_MSG_TypeCreate(BLEOUT_MAILBOX, BLEOUT_MSG_ID, BLEOUT_MSG_PRIORITY);
+    // Add the message type
+    if(msgType != SYS_OBJ_HANDLE_INVALID){
+        SYS_MSG_MailboxMsgAdd(bleappData.bleOutgoing, msgType);
+        DEBUG("Subuscribed to BLE Outgoing");
+        return 0;
+    }
+    WARN("Subscription to BLE Outgoing failed!");
+    return -2;
+}
+
 void BLEAPP_Initialize(void) {
 	/* Place the App state machine in its initial state. */
 	bleappData.state = BLEAPP_STATE_INIT;
@@ -115,11 +140,9 @@ void BLEAPP_Tasks(void) {
 //		PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_USART_1_RECEIVE);
 
         // Mailbox stuff
-        
+        initializeBleAppMailbox();
 
-		// Initialize the packet queue
-		PQUEUE_Init(&bleappData.incoming, MAX_PACKET_IN_QUEUE_IN);
-		PQUEUE_Init(&bleappData.outgoing, MAX_PACKET_IN_QUEUE_OUT);
+		
 
 		// Register the HM10 rx buffer
 		//registerBuffer();
@@ -127,7 +150,7 @@ void BLEAPP_Tasks(void) {
 
 		if (bleappData.hm10 != DRV_HANDLE_INVALID) {
 			INFO("BLE App started");
-			bleappData.state = BLEAPP_COLLECT_PACKET;
+			bleappData.state = BLEAPP_STATE_IDLE;
 		} else {
 			ERROR("HM10 handler is invalid!");
 			// TODO reset PIC
@@ -141,10 +164,9 @@ void BLEAPP_Tasks(void) {
 			if (bleappData.packetTimeout == SYS_TMR_HANDLE_INVALID) {
 				startPacketGuard();
 			}
-		} else if (!PQUEUE_IsEmpty(&bleappData.incoming)) {
-			bleappData.state = BLEAPP_STATE_PARSE;
-		} else if (!PQUEUE_IsEmpty(&bleappData.outgoing)) {
-			bleappData.state = BLEAPP_STATE_REPLY;
+		} else {
+            // Ugly way
+			bleappData.state = BLEAPP_STATE_DISPATCH;
 		}
 		break;
 	}
@@ -174,14 +196,30 @@ void BLEAPP_Tasks(void) {
 				// We can unregister the callback
 				stopPacketGuard();
 
-				Packet p;
-				PACKET_Get(bleappData.packet, &p);
-				PQUEUE_CODE res = PQUEUE_Enqueue(&bleappData.incoming, &p);
-				if (res != PQUEUE_OK) {
-					ERROR("Cannot enqueue the packet! %s", PQUEUE_GetErrorStr(res));
-				}
-				DEBUG("Packet(s) in queue: %d\n", PQUEUE_GetSize(&bleappData.incoming));
-				PACKET_Free(&p);
+				Packet *p = PACKET_Get(bleappData.packet);
+                if(p->cmd < 0x10) {
+                    DEBUG("Message for BLEApp");
+
+                    PACKET_Free(p);
+                } else {
+                    DEBUG("Message for MainApp");
+                    // Forward
+                    SYS_MSG_OBJECT message;
+                    message.nMessageTypeID = MAIN_MSG_ID;
+                    message.nSource = MSG_SRC_MAIN;
+                    message.nSizeData = sizeof(Packet);
+                    message.pData = (uintptr_t*)p;
+                    SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(MAIN_MAILBOX, &message);
+                    if(myRes != SYS_MSG_SENT)
+                        ERROR("Failed to send!! %d", myRes);
+                    // The packet will be free'd by the receiver
+                }
+				//PQUEUE_CODE res = PQUEUE_Enqueue(&bleappData.incoming, &p);
+				//if (res != PQUEUE_OK) {
+				//	ERROR("Cannot enqueue the packet! %s", PQUEUE_GetErrorStr(res));
+				//}
+				//DEBUG("Packet(s) in queue: %d\n", PQUEUE_GetSize(&bleappData.incoming));
+				//PACKET_Free(&p);
 			} else {
 				ERROR("The received packet is not valid");
 			}
@@ -194,74 +232,27 @@ void BLEAPP_Tasks(void) {
 		break;
 	}
 
-	case BLEAPP_STATE_PARSE: {
-		Packet packet;
-		if (PQUEUE_Dequeue(&bleappData.incoming, &packet) == PQUEUE_OK) {
-			DEBUG("Parsing command 0x%02x", packet.cmd);
+	case BLEAPP_STATE_DISPATCH: {
 
-			Packet reply;
-			PACKET_Init(&reply);
-			reply.msgID = PACKET_GetMessageId(&packet);
-
-			switch (PACKET_GetCommand(&packet)) {
-			case BLE_CMD_PING:
-				// Simply reply the message
-				reply.cmd = PING_OK;
-                // TEST
-                SYS_MSG_OBJECT msgTest;
-                msgTest.nMessageTypeID = MAIN_MSG_ID;
-                msgTest.nSource = MSG_SRC_MAIN;
-                static size_t s = 4;
-                msgTest.nSizeData = s++;
-                uint8_t *t = malloc(s);
-                memset(t, 100-s, s); 
-                msgTest.pData = (uintptr_t*)t;
-                SYS_MSG_RESULTS myRes = SYS_MSG_MessageSend(MAIN_MAILBOX, &msgTest);
-                if(myRes != SYS_MSG_SENT)
-                    ERROR("Failed to send!! %d", myRes);
-				break;
-
-            case BLE_CMD_MODE:
-                // TODO forward to slave
-                DEBUG("Command mode received");
-                
-                break;
-
-			default:
-				WARN("Unknown command 0x%02x", packet.cmd);
-				break;
-			}
-
-			PQUEUE_Enqueue(&bleappData.outgoing, &reply);
-			PACKET_Free(&packet);
-			PACKET_Free(&reply);
-		} else
-            WARN("Parser dequeue fail");
-		bleappData.state = BLEAPP_STATE_IDLE;
-		break;
-	}
-
-	case BLEAPP_STATE_REPLY: {
-		Packet packet;
-		if (PQUEUE_Dequeue(&bleappData.outgoing, &packet) == PQUEUE_OK) {
-			size_t size = PACKET_BASE_LEN + packet.pLen;
-			DEBUG("Sending a packet long %d bytes", size);
-			uint8_t byteArray[size];
-			PACKET_GetByteArray(&packet, byteArray);
-			DRV_USART_BUFFER_HANDLE txHandler;
+        SYS_MSG_OBJECT *next;
+            if((next = SYS_MSG_MailboxMessagesGet(bleappData.bleOutgoing)) 
+                != NULL){
+            DEBUG("Dispatching message from %d", next->nSource);
+            Packet *p = (Packet*)next->pData;
+            DEBUG("Cmd: 0x%02X Seq: 0x%02X", p->cmd, p->msgID);
+            size_t size = PACKET_GetFullSize(p);
+            uint8_t byteArray[size];
+            PACKET_GetByteArray(p, byteArray);
+            DRV_USART_BUFFER_HANDLE txHandler;
 			DRV_USART_BufferAddWrite(bleappData.hm10, &txHandler, byteArray, size);
+
 			if (DRV_USART_BUFFER_HANDLE_INVALID == txHandler) {
 				WARN("Invalid txHandler!");
-//			PQUEUE_CODE enqueueResult;
-//			if((enqueueResult = PQUEUE_Enqueue(&bleappData.outgoing, &packet)) != PQUEUE_OK){
-//				ERROR("Packet enqueue failed: %s\n", PQUEUE_GetErrorStr(enqueueResult));
-//			}
 			}
 
-			PACKET_Free(&packet);
-		} else 
-            WARN("Sender dequeue fail");
-		bleappData.state = BLEAPP_STATE_IDLE;
+            free(next->pData); // really important
+        }
+        bleappData.state = BLEAPP_STATE_IDLE;
 		break;
 	}
 
