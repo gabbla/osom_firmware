@@ -301,7 +301,7 @@
       <Template dnOrder="11">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/Debug</Path>
-        <Checksum dnOrder="2">F78254254442FABA01B52C324AF707FC</Checksum>
+        <Checksum dnOrder="2">5591B1872295BC0285AA91DA2BDD0D22</Checksum>
       </Template>
       <Template dnOrder="12">
         <Name dnOrder="0">system_init.c</Name>

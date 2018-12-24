@@ -241,7 +241,7 @@ extern "C" {
 #define DRV_USART_INIT_FLAG_STOP_IN_IDLE_IDX1       false
 #define DRV_USART_INIT_FLAGS_IDX1                   0
 #define DRV_USART_BRG_CLOCK_IDX1                    40000000
-#define DRV_USART_BAUD_RATE_IDX1                    9600
+#define DRV_USART_BAUD_RATE_IDX1                    115200
 #define DRV_USART_LINE_CNTRL_IDX1                   DRV_USART_LINE_CONTROL_8NONE1
 #define DRV_USART_HANDSHAKE_MODE_IDX1               DRV_USART_HANDSHAKE_NONE
 #define DRV_USART_LINES_ENABLE_IDX1                 USART_ENABLE_TX_RX_USED
