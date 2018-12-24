@@ -2,7 +2,7 @@
 
 ## Note
 
-It's not possible to debug the project with `XC32 v2.10`. `XC32 v1.43` still works. It's seems that there is a missing library.
+It's not possible to debug the project with `XC32 v2.10`. `XC32 v1.43` still works. It seems that there is a missing library.
 
 ## Packets
 
