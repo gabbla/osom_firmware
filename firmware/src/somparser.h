@@ -54,23 +54,6 @@ typedef struct _packet {
     uint8_t 	*payload;
 } Packet;
 
-typedef struct _packetQueue {
-	size_t	head;
-	size_t 	tail;
-	Packet 	*queue;
-	size_t	count;
-	size_t	capacity;
-	OSAL_MUTEX_HANDLE_TYPE mutex;
-} PacketQueue;
-
-typedef enum queue_code {
-	PQUEUE_OK = 0,
-	PQUEUE_NO_MEM = -1,
-	PQUEUE_FULL = -2,
-	PQUEUE_EMPTY = -3,
-	PQUEUE_FAIL = -4
-}PQUEUE_CODE;
-
 typedef enum packet_code {
 	PACKET_OK = 0,
 	PACKET_NO_MEM = -1,
@@ -89,18 +72,6 @@ inline uint16_t PACKET_GetMessageId(const Packet *p);
 inline BLECommand PACKET_GetCommand(const Packet *p);
 
 void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]);
-
-// -------------
-
-PQUEUE_CODE PQUEUE_Init(PacketQueue *queue, const size_t capacity);
-void PQUEUE_Free(PacketQueue *queue);
-void PQUEUE_Reset(PacketQueue *queue);
-PQUEUE_CODE PQUEUE_Enqueue(PacketQueue *queue, const Packet *p);
-PQUEUE_CODE PQUEUE_Dequeue(PacketQueue *queue, Packet *p);
-size_t PQUEUE_GetSize(PacketQueue *queue);
-uint8_t PQUEUE_IsFull(PacketQueue *queue);
-uint8_t PQUEUE_IsEmpty(PacketQueue *queue);
-
-const char* PQUEUE_GetErrorStr(const PQUEUE_CODE code);
+size_t PACKET_GetFullSize(const Packet *p);
 
 #endif /* PARSER_SOMPARSER_H_ */
