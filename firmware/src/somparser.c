@@ -31,6 +31,17 @@ Packet *PACKET_Get(const uint8_t *raw) {
     return p;
 }
 
+Packet *PACKET_Create(){
+    Packet *p = malloc(sizeof(Packet));
+    if(p != NULL){
+        memset(p, 0, sizeof(Packet));
+        p->preamble[0] = PREAMBLE0_VAL;
+        p->preamble[1] = PREAMBLE1_VAL;
+        p->payload = NULL;
+    }
+    return p;
+}
+
 PACKET_CODE copyPacket(const Packet *src, Packet *dst) {
 	memcpy((void*) dst, (void*) src, PACKET_BASE_LEN);
 	if (src->pLen) {
