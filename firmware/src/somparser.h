@@ -80,7 +80,7 @@ typedef enum packet_code {
 
 uint8_t PACKET_IsRawValid(const uint8_t *raw);
 void PACKET_Init(Packet *p);
-void PACKET_Get(const uint8_t *raw, Packet *p);
+Packet *PACKET_Get(const uint8_t *raw);
 void PACKET_Free(Packet *p);
 
 // Utils

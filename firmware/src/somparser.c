@@ -19,12 +19,16 @@ void PACKET_Init(Packet *p) {
 	p->payload = NULL;
 }
 
-void PACKET_Get(const uint8_t *raw, Packet *p) {
+Packet *PACKET_Get(const uint8_t *raw) {
+    Packet *p = malloc(sizeof(Packet));
 	memcpy(p, raw, PACKET_BASE_LEN);
 	if (p->pLen) {
 		p->payload = malloc(p->pLen);
 		memcpy((void*) p->payload, &raw[PAYLOAD_START], p->pLen); // FIXME FIELD_PKTLEN may be wrong
-	}
+	} else {
+        p->payload = NULL;
+    }
+    return p;
 }
 
 PACKET_CODE copyPacket(const Packet *src, Packet *dst) {
