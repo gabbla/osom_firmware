@@ -53,7 +53,7 @@ typedef enum __attribute__((packed))_commands {
     BLE_CMD_RUN_RESULTS         = 0x52,
 
     // 0xF0 - 0xFF Special meaning 
-    BLE_CMG_NOT_SUPPORTED       = 0xF0,
+    BLE_CMD_NOT_SUPPORTED       = 0xF0,
     // MUST always be the last enum
     BLE_CMD_MAX_CMD
 } BLECommand;
