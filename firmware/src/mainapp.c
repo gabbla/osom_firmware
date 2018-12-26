@@ -2,32 +2,54 @@
 
 MAINAPP_DATA mainappData;
 
+// TODO think about move this stuff in a separate file
 /*
- * @brief Turn on the given laser(s)
- * @param which Laser to be turned on, can be ORed (LASER_DX | LASER_SX)
+ * @brief Enable the laser modulation. setupLaserModulation must be called
+ * @param enable true start the modulation, false stop it
  */
-void turnOnLaser(uint8_t which){
-    size_t i;
-    Laser *laser;
-    for(i = 0; i < 2; ++i){
-        laser = &lasers[i];
-        if(i & which)
-            PLIB_PORTS_PinSet(PORTS_ID_0, laser->port, laser->pin);
-    }
+void enableLaserModulation(const bool enable) {
+    T2CONbits.ON = (enable != 0);
+    OC1CONbits.ON = (enable != 0);
 }
 
 /*
- * @brief Turn off the given laser(s)
- * @param which Laser to be turned off, can be ORed (LASER_DX | LASER_SX)
+ * @brief Setup the laser modulation, must be called at least once
+ * @note At the moment the modulation is setted to f=1000Hz dt=50%
+ *       Using OC1 and Timer2 peripherals
  */
-void turnOffLaser(uint8_t which){
+void setupLaserModulation() {
+    // Running 1KHz @ 50% duty cycle 
+    // Setup timer2
+    T2CONbits.ON = 0; // Turn off the timer
+    T2CONbits.T32 = 0; // TMRx and TMRy 2 16bits timer
+    T2CONbits.TCS = 0; // Internal clock source
+    T2CONbits.TCKPS = 7; // Prescaler to 1:256 (40MHz / 256 = 156250Hz)
+    PR2 = 156; // Period set to 1ms
+
+    // Setup OC1
+    OC1CONbits.ON = 0;
+    OC1CONbits.OC32 = 0; // OC 16bits mode
+    OC1CONbits.OCTSEL = 0; // Use timer 2
+    OC1CONbits.OCM = 6; // PWM mode w/o fault
+    OC1R = 78;
+    OC1RS = 78;
+}
+
+/*
+ * @brief Power on or off the given laser(s)
+ * @param which Laser to be turned controlled, can be ORed (LASER_DX | LASER_SX)
+ * @param power state to assign to the laser(s)
+ */
+void enableLaser(const uint8_t which, const bool power){
     size_t i;
     Laser *laser;
     for(i = 0; i < 2; ++i){
         laser = &lasers[i];
-        if(i & which)
-            PLIB_PORTS_PinClear(PORTS_ID_0, laser->port, laser->pin);
+        if(i & which) 
+            PLIB_PORTS_PinWrite(PORTS_ID_0, laser->port, laser->pin, power);
     }
+    // start or stop the modulation
+    enableLaserModulation(power);
 }
 
 void mainCommandCallback(SYS_MSG_OBJECT *pMessage) {
@@ -82,6 +104,7 @@ void MAINAPP_Tasks ( void )
             bool appInitialized = true;
             
             appInitialized = (initializeMainappMailbox() == 0);
+            setupLaserModulation();
         
             if (appInitialized)
             {

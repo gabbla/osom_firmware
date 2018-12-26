@@ -34,7 +34,7 @@ typedef struct {
     PORTS_CHANNEL port;
     PORTS_BIT_POS pin;
 } Laser;
-
+// TODO update with real values
 static Laser lasers[2] = {
     {
         // Dx
