@@ -135,8 +135,15 @@ void MAINAPP_Tasks ( void )
                 if(p->cmd >= BLE_CMD_MAX_CMD 
                         || p->cmd < MAINAPP_CMD_OFFSET
                         || (parsers[parserIndex] == NULL)) {
-                    ERROR("Command 0x%02X not supported!");
+                    ERROR("Command 0x%02X not supported!", p->cmd);
                     // TODO send "Not supported"
+                    Packet *notSupported = PACKET_Create();
+                    notSupported->cmd = BLE_CMD_NOT_SUPPORTED;
+                    notSupported->pLen = 3;
+                    notSupported->payload = malloc(3);
+                    memcpy(notSupported->payload, &(p->msgID), sizeof(uint16_t));
+                    notSupported->payload[2] = p->cmd;
+                    SendPacketToBle(MSG_SRC_MAIN, notSupported);
                 } else {
                     DEBUG("Parsing command ID 0x%02X", p->cmd);
                     Packet *reply = PACKET_CreateForReply(p);
