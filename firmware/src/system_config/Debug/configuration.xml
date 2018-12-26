@@ -285,7 +285,7 @@
       <Template dnOrder="8">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/Debug/framework/system/ports/src</Path>
-        <Checksum dnOrder="2">B7E80F9DAD0ED435319F92290F0E418F</Checksum>
+        <Checksum dnOrder="2">BF293006C0BE8D5E2F4DF7782C793C8B</Checksum>
       </Template>
       <Template dnOrder="9">
         <Name dnOrder="0">system_definitions.h</Name>

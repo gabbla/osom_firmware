@@ -292,7 +292,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework"/>
+                  value="/opt/microchip/xc32/v1.40/pic32-libs/include;../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>

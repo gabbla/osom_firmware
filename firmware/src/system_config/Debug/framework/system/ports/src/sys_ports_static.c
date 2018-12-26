@@ -99,6 +99,7 @@ void SYS_PORTS_Initialize(void)
     /* PPS Output Remapping */
     PLIB_PORTS_RemapOutput(PORTS_ID_0, OUTPUT_FUNC_U2TX, OUTPUT_PIN_RPB0 );
     PLIB_PORTS_RemapOutput(PORTS_ID_0, OUTPUT_FUNC_U1TX, OUTPUT_PIN_RPB3 );
+    PLIB_PORTS_RemapOutput(PORTS_ID_0, OUTPUT_FUNC_OC1, OUTPUT_PIN_RPA0 );
 
     
 }
