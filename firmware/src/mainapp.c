@@ -63,11 +63,6 @@ void BLE_CMD_START_POS_Parser(const Packet *in, Packet *out){
     enableLaser(POS_GetLaser(in->payload), true);
 }
 
-void BLE_CMD_POS_STATUS_Parser(const Packet *in, Packet *out){
-    DEBUG("%s()", __func__);
-
-}
-
 void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out){
     DEBUG("%s()", __func__);
     enableLaser(LASER_DX | LASER_SX, false);
@@ -75,13 +70,9 @@ void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out){
 
 // Single command parse function
 static cmdParserFunction parsers[] = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
     &BLE_CMD_MODE_Parser,           // 0x10
-    NULL, NULL, NULL, NULL,
-    &BLE_CMD_START_POS_Parser,      // 0x15
-    &BLE_CMD_POS_STATUS_Parser,     // 0x16
-    &BLE_CMD_DONE_POS_Parser,       // 0x17
+    &BLE_CMD_START_POS_Parser,      // 0x11
+    &BLE_CMD_DONE_POS_Parser,       // 0x12
 };
 
 int8_t initializeMainappMailbox(){
@@ -140,13 +131,16 @@ void MAINAPP_Tasks ( void )
                     != NULL){
                 DEBUG("Found a message from %d", next->nSource);
                 Packet *p = (Packet*)next->pData;
-                if(p->cmd >= BLE_CMD_MAX_CMD || (parsers[p->cmd] == NULL)) {
+                size_t parserIndex = p->cmd - MAINAPP_CMD_OFFSET;
+                if(p->cmd >= BLE_CMD_MAX_CMD 
+                        || p->cmd < MAINAPP_CMD_OFFSET
+                        || (parsers[parserIndex] == NULL)) {
                     ERROR("Command 0x%02X not supported!");
                     // TODO send "Not supported"
                 } else {
                     DEBUG("Parsing command ID 0x%02X", p->cmd);
                     Packet *reply = PACKET_CreateForReply(p);
-                    parsers[p->cmd](p, reply);
+                    parsers[parserIndex](p, reply);
                     SendPacketToBle(MSG_SRC_MAIN, reply);
                 }
                 PACKET_Free(p); // really important
