@@ -30,6 +30,7 @@ extern "C" {
 // Laser stuff
 #define LASER_DX            (0x00)
 #define LASER_SX            (0x01)
+
 typedef struct {
     PORTS_CHANNEL port;
     PORTS_BIT_POS pin;
@@ -58,14 +59,15 @@ typedef enum
 
 } MAINAPP_STATES;
 
+// Command function parser prototype
+typedef void (*cmdParserFunction)(const Packet *, Packet *);
+
 
 typedef struct
 {
     /* The application's current state */
     MAINAPP_STATES state;
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
-
-    /* TODO: Define any additional data used by the application. */
 
 } MAINAPP_DATA;
 

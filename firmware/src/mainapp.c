@@ -52,6 +52,18 @@ void enableLaser(const uint8_t which, const bool power){
     enableLaserModulation(power);
 }
 
+void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
+    DEBUG("%s()", __func__);
+
+}
+
+// Single command parse function
+static cmdParserFunction parsers[] = {
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+    &BLE_CMD_MODE_Parser, // 0x10
+};
+
 void mainCommandCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("New laser command received");
     DEBUG("   Source: %d", pMessage->nSource);
@@ -104,6 +116,7 @@ void MAINAPP_Tasks ( void )
             bool appInitialized = true;
             
             appInitialized = (initializeMainappMailbox() == 0);
+            // set up laser modulation
             setupLaserModulation();
         
             if (appInitialized)
@@ -122,23 +135,18 @@ void MAINAPP_Tasks ( void )
                     != NULL){
                 DEBUG("Found a message from %d", next->nSource);
                 Packet *p = (Packet*)next->pData;
-                DEBUG("Cmd: 0x%02X", p->cmd);
-                // TODO parse
-                switch(p->cmd){
-                    case BLE_CMD_MODE: {
-                        // TODO forward to slave (only if master)
-                        uint8_t laser = MODE_GetLaser(p->payload);
-                        turnOnLaser(laser);
-                        // XXX just test
-                        Packet *reply = PACKET_CreateForReply(p);
-                        SendPacketToBle(MSG_SRC_MAIN, reply);
-                        break;
-                    }
-                    default:
-                        WARN("IDK what to do with %d", p->cmd);
-                        break;
+                if(p->cmd >= BLE_CMD_MAX_CMD || (parsers[p->cmd] == NULL)) {
+                    ERROR("Command 0x%02X not supported!");
+                    // TODO send "Not supported"
+                    PACKET_Free(p);
+                    break;
+                } else {
+                    DEBUG("Parsing command ID 0x%02X", p->cmd);
+                    Packet *reply = PACKET_CreateForReply(p);
+                    parsers[p->cmd](p, reply);
+                    SendPacketToBle(MSG_SRC_MAIN, reply);
+                    PACKET_Free(p); // really important
                 }
-                PACKET_Free(p); // really important
             }
             break;
         }

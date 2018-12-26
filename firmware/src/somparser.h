@@ -43,7 +43,10 @@ typedef enum __attribute__((packed))_commands {
     BLE_CMD_MODE        = 0x10,
     BLE_CMD_START_GATE  = 0x11,
 
-    BLE_CMD_RUN_RESULTS = 0x20
+    BLE_CMD_RUN_RESULTS = 0x20,
+
+    // MUST always be the last enum
+    BLE_CMD_MAX_CMD
 } BLECommand;
 
 typedef struct _packet {
