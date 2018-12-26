@@ -8,8 +8,8 @@ MAINAPP_DATA mainappData;
  * @param enable true start the modulation, false stop it
  */
 void enableLaserModulation(const bool enable) {
-    T2CONbits.ON = (enable != 0);
-    OC1CONbits.ON = (enable != 0);
+    T2CONbits.ON = enable;
+    OC1CONbits.ON = enable;
 }
 
 /*
@@ -54,33 +54,38 @@ void enableLaser(const uint8_t which, const bool power){
 
 void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
     DEBUG("%s()", __func__);
+    enableLaser(MODE_GetLaser(in->payload), true);
 
+}
+
+void BLE_CMD_START_POS_Parser(const Packet *in, Packet *out){
+    DEBUG("%s()", __func__);
+    enableLaser(POS_GetLaser(in->payload), true);
+}
+
+void BLE_CMD_POS_STATUS_Parser(const Packet *in, Packet *out){
+    DEBUG("%s()", __func__);
+
+}
+
+void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out){
+    DEBUG("%s()", __func__);
+    enableLaser(LASER_DX | LASER_SX, false);
 }
 
 // Single command parse function
 static cmdParserFunction parsers[] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
-    &BLE_CMD_MODE_Parser, // 0x10
+    &BLE_CMD_MODE_Parser,           // 0x10
+    NULL, NULL, NULL, NULL,
+    &BLE_CMD_START_POS_Parser,      // 0x15
+    &BLE_CMD_POS_STATUS_Parser,     // 0x16
+    &BLE_CMD_DONE_POS_Parser,       // 0x17
 };
 
-void mainCommandCallback(SYS_MSG_OBJECT *pMessage) {
-    DEBUG("New laser command received");
-    DEBUG("   Source: %d", pMessage->nSource);
-    DEBUG("   Len: %d", pMessage->nSizeData);
-    char *data = (char *)pMessage->pData;
-    size_t i;
-    for (i = 0; i < pMessage->nSizeData; ++i) {
-        DEBUG("   data[%d] => %d", i, data[i]);
-    }
-}
-
 int8_t initializeMainappMailbox(){
-    mainappData.commandMailBox = SYS_MSG_MailboxOpen(
-            MAIN_MAILBOX,
-//            &mainCommandCallback 
-              NULL
-    );
+    mainappData.commandMailBox = SYS_MSG_MailboxOpen(MAIN_MAILBOX, NULL);
     if(mainappData.commandMailBox == SYS_OBJ_HANDLE_INVALID) {
         ERROR("Failed to open Command Mail Box");
         return -1;
@@ -138,15 +143,13 @@ void MAINAPP_Tasks ( void )
                 if(p->cmd >= BLE_CMD_MAX_CMD || (parsers[p->cmd] == NULL)) {
                     ERROR("Command 0x%02X not supported!");
                     // TODO send "Not supported"
-                    PACKET_Free(p);
-                    break;
                 } else {
                     DEBUG("Parsing command ID 0x%02X", p->cmd);
                     Packet *reply = PACKET_CreateForReply(p);
                     parsers[p->cmd](p, reply);
                     SendPacketToBle(MSG_SRC_MAIN, reply);
-                    PACKET_Free(p); // really important
                 }
+                PACKET_Free(p); // really important
             }
             break;
         }

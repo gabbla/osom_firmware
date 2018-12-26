@@ -12,5 +12,10 @@ inline uint8_t MODE_GetLaser(const uint8_t *payload) {
     return payload[0] & MODE_LASER_MASK;
 }
 
+// Positioning stuff
+#define POS_LASER_MASK      (0x03)
+inline uint8_t POS_GetLaser(const uint8_t *payload) {
+    return payload[0] & POS_LASER_MASK;
+}
 
 #endif /* end of include guard: CMDUTILS_H_PAFSTZ6W */

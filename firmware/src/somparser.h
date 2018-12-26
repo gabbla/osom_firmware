@@ -43,6 +43,10 @@ typedef enum __attribute__((packed))_commands {
     BLE_CMD_MODE        = 0x10,
     BLE_CMD_START_GATE  = 0x11,
 
+    BLE_CMD_START_POS   = 0x15,
+    BLE_CMD_POS_STATUS  = 0x16,
+    BLE_CMD_DONE_POS    = 0x17,
+
     BLE_CMD_RUN_RESULTS = 0x20,
 
     // MUST always be the last enum
