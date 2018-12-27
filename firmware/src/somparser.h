@@ -81,6 +81,10 @@ Packet *PACKET_Create();
 Packet *PACKET_CreateForReply(const Packet *p);
 void PACKET_Free(Packet *p);
 
+// Helper function for self-generated packets
+typedef bool LASER_STATUS;
+Packet *PACKET_CreatePositionStatus(const LASER_STATUS dx, const LASER_STATUS sx);
+
 // Utils
 
 inline uint16_t PACKET_GetMessageId(const Packet *p);

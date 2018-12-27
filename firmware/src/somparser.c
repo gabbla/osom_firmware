@@ -66,6 +66,17 @@ void PACKET_Free(Packet *p) {
 		free(p->payload);
 }
 
+Packet *PACKET_CreatePositionStatus(const LASER_STATUS dx, const LASER_STATUS sx){
+    Packet *p;
+    if((p = PACKET_Create()) != NULL) {
+        p->cmd = BLE_CMD_POS_STATUS;
+        p->pLen = 1;
+        p->payload = malloc(p->pLen);
+        p->payload[0] = (dx | (sx << 1));
+    }
+    return p;
+}
+
 uint16_t PACKET_GetMessageId(const Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
 	return p->msgID;
