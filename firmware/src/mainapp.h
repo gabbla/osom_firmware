@@ -55,7 +55,7 @@ typedef enum
 	MAINAPP_STATE_INIT=0,
 	MAINAPP_STATE_SERVICE_TASKS,
 
-	/* TODO: Define states used by the application state machine. */
+    POSITIONING_PHASE,
 
 } MAINAPP_STATES;
 

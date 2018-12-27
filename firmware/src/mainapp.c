@@ -52,6 +52,21 @@ void enableLaser(const uint8_t which, const bool power){
     enableLaserModulation(power);
 }
 
+void nextState(MAINAPP_STATES next){
+    mainappData.state = next;
+}
+
+void positioningPhase(){
+    // TODO manage the input states (I guess something getWatchdogDx status)
+    static bool t = true;
+    if(t){
+        DEBUG("Sending fake status");
+        Packet *reply = PACKET_CreatePositionStatus(false, true);
+        SendPacketToBle(MSG_SRC_MAIN, reply );
+        t = false;
+    }
+}
+
 void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
     DEBUG("%s()", __func__);
     enableLaser(MODE_GetLaser(in->payload), true);
@@ -61,11 +76,13 @@ void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
 void BLE_CMD_START_POS_Parser(const Packet *in, Packet *out){
     DEBUG("%s()", __func__);
     enableLaser(POS_GetLaser(in->payload), true);
+    nextState(POSITIONING_PHASE);
 }
 
 void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out){
     DEBUG("%s()", __func__);
     enableLaser(LASER_DX | LASER_SX, false);
+    nextState(MAINAPP_STATE_SERVICE_TASKS);
 }
 
 // Single command parse function
@@ -154,6 +171,10 @@ void MAINAPP_Tasks ( void )
             }
             break;
         }
+
+        case POSITIONING_PHASE:
+            positioningPhase();
+            break;
 
         default:
         {
