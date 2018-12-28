@@ -38,7 +38,8 @@ void setupLaserModulation() {
 void __ISR(_INPUT_CAPTURE_4_VECTOR, single) leftInt(){
     // apparently this dummy read is necessesary
     volatile uint32_t dummy = IC4BUF;
-    TMR3 = 0; // watchdog kick
+    if(dummy < 0xF)
+        TMR4 = 0; // watchdog kick
     IFS0bits.IC4IF = 0; // Clear the flag
 }
 
@@ -46,6 +47,7 @@ void setupLaserCapture() {
     // Using timer 2 as timebase
     // Left (test only) use IC4
     IC4CONbits.ON = 0; // turn off the module
+    asm("NOP");
     IC4CONbits.C32 = 0; // using 16bit timer
     IC4CONbits.ICTMR = 1; // using timer 2
     IC4CONbits.ICI = 0; // interrupt evry capture
@@ -59,26 +61,27 @@ void setupLaserCapture() {
     IC4CONbits.ON = 1; // let's go
 }
 
-//void __ISR(_TIMER_3_VECTOR, single) watchdog3() {
-//    INFO("!!!!! OBSTACLE !!!!!");
-//    IFS0bits.T3IF = 0; // Clear the flag
-//}
+void __ISR(_TIMER_4_VECTOR, ipl7) watchdog3() {
+    INFO("!!!!! OBSTACLE !!!!!");
+    IFS0bits.T4IF = 0; // Clear the flag
+}
 
-//void setupFakeWatchdog3() {
-//    // Faking a watchdog with timer 3
-//    // Kick window 550 us
-//    T3CONbits.ON = 0; // Turn off the timer
-//    T3CONbits.TCS = 0; // Internal clock source
-//    T3CONbits.TCKPS = 3; // Prescaler to 1:8
-//    PR3 = 2750; // Period set to 0.55 ms
-//
-//    // Enable interrupt
-//    IFS0bits.T3IF = 0; // Clear the flag
-//    IEC0bits.T3IE = 1; // Enable the interrupt
-//    IPC3bits.IC3IP = 7; //High priority
-//
-//    T3CONbits.ON = 1; // Turn on the timer
-//}
+void setupFakeWatchdog3() {
+    // Faking a watchdog with timer 4
+    // Kick window 550 us
+    T4CONbits.ON = 0; // Turn off the timer
+    T4CONbits.TCS = 0; // Internal clock source
+    T4CONbits.T32 = 0; // TMRx and TMRy 2 16bits timer
+    T4CONbits.TCKPS = 3; // Prescaler to 1:8
+    PR4 = 2750; // Period set to 0.55 ms
+
+    // Enable interrupt
+    IFS0bits.T4IF = 0; // Clear the flag
+    IEC0bits.T4IE = 1; // Enable the interrupt
+    IPC4bits.IC4IP = 7; //High priority
+
+    T4CONbits.ON = 1; // Turn on the timer
+}
 
 /*
  * @brief Power on or off the given laser(s)
@@ -95,6 +98,8 @@ void enableLaser(const uint8_t which, const bool power){
     }
     // start or stop the modulation
     enableLaserModulation(power);
+
+    setupFakeWatchdog3();
 }
 
 void nextState(MAINAPP_STATES next){
