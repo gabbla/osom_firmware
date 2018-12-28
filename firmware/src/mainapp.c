@@ -35,6 +35,32 @@ void setupLaserModulation() {
     OC1RS = 78;
 }
 
+void __ISR(_INPUT_CAPTURE_4_VECTOR, single) leftInt(){
+    volatile uint32_t val = IC4BUF;
+    volatile uint32_t val2 = IC4BUF;
+    if(1)
+        asm("nop");
+    IFS0bits.IC4IF = 0; // Clear the flag
+}
+
+void setupLaserCapture() {
+    // Using timer 2 as timebase
+    // Left (test only) use IC4
+    IC4CONbits.ON = 0; // turn off the module
+    IC4CONbits.FEDGE = 0; // falling edge first
+    IC4CONbits.C32 = 0; // using 16bit timer
+    IC4CONbits.ICTMR = 1; // using timer 2
+    IC4CONbits.ICI = 1; // interrupn on evry n capture
+    IC4CONbits.ICM = 6; // simple capture mode
+    
+    // Enable interrupt
+    IFS0bits.IC4IF = 0; // Clear the flag
+    IEC0bits.IC4IE = 1; // Enable the interrupt
+    IPC4bits.IC4IP = 7; //High priority
+    
+    IC4CONbits.ON = 1; // let's go
+}
+
 /*
  * @brief Power on or off the given laser(s)
  * @param which Laser to be turned controlled, can be ORed (LASER_DX | LASER_SX)
@@ -128,6 +154,7 @@ void MAINAPP_Tasks ( void )
             appInitialized = (initializeMainappMailbox() == 0);
             // set up laser modulation
             setupLaserModulation();
+            setupLaserCapture();
         
             if (appInitialized)
             {
