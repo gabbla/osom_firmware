@@ -81,6 +81,36 @@ void stopPacketGuard() {
 	bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID; // FIXME why should I make it invalid? is there a function that do it for me? 
 }
 
+typedef struct {
+    void *buff;
+    DRV_USART_BUFFER_HANDLE handler;
+} BLEOut;
+
+#define MAX_BLE_OUT_QUEUE 10
+static BLEOut out_queue[MAX_BLE_OUT_QUEUE];
+
+void hm10EventHandler(DRV_USART_BUFFER_EVENT event, DRV_USART_BUFFER_HANDLE handle, uintptr_t context) {
+    size_t i;
+    for(i = 0; i < MAX_BLE_OUT_QUEUE; ++i){
+        BLEOut *tmp = &out_queue[i];
+        if(tmp->handler == handle){
+            free(tmp->buff);
+            tmp->buff = NULL;
+            break;
+        }
+    }
+    switch(event) {
+        case DRV_USART_BUFFER_EVENT_COMPLETE:
+            DEBUG("BLEOut index %d sent successfully", i);
+            break;
+        case DRV_USART_BUFFER_EVENT_ERROR:
+            WARN("BLEOut index %d failed to send", i);
+            break;
+        default:
+            break;
+    }
+}
+
 void bleOutgoingCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("Dispatching message for %d", pMessage->nSource);
     Packet *p = (Packet*)pMessage->pData;
@@ -89,16 +119,23 @@ void bleOutgoingCallback(SYS_MSG_OBJECT *pMessage) {
         p->msgID = getNextMessageID();
     DEBUG("Cmd: 0x%02X Seq: 0x%04X", p->cmd, p->msgID);
     size_t size = PACKET_GetFullSize(p);
+    size_t i;
     uint8_t byteArray[size];
     PACKET_GetByteArray(p, byteArray);
-    DRV_USART_BUFFER_HANDLE txHandler;
-	DRV_USART_BufferAddWrite(bleappData.hm10, &txHandler, byteArray, size);
-
-	if (DRV_USART_BUFFER_HANDLE_INVALID == txHandler) {
-		WARN("Invalid txHandler!");
-	}
-
-    PACKET_Free(p); // really important
+    for(i = 0; i < MAX_BLE_OUT_QUEUE; i++) {
+        BLEOut *msg = &out_queue[i];
+        if(msg->buff == NULL) {
+            DEBUG("%d it's free", i);
+            msg->buff = malloc(size);
+            memcpy(msg->buff, byteArray, size);
+            DRV_USART_BufferAddWrite(bleappData.hm10, &msg->handler, msg->buff, size);
+	        if (DRV_USART_BUFFER_HANDLE_INVALID == msg->handler) {
+	        	WARN("Invalid txHandler!");
+	        }
+            PACKET_Free(p); // really important
+            break;
+        }
+    }
 }
 
 int8_t initializeBleAppMailbox(){
@@ -177,6 +214,8 @@ void BLEAPP_Tasks(void) {
 		reregisterBuffer();
 
 		if (bleappData.hm10 != DRV_HANDLE_INVALID) {
+            // hm10 usart event handler
+            DRV_USART_BufferEventHandlerSet(bleappData.hm10, &hm10EventHandler, NULL);
 			INFO("BLE App started");
 			bleappData.state = BLEAPP_COLLECT_PACKET;
 		} else {
