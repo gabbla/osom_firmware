@@ -14,25 +14,25 @@ void enableLaserModulation(const bool enable) {
 
 /*
  * @brief Setup the laser modulation, must be called at least once
- * @note At the moment the modulation is setted to f=1000Hz dt=50%
+ * @note At the moment the modulation is setted to f=2000Hz dt=50%
  *       Using OC1 and Timer2 peripherals
  */
 void setupLaserModulation() {
-    // Running 1KHz @ 50% duty cycle 
+    // Running 2KHz @ 50% duty cycle 
     // Setup timer2
     T2CONbits.ON = 0; // Turn off the timer
     T2CONbits.T32 = 0; // TMRx and TMRy 2 16bits timer
     T2CONbits.TCS = 0; // Internal clock source
-    T2CONbits.TCKPS = 7; // Prescaler to 1:256 (40MHz / 256 = 156250Hz)
-    PR2 = 156; // Period set to 1ms
+    T2CONbits.TCKPS = 3; // Prescaler to 1:8
+    PR2 = 2500; // Period set to 0.5mS
 
     // Setup OC1
     OC1CONbits.ON = 0;
     OC1CONbits.OC32 = 0; // OC 16bits mode
     OC1CONbits.OCTSEL = 0; // Use timer 2
     OC1CONbits.OCM = 6; // PWM mode w/o fault
-    OC1R = 78;
-    OC1RS = 78;
+    OC1R = 1250; 
+    OC1RS = 1250;
 }
 
 void __ISR(_INPUT_CAPTURE_4_VECTOR, single) leftInt(){
@@ -52,12 +52,12 @@ void setupLaserCapture() {
     IC4CONbits.ICTMR = 1; // using timer 2
     IC4CONbits.ICI = 1; // interrupn on evry n capture
     IC4CONbits.ICM = 6; // simple capture mode
-    
+
     // Enable interrupt
     IFS0bits.IC4IF = 0; // Clear the flag
     IEC0bits.IC4IE = 1; // Enable the interrupt
     IPC4bits.IC4IP = 7; //High priority
-    
+
     IC4CONbits.ON = 1; // let's go
 }
 
