@@ -120,14 +120,12 @@ void bleOutgoingCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("Cmd: 0x%02X Seq: 0x%04X", p->cmd, p->msgID);
     size_t size = PACKET_GetFullSize(p);
     size_t i;
-    uint8_t byteArray[size];
-    PACKET_GetByteArray(p, byteArray);
     for(i = 0; i < MAX_BLE_OUT_QUEUE; i++) {
         BLEOut *msg = &out_queue[i];
         if(msg->buff == NULL) {
             DEBUG("%d it's free", i);
             msg->buff = malloc(size);
-            memcpy(msg->buff, byteArray, size);
+            PACKET_GetByteArray(p, msg->buff);
             DRV_USART_BufferAddWrite(bleappData.hm10, &msg->handler, msg->buff, size);
 	        if (DRV_USART_BUFFER_HANDLE_INVALID == msg->handler) {
 	        	WARN("Invalid txHandler!");
