@@ -36,10 +36,9 @@ void setupLaserModulation() {
 }
 
 void __ISR(_INPUT_CAPTURE_4_VECTOR, single) leftInt(){
-    volatile uint32_t val = IC4BUF;
-    volatile uint32_t val2 = IC4BUF;
-    if(1)
-        asm("nop");
+    // apparently this dummy read is necessesary
+    volatile uint32_t dummy = IC4BUF;
+    TMR3 = 0; // watchdog kick
     IFS0bits.IC4IF = 0; // Clear the flag
 }
 
