@@ -58,13 +58,10 @@ void nextState(MAINAPP_STATES next){
 
 void positioningPhase(){
     // TODO manage the input states (I guess something getWatchdogDx status)
-    static bool t = true;
-    if(t){
-        DEBUG("Sending fake status");
-        Packet *reply = PACKET_CreatePositionStatus(false, true);
-        SendPacketToBle(MSG_SRC_MAIN, reply );
-        t = false;
-    }
+    DEBUG("Sending fake status");
+    Packet *reply = PACKET_CreatePositionStatus(false, true);
+    SendPacketToBle(MSG_SRC_MAIN, reply);
+    nextState(MAINAPP_STATE_SERVICE_TASKS);
 }
 
 void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
