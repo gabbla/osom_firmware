@@ -36,29 +36,16 @@ void setupLaserModulation() {
 }
 
 void __ISR(_INPUT_CAPTURE_4_VECTOR, single) leftInt(){
-    // apparently this dummy read is necessesary
-    volatile uint32_t dummy = IC4BUF;
-    if(dummy < 0xF)
-        TMR4 = 0; // watchdog kick
-    IFS0bits.IC4IF = 0; // Clear the flag
+    TMR4 = 0; // watchdog kick
+    IFS0bits.INT4IF = 0; // clear the flag
 }
 
 void setupLaserCapture() {
-    // Using timer 2 as timebase
-    // Left (test only) use IC4
-    IC4CONbits.ON = 0; // turn off the module
-    asm("NOP");
-    IC4CONbits.C32 = 0; // using 16bit timer
-    IC4CONbits.ICTMR = 1; // using timer 2
-    IC4CONbits.ICI = 0; // interrupt evry capture
-    IC4CONbits.ICM = 1; // edge detection mode
-
-    // Enable interrupt
-    IFS0bits.IC4IF = 0; // Clear the flag
-    IEC0bits.IC4IE = 1; // Enable the interrupt
-    IPC4bits.IC4IP = 7; //High priority
-
-    IC4CONbits.ON = 1; // let's go
+    // Set up left channel (INT4)
+    INTCONbits.INT4EP = 0; // Falling edge
+    IFS0bits.INT4IF = 0; // clear the flag
+    IEC0bits.INT4IE = 1; // enable the interrupt
+    IPC4bits.INT4IP = 7; // max priority
 }
 
 void __ISR(_TIMER_4_VECTOR, ipl7) watchdog3() {
