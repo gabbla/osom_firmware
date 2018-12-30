@@ -35,7 +35,7 @@ void setupLaserModulation() {
     OC1RS = 1250;
 }
 
-void __ISR(_INPUT_CAPTURE_4_VECTOR, single) leftInt(){
+void __ISR(_EXTERNAL_INTERRUPT_4, single) leftInt(){
     TMR4 = 0; // watchdog kick
     IFS0bits.INT4IF = 0; // clear the flag
 }
