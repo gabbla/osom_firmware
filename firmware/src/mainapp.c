@@ -1,5 +1,4 @@
 #include "mainapp.h"
-
 MAINAPP_DATA mainappData;
 
 // TODO think about move this stuff in a separate file
@@ -35,8 +34,12 @@ void setupLaserModulation() {
     OC1RS = 1250;
 }
 
-void __ISR(_EXTERNAL_INTERRUPT_4, single) leftInt(){
-    TMR4 = 0; // watchdog kick
+void kickFakeWatchdog3(){
+    TMR4 = 0;
+}
+
+void __ISR(_EXTERNAL_4_VECTOR, single) leftInt(){
+    kickFakeWatchdog3();
     IFS0bits.INT4IF = 0; // clear the flag
 }
 
@@ -48,9 +51,13 @@ void setupLaserCapture() {
     IPC4bits.INT4IP = 7; // max priority
 }
 
-void __ISR(_TIMER_4_VECTOR, ipl7) watchdog3() {
+void __ISR(_TIMER_4_VECTOR, single) watchdog3() {
     INFO("!!!!! OBSTACLE !!!!!");
     IFS0bits.T4IF = 0; // Clear the flag
+}
+
+void enableFakeWatchdog3(const bool en){
+    T4CONbits.ON = en;
 }
 
 void setupFakeWatchdog3() {
@@ -65,9 +72,7 @@ void setupFakeWatchdog3() {
     // Enable interrupt
     IFS0bits.T4IF = 0; // Clear the flag
     IEC0bits.T4IE = 1; // Enable the interrupt
-    IPC4bits.IC4IP = 7; //High priority
-
-    T4CONbits.ON = 1; // Turn on the timer
+    IPC4bits.T4IP = 7; //High priority
 }
 
 /*
@@ -85,8 +90,7 @@ void enableLaser(const uint8_t which, const bool power){
     }
     // start or stop the modulation
     enableLaserModulation(power);
-
-    setupFakeWatchdog3();
+    enableFakeWatchdog3(power);
 }
 
 void nextState(MAINAPP_STATES next){
@@ -166,6 +170,7 @@ void MAINAPP_Tasks ( void )
             // set up laser modulation
             setupLaserModulation();
             setupLaserCapture();
+            setupFakeWatchdog3();
         
             if (appInitialized)
             {

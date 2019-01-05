@@ -13,6 +13,8 @@
 #include "cmdUtils.h"
 #include "peripheral/ports/plib_ports.h"
 
+#include "fake_watchdog.h"
+
 #ifdef __cplusplus  // Provide C++ Compatibility
 
 extern "C" {
