@@ -71,6 +71,8 @@ typedef struct
     MAINAPP_STATES state;
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
 
+    FakeWatchdog *rightWD;
+
 } MAINAPP_DATA;
 
 void MAINAPP_Initialize ( void );

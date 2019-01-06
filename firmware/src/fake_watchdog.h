@@ -2,8 +2,10 @@
 #define FAKE_WATCHDOG_H_LZUDEQAU
 
 #include <xc.h>
+#include <sys/attribs.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "logger.h"
 
 typedef void (*fake_wd_callback)();
 
@@ -20,10 +22,12 @@ typedef struct {
     // Register pointer
     uint32_t *TxCON;
     uint32_t *PRx;
+    uint32_t *TMRx;
     uint32_t *IFSx;
     uint32_t *IECx;
     uint32_t *IPCx;
-    uint8_t ivect_pos;
+    uint8_t ivector;
+    uint8_t irq;
     // callback
     void (*fake_wd_callback)();
 } FakeWatchdog;

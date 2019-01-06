@@ -39,7 +39,8 @@ void kickFakeWatchdog3(){
 }
 
 void __ISR(_EXTERNAL_4_VECTOR, single) leftInt(){
-    kickFakeWatchdog3();
+    //kickFakeWatchdog3();
+    FakeWD_Kick(mainappData.rightWD);
     IFS0bits.INT4IF = 0; // clear the flag
 }
 
@@ -51,6 +52,7 @@ void setupLaserCapture() {
     IPC4bits.INT4IP = 7; // max priority
 }
 
+#if 0
 void __ISR(_TIMER_4_VECTOR, single) watchdog3() {
     INFO("!!!!! OBSTACLE !!!!!");
     IFS0bits.T4IF = 0; // Clear the flag
@@ -74,6 +76,7 @@ void setupFakeWatchdog3() {
     IEC0bits.T4IE = 1; // Enable the interrupt
     IPC4bits.T4IP = 7; //High priority
 }
+#endif
 
 /*
  * @brief Power on or off the given laser(s)
@@ -90,7 +93,8 @@ void enableLaser(const uint8_t which, const bool power){
     }
     // start or stop the modulation
     enableLaserModulation(power);
-    enableFakeWatchdog3(power);
+    //enableFakeWatchdog3(power);
+    FakeWD_Enable(mainappData.rightWD, power);
 }
 
 void nextState(MAINAPP_STATES next){
@@ -170,8 +174,10 @@ void MAINAPP_Tasks ( void )
             // set up laser modulation
             setupLaserModulation();
             setupLaserCapture();
-            setupFakeWatchdog3();
-        
+            //setupFakeWatchdog3();
+
+            mainappData.rightWD = FakeWD_Get(FakeWD_Right);
+
             if (appInitialized)
             {
                 INFO("Main App started!");
