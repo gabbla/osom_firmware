@@ -36,13 +36,9 @@ FakeWatchdog dogs[] = {
 
 // Callbacks
 void __ISR(RIGHT_IVECTOR, IPL7AUTO) fakewd_right() {
-//    INFO("!!!!! OBSTACLE RIGHT !!!!!");
-//    PLIB_PORTS_PinToggle(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_4);
-
     FakeWatchdog *p = FakeWD_Get(FakeWD_Right);
     if(p && p->fake_wd_callback)
         p->fake_wd_callback(p->context);
-
     *(p->IFSx) &= ~(1 << p->_irq);
 }
 
@@ -99,14 +95,15 @@ void FakeWD_Enable(FakeWatchdog *dog, const bool enable){
 }
 
 void FakeWD_Kick(FakeWatchdog *dog){
+    if(!dog)
+        return;
     *(dog->TMRx) = 0;
 }
 
 void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb, uintptr_t *cntx){
-    if(!dog || !dog->initialized)
+    if(!dog)
         return;
     dog->fake_wd_callback = cb;
-    if(cntx)
-        dog->context = cntx;
+    dog->context = cntx;
 }
 
