@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "fake_watchdog.h"
+#include "modulator.h"
 
 /*
  * A channel is made by:
@@ -28,6 +29,7 @@ typedef struct {
     ChannelStatus status;
     bool enabled;
     bool initialized;
+    LaserModulator *modulator;
     FakeWatchdog *wdog;
 } Channel;
 
