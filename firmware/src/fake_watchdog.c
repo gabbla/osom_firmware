@@ -1,56 +1,51 @@
 #include "fake_watchdog.h"
 
 // Both left and right using TMR4 for now
-#define RIGHT_IVECTOR   _TIMER_4_VECTOR
-#define RIGHT_IRQ       19
-#define LEFT_IVECTOR    -1
-#define LEFT_IRQ        -1
+#define RIGHT_TMR_MODULE    TMR_ID_4
+#define RIGHT_TMR_SOURCE    INT_SOURCE_TIMER_4
+#define RIGHT_TMR_VECTOR    INT_VECTOR_T4
+#define RIGHT_TMR_ISR       _TIMER_4_VECTOR
+
+#define LEFT_TMR_MODULE    TMR_ID_5
+#define LEFT_TMR_SOURCE    INT_SOURCE_TIMER_5
+#define LEFT_TMR_VECTOR    INT_VECTOR_T5
+#define LEFT_TMR_ISR       _TIMER_5_VECTOR
 
 FakeWatchdog dogs[] = {
     {
-        .TxCON  = (uint32_t *)0xBF800C00, // T4CON
-        .PRx    = (uint32_t *)0xBF800C20, // PR4
-        .TMRx   = (uint32_t *)0xBF800C10, // TMR4
-        .IFSx   = (uint32_t *)0xBF881030, // IFS0
-        .IECx   = (uint32_t *)0xBF881060, // IEC0
-        .IPCx   = (uint32_t *)0xBF8810D0, // IPC4
+        .tmrModule = RIGHT_TMR_MODULE,
+        .intSource = RIGHT_TMR_SOURCE,
+        .intVector = RIGHT_TMR_VECTOR,
         .enable = false,
         .initialized = false,
         .fake_wd_callback = NULL,
-        .ivector = RIGHT_IVECTOR,
-        ._irq = RIGHT_IRQ
     },
     {
-        .TxCON  = (uint32_t *)0xBF800C00,
-        .PRx    = (uint32_t *)0xBF800C20,
-        .IFSx   = (uint32_t *)0xBF881030,
-        .IECx   = (uint32_t *)0xBF881060,
-        .IPCx   = (uint32_t *)0xBF8810D0,
+        .tmrModule = LEFT_TMR_MODULE,
+        .intSource = LEFT_TMR_SOURCE,
+        .intVector = LEFT_TMR_VECTOR,
         .enable = false,
         .initialized = false,
         .fake_wd_callback = NULL,
-        .ivector = LEFT_IVECTOR,
-        ._irq = LEFT_IRQ
     }
 };
 
-// Callbacks
-void __ISR(RIGHT_IVECTOR, IPL7AUTO) fakewd_right() {
-    FakeWatchdog *p = FakeWD_Get(FakeWD_Right);
+inline void manageCallback(const FakeWDIndex idx) {
+    FakeWatchdog *p = FakeWD_Get(idx);
     if(p && p->fake_wd_callback)
         p->fake_wd_callback(p->context);
-    *(p->IFSx) &= ~(1 << p->_irq);
+    PLIB_INT_SourceFlagClear(INT_ID_0, p->intSource);
 }
 
-//void __ISR(19, single) fakewd_left() {
-//    INFO("!!!!! OBSTACLE LEFT !!!!!");
-//    
-//    FakeWatchdog *p = FakeWD_Get(FakeWD_Left);
-//    if(p && p->fake_wd_callback)
-//        p->fake_wd_callback();
-//
-//    *(p->IFSx) &= ~(1 << p->irq);
-//}
+// Callbacks
+void __ISR(RIGHT_TMR_ISR, IPL7AUTO) fakewd_right() {
+    manageCallback(FakeWD_Right);
+}
+
+void __ISR(LEFT_TMR_ISR, IPL7AUTO) fakewd_left() {
+    manageCallback(FakeWD_Left);
+}
+
 
 FakeWatchdog *FakeWD_Get(const FakeWDIndex index){
     if(index > FakeWD_Max)
@@ -64,23 +59,24 @@ FakeWatchdog *FakeWD_Initialize(const FakeWDIndex dog){
     if(p->initialized)
         return p;
 
-    *(p->TxCON) &= ~(1 << 15); // turn off the timer
-    *(p->TxCON) &= ~(1 << 1); // internal clock source
-    *(p->TxCON) &= ~(1 << 3); // this is a 16 bits timer
-    *(p->TxCON) &= ~(7 << 4); // Clear prescaler
-    *(p->TxCON) |= (3 << 4); // prescaler 1:8
+    TMR_MODULE_ID tmr = p->tmrModule;
+
+    PLIB_TMR_Stop(tmr);
+    PLIB_TMR_ClockSourceSelect(tmr, TMR_CLOCK_SOURCE_PERIPHERAL_CLOCK);
+    if(PLIB_TMR_ExistsMode32Bit(tmr)) 
+        PLIB_TMR_Mode16BitEnable(tmr);
+    PLIB_TMR_PrescaleSelect(tmr, TMR_PRESCALE_VALUE_8);
 
     // Period set to 550 uS
-    *(p->PRx) = 2750;
+    PLIB_TMR_Period16BitSet(tmr, 2750);
 
     // Interrupt
-    *(p->IFSx) &= ~(1 << p->_irq); // Clear the flag
-    *(p->IECx) |= (1 << p->_irq); // Enable the interrupt
-    *(p->IPCx) &= ~(7 << 2); // clear priority
-    *(p->IPCx) |= (7 << 2); // Set priority
-    
+    PLIB_INT_SourceFlagClear(INT_ID_0, p->intSource);
+    PLIB_INT_SourceEnable(INT_ID_0, p->intSource);
+    PLIB_INT_VectorPrioritySet(INT_ID_0, p->intVector, INT_PRIORITY_LEVEL7);
+
     p->initialized = true;
-    
+
     return p;
 }
 
@@ -89,15 +85,15 @@ void FakeWD_Enable(FakeWatchdog *dog, const bool enable){
         return;
     dog->enable = enable;
     if(enable)
-        *(dog->TxCON) |= (1 << 15);
+        PLIB_TMR_Start(dog->tmrModule);
     else
-        *(dog->TxCON) &= ~(1 << 15);
+        PLIB_TMR_Stop(dog->tmrModule);
 }
 
 void FakeWD_Kick(FakeWatchdog *dog){
     if(!dog)
         return;
-    *(dog->TMRx) = 0;
+    PLIB_TMR_Counter16BitSet(dog->tmrModule, 0);
 }
 
 void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb, uintptr_t *cntx){

@@ -7,7 +7,9 @@
 #include <stdint.h>
 #include "logger.h"
 
-#include "peripheral/ports/plib_ports.h"
+#include "peripheral/int/plib_int.h"
+#include "peripheral/tmr/plib_tmr.h"
+
 
 typedef void (*fake_wd_callback)(uintptr_t *);
 
@@ -21,15 +23,9 @@ typedef enum {
 typedef struct {
     bool enable;
     bool initialized;
-    // Register pointer
-    uint32_t *TxCON;
-    uint32_t *PRx;
-    uint32_t *TMRx;
-    uint32_t *IFSx;
-    uint32_t *IECx;
-    uint32_t *IPCx;
-    uint8_t ivector;
-    uint8_t _irq;
+    TMR_MODULE_ID tmrModule;
+    INT_SOURCE intSource;
+    INT_VECTOR intVector;
     // callback
     void (*fake_wd_callback)(uintptr_t *);
     uintptr_t *context;
