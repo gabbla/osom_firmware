@@ -59,7 +59,8 @@ void enableLaser(const uint8_t which, const bool power){
             PLIB_PORTS_PinWrite(PORTS_ID_0, laser->port, laser->pin, power);
     }
     // start or stop the modulation
-    enableLaserModulation(power);
+    //enableLaserModulation(power);
+    LaserModulator_Enable(mainappData.modulator, power);
     //enableFakeWatchdog3(power);
     FakeWD_Enable(mainappData.rightWD, power);
 }
@@ -143,7 +144,8 @@ void MAINAPP_Tasks ( void )
             
             appInitialized = (initializeMainappMailbox() == 0);
             // set up laser modulation
-            setupLaserModulation();
+            //setupLaserModulation();
+            mainappData.modulator = LaserModulator_Intiialize(LaserModulatorIndex_0);
             setupLaserCapture();
             //setupFakeWatchdog3();
 
