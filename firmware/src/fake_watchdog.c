@@ -18,7 +18,7 @@ FakeWatchdog dogs[] = {
         .initialized = false,
         .fake_wd_callback = NULL,
         .ivector = RIGHT_IVECTOR,
-        .irq = RIGHT_IRQ
+        ._irq = RIGHT_IRQ
     },
     {
         .TxCON  = (uint32_t *)0xBF800C00,
@@ -30,19 +30,20 @@ FakeWatchdog dogs[] = {
         .initialized = false,
         .fake_wd_callback = NULL,
         .ivector = LEFT_IVECTOR,
-        .irq = LEFT_IRQ
+        ._irq = LEFT_IRQ
     }
 };
 
 // Callbacks
-void __ISR(RIGHT_IVECTOR, single) fakewd_right() {
-    INFO("!!!!! OBSTACLE RIGHT !!!!!");
+void __ISR(RIGHT_IVECTOR, IPL7AUTO) fakewd_right() {
+//    INFO("!!!!! OBSTACLE RIGHT !!!!!");
+//    PLIB_PORTS_PinToggle(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_4);
 
     FakeWatchdog *p = FakeWD_Get(FakeWD_Right);
     if(p && p->fake_wd_callback)
-        p->fake_wd_callback();
+        p->fake_wd_callback(p->context);
 
-    *(p->IFSx) &= ~(1 << p->irq);
+    *(p->IFSx) &= ~(1 << p->_irq);
 }
 
 //void __ISR(19, single) fakewd_left() {
@@ -77,8 +78,8 @@ FakeWatchdog *FakeWD_Initialize(const FakeWDIndex dog){
     *(p->PRx) = 2750;
 
     // Interrupt
-    *(p->IFSx) &= ~(1 << p->irq); // Clear the flag
-    *(p->IECx) |= (1 << p->irq); // Enable the interrupt
+    *(p->IFSx) &= ~(1 << p->_irq); // Clear the flag
+    *(p->IECx) |= (1 << p->_irq); // Enable the interrupt
     *(p->IPCx) &= ~(7 << 2); // clear priority
     *(p->IPCx) |= (7 << 2); // Set priority
     
@@ -101,9 +102,11 @@ void FakeWD_Kick(FakeWatchdog *dog){
     *(dog->TMRx) = 0;
 }
 
-void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb){
+void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb, uintptr_t *cntx){
     if(!dog || !dog->initialized)
         return;
     dog->fake_wd_callback = cb;
+    if(cntx)
+        dog->context = cntx;
 }
 

@@ -7,7 +7,9 @@
 #include <stdint.h>
 #include "logger.h"
 
-typedef void (*fake_wd_callback)();
+#include "peripheral/ports/plib_ports.h"
+
+typedef void (*fake_wd_callback)(uintptr_t *);
 
 typedef enum {
     FakeWD_Right = 0,
@@ -27,9 +29,10 @@ typedef struct {
     uint32_t *IECx;
     uint32_t *IPCx;
     uint8_t ivector;
-    uint8_t irq;
+    uint8_t _irq;
     // callback
-    void (*fake_wd_callback)();
+    void (*fake_wd_callback)(uintptr_t *);
+    uintptr_t *context;
 } FakeWatchdog;
 
 FakeWatchdog *FakeWD_Get(const FakeWDIndex index);
@@ -37,6 +40,6 @@ FakeWatchdog *FakeWD_Get(const FakeWDIndex index);
 FakeWatchdog *FakeWD_Initialize(const FakeWDIndex dog);
 void FakeWD_Enable(FakeWatchdog *dog, const bool enable);
 void FakeWD_Kick(FakeWatchdog *dog);
-void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb);
+void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb, uintptr_t *cntx);
 
 #endif /* end of include guard: FAKE_WATCHDOG_H_LZUDEQAU */
