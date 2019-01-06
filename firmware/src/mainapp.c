@@ -1,39 +1,6 @@
 #include "mainapp.h"
 MAINAPP_DATA mainappData;
 
-// TODO think about move this stuff in a separate file
-/*
- * @brief Enable the laser modulation. setupLaserModulation must be called
- * @param enable true start the modulation, false stop it
- */
-void enableLaserModulation(const bool enable) {
-    T2CONbits.ON = enable;
-    OC1CONbits.ON = enable;
-}
-
-/*
- * @brief Setup the laser modulation, must be called at least once
- * @note At the moment the modulation is setted to f=2000Hz dt=50%
- *       Using OC1 and Timer2 peripherals
- */
-void setupLaserModulation() {
-    // Running 2KHz @ 50% duty cycle 
-    // Setup timer2
-    T2CONbits.ON = 0; // Turn off the timer
-    T2CONbits.T32 = 0; // TMRx and TMRy 2 16bits timer
-    T2CONbits.TCS = 0; // Internal clock source
-    T2CONbits.TCKPS = 3; // Prescaler to 1:8
-    PR2 = 2500; // Period set to 0.5mS
-
-    // Setup OC1
-    OC1CONbits.ON = 0;
-    OC1CONbits.OC32 = 0; // OC 16bits mode
-    OC1CONbits.OCTSEL = 0; // Use timer 2
-    OC1CONbits.OCM = 6; // PWM mode w/o fault
-    OC1R = 1250; 
-    OC1RS = 1250;
-}
-
 void kickFakeWatchdog3(){
     TMR4 = 0;
 }
@@ -159,6 +126,10 @@ void MAINAPP_Initialize ( void )
     mainappData.state = MAINAPP_STATE_INIT;
 }
 
+void wdcb(uintptr_t *cntx){
+    INFO("FFFFF %d", *((int*)cntx));
+}
+
 void MAINAPP_Tasks ( void )
 {
 
@@ -177,6 +148,8 @@ void MAINAPP_Tasks ( void )
             //setupFakeWatchdog3();
 
             mainappData.rightWD = FakeWD_Get(FakeWD_Right);
+            static int test = 3;
+            FakeWD_SetCallback(mainappData.rightWD, &wdcb, (uintptr_t *)&test);
 
             if (appInitialized)
             {
