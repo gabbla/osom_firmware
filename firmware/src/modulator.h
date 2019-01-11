@@ -2,6 +2,7 @@
 #define MODULATOR_H_VSOJXDHF
 
 #include <stdbool.h>
+#include "channel_common.h"
 #include "peripheral/oc/plib_oc.h"
 #include "peripheral/tmr/plib_tmr.h"
 
@@ -9,12 +10,6 @@
 #define MOD_TMR_MODULE  TMR_ID_2
 #define MOD_OC_MODULE   OC_ID_1
 #define MOD_OC_TMR      OC_TIMER_16BIT_TMR2
-
-typedef enum {
-    LaserModulator_Right = 0,
-    LaserModulator_Left,
-    LaserModulator_MAX
-}LaserModulatorIndex;
 
 typedef struct _modulatorIfc LaserModulatorIfc;
 
@@ -34,7 +29,7 @@ struct _modulatorIfc {
     bool initialized;
 };
 
-LaserModulatorIfc *LaserModulatorIfc_Intiialize(const LaserModulatorIndex idx);
+LaserModulatorIfc *LaserModulatorIfc_Get(const ChannelIndex idx);
 void LaserModulatorIfc_Enable(LaserModulatorIfc *mod, const bool enable);
 
 

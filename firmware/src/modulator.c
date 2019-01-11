@@ -50,6 +50,17 @@ LaserModulator *LaserModulator_Intiialize(){
     return &modulator;
 }
 
+LaserModulatorIfc *LaserModulatorIfc_Get(const ChannelIndex idx){
+    if(!IS_VALID_CHANNEL_IDX(idx))
+        return NULL;
+    LaserModulatorIfc *p = &modulatorIfc[idx];
+    if(p->initialized)
+        return p;
+    p->modulator = LaserModulator_Intiialize();
+    p->initialized = true;
+    return p;
+}
+
 void LaserModulator_Enable(const bool enable) {
     if(!modulator.initialized)
         return;
@@ -68,16 +79,6 @@ void LaserModulator_Enable(const bool enable) {
     }
 }
 
-LaserModulatorIfc *LaserModulatorIfc_Intiialize(const LaserModulatorIndex idx){
-    if(idx >= LaserModulator_MAX)
-        return NULL;
-    LaserModulatorIfc *p = &modulatorIfc[idx];
-    if(p->initialized)
-        return p;
-    p->modulator = LaserModulator_Intiialize();
-    p->initialized = true;
-    return p;
-}
 
 void LaserModulatorIfc_Enable(LaserModulatorIfc *mod, const bool enable){
     if(!mod || !mod->initialized)

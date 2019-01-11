@@ -3,8 +3,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "channel_common.h"
 #include "fake_watchdog.h"
 #include "modulator.h"
+#include "LaserInput.h"
 
 /*
  * A channel is made by:
@@ -14,28 +16,30 @@
  */
 
 typedef enum {
-    Channel_Right = 0, 
-    Channel_Left,
-    Channel_MAX
-} ChannelIndex;
-
-typedef enum {
     ChannelStatusUnknown = -1,
     ChannelStatusActive,
     ChannelStatusInactive
 } ChannelStatus;
 
+typedef void (*CHANNEL_STATUS_EVENT)(const ChannelIndex, const ChannelStatus, uintptr_t *);
+
 typedef struct {
     ChannelStatus status;
     bool enabled;
     bool initialized;
-    LaserModulator *modulator;
+    LaserModulatorIfc *modulator;
     FakeWatchdog *wdog;
+    LaserInput *input;
+    // Callback
+    CHANNEL_STATUS_EVENT callback;
+    uintptr_t *context;
 } Channel;
 
 Channel *Channel_Initialize(const ChannelIndex idx);
 
 void Channel_Enable(Channel *ch, const bool enable);
 ChannelStatus Channel_GetStatus(Channel *ch);
+
+bool Channel_SetCallback(Channel *ch, CHANNEL_STATUS_EVENT callback, uintptr_t *context);
 
 #endif /* end of include guard: CHANNELS_H_GW2BCLQ3 */

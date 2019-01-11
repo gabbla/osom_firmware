@@ -18,7 +18,7 @@ FakeWatchdog dogs[] = {
         .intVector = RIGHT_TMR_VECTOR,
         .enable = false,
         .initialized = false,
-        .fake_wd_callback = NULL,
+        .callback = NULL,
     },
     {
         .tmrModule = LEFT_TMR_MODULE,
@@ -26,34 +26,34 @@ FakeWatchdog dogs[] = {
         .intVector = LEFT_TMR_VECTOR,
         .enable = false,
         .initialized = false,
-        .fake_wd_callback = NULL,
+        .callback = NULL,
     }
 };
 
-inline void manageCallback(const FakeWDIndex idx) {
+inline void manageCallback(const ChannelIndex idx) {
     FakeWatchdog *p = FakeWD_Get(idx);
-    if(p && p->fake_wd_callback)
-        p->fake_wd_callback(p->context);
+    if(p && p->callback)
+        p->callback(idx, p->context);
     PLIB_INT_SourceFlagClear(INT_ID_0, p->intSource);
 }
 
 // Callbacks
 void __ISR(RIGHT_TMR_ISR, IPL7AUTO) fakewd_right() {
-    manageCallback(FakeWD_Right);
+    manageCallback(Channel_Right);
 }
 
 void __ISR(LEFT_TMR_ISR, IPL7AUTO) fakewd_left() {
-    manageCallback(FakeWD_Left);
+    manageCallback(Channel_Left);
 }
 
 
-FakeWatchdog *FakeWD_Get(const FakeWDIndex index){
-    if(index > FakeWD_Max)
+FakeWatchdog *FakeWD_Get(const ChannelIndex index){
+    if(!IS_VALID_CHANNEL_IDX(index))
         return NULL;
     return FakeWD_Initialize(index);
 }
 
-FakeWatchdog *FakeWD_Initialize(const FakeWDIndex dog){
+FakeWatchdog *FakeWD_Initialize(const ChannelIndex dog){
     FakeWatchdog *p = &dogs[dog];
 
     if(p->initialized)
@@ -96,10 +96,10 @@ void FakeWD_Kick(FakeWatchdog *dog){
     PLIB_TMR_Counter16BitSet(dog->tmrModule, 0);
 }
 
-void FakeWD_SetCallback(FakeWatchdog *dog, fake_wd_callback cb, uintptr_t *cntx){
+void FakeWD_SetCallback(FakeWatchdog *dog, FAKE_WD_EXPIRED callback, uintptr_t *context){
     if(!dog)
         return;
-    dog->fake_wd_callback = cb;
-    dog->context = cntx;
+    dog->callback= callback;
+    dog->context = context;
 }
 
