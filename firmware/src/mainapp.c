@@ -127,8 +127,8 @@ void MAINAPP_Initialize ( void )
     mainappData.state = MAINAPP_STATE_INIT;
 }
 
-void wdcb(uintptr_t *cntx){
-    INFO("FFFFF %d", *((int*)cntx));
+void wdcb(const ChannelIndex idx, uintptr_t *cntx){
+    INFO("FFFFF %d [%d]", *((int*)cntx), idx);
 }
 
 void MAINAPP_Tasks ( void )
@@ -145,11 +145,11 @@ void MAINAPP_Tasks ( void )
             appInitialized = (initializeMainappMailbox() == 0);
             // set up laser modulation
             //setupLaserModulation();
-            mainappData.modulator = LaserModulatorIfc_Intiialize(LaserModulator_Right);
+            mainappData.modulator = LaserModulatorIfc_Get(Channel_Right);
             setupLaserCapture();
             //setupFakeWatchdog3();
 
-            mainappData.rightWD = FakeWD_Get(FakeWD_Right);
+            mainappData.rightWD = FakeWD_Get(Channel_Right);
             static int test = 3;
             FakeWD_SetCallback(mainappData.rightWD, &wdcb, (uintptr_t *)&test);
 
