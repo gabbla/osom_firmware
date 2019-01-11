@@ -73,7 +73,7 @@ typedef struct
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
 
     FakeWatchdog *rightWD;
-    LaserModulator *modulator;
+    LaserModulatorIfc *modulator;
 
 } MAINAPP_DATA;
 

@@ -11,20 +11,31 @@
 #define MOD_OC_TMR      OC_TIMER_16BIT_TMR2
 
 typedef enum {
-    LaserModulatorIndex_0,
-    LaserModulatorIndex_MAX
+    LaserModulator_Right = 0,
+    LaserModulator_Left,
+    LaserModulator_MAX
 }LaserModulatorIndex;
+
+typedef struct _modulatorIfc LaserModulatorIfc;
 
 typedef struct {
     bool enabled;
     bool initialized;
+    size_t clientCnt;
     TMR_MODULE_ID tmrModule;
     OC_MODULE_ID ocModule;
     OC_16BIT_TIMERS ocTmrModule;
+    LaserModulatorIfc *clients[];
 } LaserModulator;
 
-LaserModulator *LaserModulator_Intiialize(const LaserModulatorIndex idx);
-void LaserModulator_Enable(LaserModulator *mod, const bool enable);
+struct _modulatorIfc {
+    LaserModulator *modulator;
+    bool enabled;
+    bool initialized;
+};
+
+LaserModulatorIfc *LaserModulatorIfc_Intiialize(const LaserModulatorIndex idx);
+void LaserModulatorIfc_Enable(LaserModulatorIfc *mod, const bool enable);
 
 
 #endif /* end of include guard: MODULATOR_H_VSOJXDHF */

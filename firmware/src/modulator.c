@@ -1,25 +1,34 @@
 #include "modulator.h"
 
-static LaserModulator modulators[] = {
+static LaserModulatorIfc modulatorIfc[] = {
     {
         .enabled = false,
         .initialized = false,
-        .tmrModule = MOD_TMR_MODULE, 
-        .ocModule = MOD_OC_MODULE
+        .modulator = NULL
+    },
+    {
+        .enabled = false,
+        .initialized = false,
+        .modulator = NULL
     }
 };
 
+static LaserModulator modulator = {
+    .enabled = false,
+    .initialized = false,
+    .tmrModule = MOD_TMR_MODULE, 
+    .ocModule = MOD_OC_MODULE,
+    .clients = modulatorIfc,
+    .clientCnt = 2
+};
 
-LaserModulator *LaserModulator_Intiialize(const LaserModulatorIndex idx){
-    if(idx >= LaserModulatorIndex_MAX)
-        return NULL;
-    
-    LaserModulator *p = &modulators[idx];
-    if(p->initialized)
-        return p;
+LaserModulator *LaserModulator_Intiialize(){
+    if(modulator.initialized)
+        return &modulator;
 
-    TMR_MODULE_ID tmr = p->tmrModule;
-    OC_MODULE_ID oc = p->ocModule;
+
+    TMR_MODULE_ID tmr = modulator.tmrModule;
+    OC_MODULE_ID oc = modulator.ocModule;
 
     // Setup the timer
     PLIB_TMR_Stop(tmr);
@@ -31,25 +40,48 @@ LaserModulator *LaserModulator_Intiialize(const LaserModulatorIndex idx){
 
     // Setup the oc
     PLIB_OC_Disable(oc);
-    PLIB_OC_TimerSelect(oc, p->ocTmrModule);
+    PLIB_OC_TimerSelect(oc, modulator.ocTmrModule);
     PLIB_OC_BufferSizeSelect(oc, OC_BUFFER_SIZE_16BIT);
     PLIB_OC_ModeSelect(oc, OC_COMPARE_PWM_MODE_WITHOUT_FAULT_PROTECTION);
     PLIB_OC_Buffer16BitSet(oc, 1250);
     PLIB_OC_PulseWidth16BitSet(oc, 1250);
 
+    modulator.initialized = true;
+    return &modulator;
+}
+
+void LaserModulator_Enable(const bool enable) {
+    if(!modulator.initialized)
+        return;
+    if(enable){
+        PLIB_TMR_Start(modulator.tmrModule);
+        PLIB_OC_Enable(modulator.ocModule);
+    } else {
+        size_t i;
+        bool clientStatus = true;
+        for(i = 0; i < modulator.clientCnt; ++i)
+            clientStatus &= modulator.clients[i]->enabled;
+        if(!clientStatus) {
+            PLIB_TMR_Stop(modulator.tmrModule);
+            PLIB_OC_Disable(modulator.ocModule);
+        }
+    }
+}
+
+LaserModulatorIfc *LaserModulatorIfc_Intiialize(const LaserModulatorIndex idx){
+    if(idx >= LaserModulator_MAX)
+        return NULL;
+    LaserModulatorIfc *p = &modulatorIfc[idx];
+    if(p->initialized)
+        return p;
+    p->modulator = LaserModulator_Intiialize();
     p->initialized = true;
     return p;
 }
 
-void LaserModulator_Enable(LaserModulator *mod, const bool enable){
+void LaserModulatorIfc_Enable(LaserModulatorIfc *mod, const bool enable){
     if(!mod || !mod->initialized)
         return;
-
-    if(enable){
-        PLIB_TMR_Start(mod->tmrModule);
-        PLIB_OC_Enable(mod->ocModule);
-    } else {
-        PLIB_TMR_Stop(mod->tmrModule);
-        PLIB_OC_Disable(mod->ocModule);
-    }
+    mod->enabled = enable;
+    LaserModulator_Enable(enable);
 }

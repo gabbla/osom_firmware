@@ -60,7 +60,7 @@ void enableLaser(const uint8_t which, const bool power){
     }
     // start or stop the modulation
     //enableLaserModulation(power);
-    LaserModulator_Enable(mainappData.modulator, power);
+    LaserModulatorIfc_Enable(mainappData.modulator, power);
     //enableFakeWatchdog3(power);
     FakeWD_Enable(mainappData.rightWD, power);
 }
@@ -145,7 +145,7 @@ void MAINAPP_Tasks ( void )
             appInitialized = (initializeMainappMailbox() == 0);
             // set up laser modulation
             //setupLaserModulation();
-            mainappData.modulator = LaserModulator_Intiialize(LaserModulatorIndex_0);
+            mainappData.modulator = LaserModulatorIfc_Intiialize(LaserModulator_Right);
             setupLaserCapture();
             //setupFakeWatchdog3();
 
