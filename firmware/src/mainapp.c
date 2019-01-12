@@ -134,6 +134,9 @@ void MAINAPP_Initialize ( void )
 
 void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx){
     INFO("Channel %d new state is %d", idx, s);
+    // test only
+    Packet *reply = PACKET_CreatePositionStatus(false, (bool)s);
+    SendPacketToBle(MSG_SRC_MAIN, reply);
 }
 
 void MAINAPP_Tasks ( void )
