@@ -26,7 +26,7 @@ typedef void (*CHANNEL_STATUS_EVENT)(const ChannelIndex, const ChannelStatus, ui
 typedef struct {
     ChannelStatus status;
     bool enabled;
-    bool initialized;
+    bool initialized;;
     LaserModulatorIfc *modulator;
     FakeWatchdog *wdog;
     LaserInput *input;
@@ -35,8 +35,7 @@ typedef struct {
     uintptr_t *context;
 } Channel;
 
-Channel *Channel_Initialize(const ChannelIndex idx);
-
+Channel *Channel_Get(const ChannelIndex idx);
 void Channel_Enable(Channel *ch, const bool enable);
 ChannelStatus Channel_GetStatus(Channel *ch);
 

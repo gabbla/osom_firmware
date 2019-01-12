@@ -1,6 +1,7 @@
 #include "mainapp.h"
 MAINAPP_DATA mainappData;
 
+#if 0
 void kickFakeWatchdog3(){
     TMR4 = 0;
 }
@@ -19,7 +20,6 @@ void setupLaserCapture() {
     IPC4bits.INT4IP = 7; // max priority
 }
 
-#if 0
 void __ISR(_TIMER_4_VECTOR, single) watchdog3() {
     INFO("!!!!! OBSTACLE !!!!!");
     IFS0bits.T4IF = 0; // Clear the flag
@@ -54,15 +54,20 @@ void enableLaser(const uint8_t which, const bool power){
     size_t i;
     Laser *laser;
     for(i = 0; i < 2; ++i){
-        laser = &lasers[i];
-        if(i & which) 
-            PLIB_PORTS_PinWrite(PORTS_ID_0, laser->port, laser->pin, power);
+        // TODO move to channel
+        //laser = &lasers[i];
+        //if(i & which) 
+        //    PLIB_PORTS_PinWrite(PORTS_ID_0, laser->port, laser->pin, power);
+        
+        if((1 << i) & which)
+            Channel_Enable(mainappData.channels[i], power);
+        
     }
     // start or stop the modulation
     //enableLaserModulation(power);
-    LaserModulatorIfc_Enable(mainappData.modulator, power);
+    //LaserModulatorIfc_Enable(mainappData.modulator, power);
     //enableFakeWatchdog3(power);
-    FakeWD_Enable(mainappData.rightWD, power);
+    //FakeWD_Enable(mainappData.rightWD, power);
 }
 
 void nextState(MAINAPP_STATES next){
@@ -127,8 +132,8 @@ void MAINAPP_Initialize ( void )
     mainappData.state = MAINAPP_STATE_INIT;
 }
 
-void wdcb(const ChannelIndex idx, uintptr_t *cntx){
-    INFO("FFFFF %d [%d]", *((int*)cntx), idx);
+void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx){
+    INFO("Channel %d new state is %d", idx, s);
 }
 
 void MAINAPP_Tasks ( void )
@@ -145,13 +150,15 @@ void MAINAPP_Tasks ( void )
             appInitialized = (initializeMainappMailbox() == 0);
             // set up laser modulation
             //setupLaserModulation();
-            mainappData.modulator = LaserModulatorIfc_Get(Channel_Right);
-            setupLaserCapture();
+            //mainappData.modulator = LaserModulatorIfc_Get(Channel_Right);
+            //setupLaserCapture();
             //setupFakeWatchdog3();
-
-            mainappData.rightWD = FakeWD_Get(Channel_Right);
-            static int test = 3;
-            FakeWD_SetCallback(mainappData.rightWD, &wdcb, (uintptr_t *)&test);
+            
+            size_t ch;
+            for(ch = 0; ch < Channel_Max; ++ch){
+                mainappData.channels[ch] = Channel_Get((ChannelIndex)ch);
+                Channel_SetCallback(mainappData.channels[ch], wdcb, NULL);
+            }
 
             if (appInitialized)
             {

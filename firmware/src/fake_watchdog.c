@@ -30,7 +30,7 @@ FakeWatchdog dogs[] = {
     }
 };
 
-inline void manageCallback(const ChannelIndex idx) {
+inline void manageCallbackFakeWD(const ChannelIndex idx) {
     FakeWatchdog *p = FakeWD_Get(idx);
     if(p && p->callback)
         p->callback(idx, p->context);
@@ -39,11 +39,11 @@ inline void manageCallback(const ChannelIndex idx) {
 
 // Callbacks
 void __ISR(RIGHT_TMR_ISR, IPL7AUTO) fakewd_right() {
-    manageCallback(Channel_Right);
+    manageCallbackFakeWD(Channel_Right);
 }
 
 void __ISR(LEFT_TMR_ISR, IPL7AUTO) fakewd_left() {
-    manageCallback(Channel_Left);
+    manageCallbackFakeWD(Channel_Left);
 }
 
 

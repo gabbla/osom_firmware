@@ -13,7 +13,7 @@ static LaserInput inputs[] = {
     }
 };
 
-inline void manageCallback(const ChannelIndex idx) {
+inline void manageCallbackLaserInput(const ChannelIndex idx) {
     LaserInput *p = LaserInput_Get(idx);
     if(p && p->callback)
         p->callback(idx, p->context);
@@ -21,11 +21,11 @@ inline void manageCallback(const ChannelIndex idx) {
 }
 
 // Callbacks
-void __ISR(_EXTERNAL_4_VECTOR, IPL7AUTO) fakewd_right() {
-    manageCallback(Channel_Right);
+void __ISR(_EXTERNAL_4_VECTOR, IPL7AUTO) laserInput_cb() {
+    manageCallbackLaserInput(Channel_Left);
 }
 
-LaserInput *LaserInput_Initialize(const ChannelIndex idx){
+LaserInput *LaserInput_Get(const ChannelIndex idx){
     if(!IS_VALID_CHANNEL_IDX(idx))
         return NULL;
     LaserInput *p = &inputs[idx];

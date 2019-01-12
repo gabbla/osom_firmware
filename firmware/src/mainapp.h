@@ -12,9 +12,8 @@
 #include "somparser.h"
 #include "cmdUtils.h"
 #include "peripheral/ports/plib_ports.h"
+#include "channels.h"
 
-#include "fake_watchdog.h"
-#include "modulator.h"
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -72,8 +71,7 @@ typedef struct
     MAINAPP_STATES state;
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
 
-    FakeWatchdog *rightWD;
-    LaserModulatorIfc *modulator;
+    Channel *channels[Channel_Max];
 
 } MAINAPP_DATA;
 
