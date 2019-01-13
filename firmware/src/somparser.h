@@ -12,6 +12,7 @@
 #include <string.h> // memcpy
 #include <stdlib.h> // malloc, free
 #include "osal/osal.h"  // mutex
+#include "channel_common.h"
 
 
 // Preamble
@@ -83,7 +84,7 @@ void PACKET_Free(Packet *p);
 
 // Helper function for self-generated packets
 typedef bool LASER_STATUS;
-Packet *PACKET_CreatePositionStatus(const LASER_STATUS dx, const LASER_STATUS sx);
+Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus sts);
 
 // Utils
 

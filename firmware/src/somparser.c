@@ -66,13 +66,13 @@ void PACKET_Free(Packet *p) {
 		free(p->payload);
 }
 
-Packet *PACKET_CreatePositionStatus(const LASER_STATUS dx, const LASER_STATUS sx){
+Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus sts){
     Packet *p;
     if((p = PACKET_Create()) != NULL) {
         p->cmd = BLE_CMD_POS_STATUS;
         p->pLen = 1;
         p->payload = malloc(p->pLen);
-        p->payload[0] = (dx | (sx << 1));
+        p->payload[0] = (idx << 4) | sts;
     }
     return p;
 }
