@@ -30,7 +30,20 @@ There are 3 type groups:
 
 There are also some common definitions along all the exchanged messages:
 
-TODO laser
+**Channel selection**
+
+Value|Channel
+--|--
+0|none
+1|right
+2|left
+3|both
+4-F|reserved
+
+
+TODO ACK
+
+---
 
 #### `0x00` to `0x0F`
 
@@ -42,14 +55,82 @@ Simply check if the system is up and running. TODO response
 
 TODO other commands
 
+---
+
 #### `0x10` to `0x4F`
+
+--- 
 
 ##### `0x10` Mode setting
 
 - Payload length 1
+
 Payload data:
 
 Field|Bit|Meaning
 --|--|--
 Mode|7-4|Mode selection
-Laser|3-0|Laser selection as defined
+Channel|3-0|Channel as described above
+
+**Mode**
+
+Value|Mode|Channel
+--|--|--
+0|Free Start|Single
+1|KO System|Dual
+2|Given Start|Single
+3-F|Reserved|-
+
+---
+
+##### `0x11` Start positioning
+
+This command place the system in the so-called _positioning mode_.
+
+- Payload length: 1
+
+Payload data
+
+Field|Bit|Meaning
+--|--|--
+Reserved|7-4|-
+Channel to be used|3-0|Channel as described above
+
+---
+
+##### `0x12` Stop positioning
+
+This command exits the so-called _positioning mode_.
+
+- Payload length: 0
+
+---
+
+#### `0x50` to `0x??`
+
+---
+
+##### `0x51` Channel positioning status
+
+This message notify the user about the channel status change.
+
+- Payload length: 1
+
+**Payload data**
+
+
+Field|Bit|Meaning
+--|--|--
+Channel|7-4|Channel as described above
+Status|0|Channel status
+
+**Channel status**
+
+Value|Meaning
+--|--
+0|The channel receiver is covered, check positioning
+1|The channel receiver is receiving the laser
+
+---
+
+
