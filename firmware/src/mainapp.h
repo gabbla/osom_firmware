@@ -57,9 +57,13 @@ typedef enum
 	MAINAPP_STATE_INIT=0,
 	MAINAPP_STATE_SERVICE_TASKS,
 
-    POSITIONING_PHASE,
 
 } MAINAPP_STATES;
+
+typedef enum {
+    SP_IDLE = 0,
+    SP_POSITIONING_PHASE,
+} SYSTEM_PHASE;
 
 // Command function parser prototype
 typedef void (*cmdParserFunction)(const Packet *, Packet *);
@@ -70,7 +74,9 @@ typedef struct
     /* The application's current state */
     MAINAPP_STATES state;
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
+    SYSTEM_PHASE phase; 
 
+    // Left / Right
     Channel *channels[Channel_Max];
 
 } MAINAPP_DATA;

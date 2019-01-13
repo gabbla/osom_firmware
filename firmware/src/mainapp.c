@@ -91,7 +91,8 @@ void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
 void BLE_CMD_START_POS_Parser(const Packet *in, Packet *out){
     DEBUG("%s()", __func__);
     enableLaser(POS_GetLaser(in->payload), true);
-    nextState(POSITIONING_PHASE);
+    mainappData.phase = SP_POSITIONING_PHASE;
+    //nextState(POSITIONING_PHASE);
 }
 
 void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out){
@@ -130,13 +131,19 @@ int8_t initializeMainappMailbox(){
 void MAINAPP_Initialize ( void )
 {
     mainappData.state = MAINAPP_STATE_INIT;
+    mainappData.phase = SP_IDLE;
 }
 
 void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx){
     INFO("Channel %d new state is %d", idx, s);
-    // test only
-    Packet *reply = PACKET_CreatePositionStatus(false, (bool)s);
-    SendPacketToBle(MSG_SRC_MAIN, reply);
+    MAINAPP_DATA *data = (MAINAPP_DATA*)cntx;
+    switch(data->phase) {
+        case SP_POSITIONING_PHASE: {
+            Packet *reply = PACKET_CreatePositionStatus(idx, s);
+            SendPacketToBle(MSG_SRC_MAIN, reply);
+            break;
+        }
+    }
 }
 
 void MAINAPP_Tasks ( void )
@@ -160,7 +167,7 @@ void MAINAPP_Tasks ( void )
             size_t ch;
             for(ch = 0; ch < Channel_Max; ++ch){
                 mainappData.channels[ch] = Channel_Get((ChannelIndex)ch);
-                Channel_SetCallback(mainappData.channels[ch], wdcb, NULL);
+                Channel_SetCallback(mainappData.channels[ch], wdcb, (uintptr_t *)&mainappData);
             }
 
             if (appInitialized)
@@ -202,10 +209,6 @@ void MAINAPP_Tasks ( void )
             }
             break;
         }
-
-        case POSITIONING_PHASE:
-            positioningPhase();
-            break;
 
         default:
         {
