@@ -15,11 +15,6 @@
  *  - (fake) watchdog
  */
 
-typedef enum {
-    ChannelStatusUnknown = -1,
-    ChannelStatusInactive,
-    ChannelStatusActive
-} ChannelStatus;
 
 typedef void (*CHANNEL_STATUS_EVENT)(const ChannelIndex, const ChannelStatus, uintptr_t *);
 
