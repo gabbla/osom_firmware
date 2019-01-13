@@ -34,6 +34,11 @@ typedef enum {
     Channel_Max
 } ChannelIndex;
 
+typedef enum {
+    ChannelStatusUnknown = -1,
+    ChannelStatusInactive,
+    ChannelStatusActive
+} ChannelStatus;
 
 
 #endif /* end of include guard: CHANNEL_COMMON_H_A8CS3IXR */
