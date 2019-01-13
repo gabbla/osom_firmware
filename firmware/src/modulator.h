@@ -6,11 +6,6 @@
 #include "peripheral/oc/plib_oc.h"
 #include "peripheral/tmr/plib_tmr.h"
 
-// Config
-#define MOD_TMR_MODULE  TMR_ID_2
-#define MOD_OC_MODULE   OC_ID_1
-#define MOD_OC_TMR      OC_TIMER_16BIT_TMR2
-
 typedef struct _modulatorIfc LaserModulatorIfc;
 
 typedef struct {

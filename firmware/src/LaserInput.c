@@ -3,13 +3,13 @@
 static LaserInput inputs[] = {
     {
         .initialized = false,
-        .intSource = INT_SOURCE_EXTERNAL_4,
-        .intVector = INT_VECTOR_INT4
+        .intSource = RIGHT_LASER_EXT_INT,
+        .intVector = RIGHT_LASER_EXT_VEC
     },
     {
         .initialized = false,
-        .intSource = INT_SOURCE_EXTERNAL_4,
-        .intVector = INT_VECTOR_INT4
+        .intSource = LEFT_LASER_EXT_INT,
+        .intVector = LEFT_LASER_EXT_VEC
     }
 };
 
@@ -21,7 +21,11 @@ inline void manageCallbackLaserInput(const ChannelIndex idx) {
 }
 
 // Callbacks
-void __ISR(_EXTERNAL_4_VECTOR, IPL7AUTO) laserInput_cb() {
+void __ISR(RIGHT_LASER_ISR_VECTOR, IPL7AUTO) laserInputRight() {
+    manageCallbackLaserInput(Channel_Right);
+}
+
+void __ISR(LEFT_LASER_ISR_VECTOR, IPL7AUTO) laserInputLeft() {
     manageCallbackLaserInput(Channel_Left);
 }
 

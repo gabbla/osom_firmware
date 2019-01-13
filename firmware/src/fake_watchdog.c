@@ -1,16 +1,5 @@
 #include "fake_watchdog.h"
 
-// Both left and right using TMR4 for now
-#define RIGHT_TMR_MODULE    TMR_ID_4
-#define RIGHT_TMR_SOURCE    INT_SOURCE_TIMER_4
-#define RIGHT_TMR_VECTOR    INT_VECTOR_T4
-#define RIGHT_TMR_ISR       _TIMER_4_VECTOR
-
-#define LEFT_TMR_MODULE    TMR_ID_5
-#define LEFT_TMR_SOURCE    INT_SOURCE_TIMER_5
-#define LEFT_TMR_VECTOR    INT_VECTOR_T5
-#define LEFT_TMR_ISR       _TIMER_5_VECTOR
-
 FakeWatchdog dogs[] = {
     {
         .tmrModule = RIGHT_TMR_MODULE,
