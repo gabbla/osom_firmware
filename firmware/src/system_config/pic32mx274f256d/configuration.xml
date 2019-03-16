@@ -157,7 +157,7 @@
       <Template dnOrder="14">
         <Name dnOrder="0">system_init.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">75BC12C4682E2BEF365F37C4BF202659</Checksum>
+        <Checksum dnOrder="2">334FD53F1D696A8935B4788CE087FF11</Checksum>
       </Template>
     </Templates>
     <CompilerItems dnOrder="2">

@@ -61,7 +61,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #pragma config DEBUG =      OFF
 #pragma config JTAGEN =     OFF
-#pragma config ICESEL =     ICS_PGx1
+#pragma config ICESEL =     ICS_PGx4
 #pragma config SMCLR =      MCLR_NORM
 #pragma config PWP =        OFF
 #pragma config BWP =        OFF
