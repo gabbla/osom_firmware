@@ -1,4 +1,4 @@
-#include "bleApp.h"
+#include "bleapp.h"
 #include "driver/tmr/src/drv_tmr_local.h"
 
 BLEAPP_DATA bleappData;
