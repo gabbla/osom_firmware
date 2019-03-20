@@ -84,6 +84,7 @@ void SYS_Tasks ( void )
     /* Maintain the application's state machine. */
     BLEAPP_Tasks();
     MAINAPP_Tasks();
+    POWERAPP_Tasks();
     
     LedHeartbeatToggle();
 }

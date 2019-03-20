@@ -296,6 +296,7 @@ void SYS_Initialize ( void* data )
     /* Initialize the Application */
     BLEAPP_Initialize();
     MAINAPP_Initialize();
+    POWERAPP_Initialize();
 }
 
 

@@ -61,6 +61,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system/msg/sys_msg.h"
 #include "bleapp.h"
 #include "mainapp.h"
+#include "powerapp.h"
 
 
 // DOM-IGNORE-BEGIN

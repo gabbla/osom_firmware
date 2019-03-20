@@ -224,78 +224,86 @@
         <Path dnOrder="1">Source&amp;#160;Files/app</Path>
       </Template>
       <Template dnOrder="2">
-        <Name dnOrder="0">bleapp.h</Name>
+        <Name dnOrder="0">powerapp.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app</Path>
       </Template>
       <Template dnOrder="3">
+        <Name dnOrder="0">bleapp.h</Name>
+        <Path dnOrder="1">Header&amp;#160;Files/app</Path>
+      </Template>
+      <Template dnOrder="4">
         <Name dnOrder="0">sys_devcon.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/devcon/src</Path>
         <Checksum dnOrder="2">54ADBD4A35BCA03C42C74182FCE41849</Checksum>
       </Template>
-      <Template dnOrder="4">
+      <Template dnOrder="5">
         <Name dnOrder="0">sys_devcon_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/devcon/src</Path>
         <Checksum dnOrder="2">B66F9B4DBD85DA7F9DE775E864E01395</Checksum>
       </Template>
-      <Template dnOrder="5">
+      <Template dnOrder="6">
+        <Name dnOrder="0">powerapp.c</Name>
+        <Path dnOrder="1">Source&amp;#160;Files/app</Path>
+      </Template>
+      <Template dnOrder="7">
         <Name dnOrder="0">sys_devcon_pic32mx.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/devcon/src</Path>
         <Checksum dnOrder="2">7939A9555363E85AFFB1AE7BF25593D3</Checksum>
       </Template>
-      <Template dnOrder="6">
+      <Template dnOrder="8">
         <Name dnOrder="0">sys_devcon.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/devcon</Path>
         <Checksum dnOrder="2">07580DCDEF89D9C79B062544109C5367</Checksum>
       </Template>
-      <Template dnOrder="7">
+      <Template dnOrder="9">
         <Name dnOrder="0">system_interrupt.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">50352EDCD00F16571B80D55814331077</Checksum>
+        <Checksum dnOrder="2">B279220CE9D47C259447024AFECBE1F5</Checksum>
       </Template>
-      <Template dnOrder="8">
+      <Template dnOrder="10">
         <Name dnOrder="0">system_exceptions.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
         <Checksum dnOrder="2">9836A04F3E98D3971DB91DF539160F34</Checksum>
         <ProjectFileChecksum dnOrder="3">A29FD2C269E31C2EA004664CB634CD20</ProjectFileChecksum>
       </Template>
-      <Template dnOrder="9">
+      <Template dnOrder="11">
         <Name dnOrder="0">bleapp.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app</Path>
       </Template>
-      <Template dnOrder="10">
+      <Template dnOrder="12">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/ports/src</Path>
         <Checksum dnOrder="2">AE36CDD21F00B64D0F10D39D95784BBB</Checksum>
       </Template>
-      <Template dnOrder="11">
+      <Template dnOrder="13">
         <Name dnOrder="0">system_tasks.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">8D11EFB1517D7A07F67336A6CED8BED1</Checksum>
+        <Checksum dnOrder="2">AC9CBB7247E9A71FEF08EDD919F133FE</Checksum>
         <ProjectFileChecksum dnOrder="3">6F5911A926F0FA99565E3E87E463C350</ProjectFileChecksum>
       </Template>
-      <Template dnOrder="12">
+      <Template dnOrder="14">
         <Name dnOrder="0">sys_clk_pic32mx.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/clk/src</Path>
         <Checksum dnOrder="2">6C421F612F5BB770AEEE8455A404A3C5</Checksum>
       </Template>
-      <Template dnOrder="13">
+      <Template dnOrder="15">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">460DC9FD05983D7C5A2E232DA36E0597</Checksum>
+        <Checksum dnOrder="2">26CB05FE6E4C2D9B035008B86594D9DA</Checksum>
       </Template>
-      <Template dnOrder="14">
+      <Template dnOrder="16">
         <Name dnOrder="0">mainapp.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app</Path>
       </Template>
-      <Template dnOrder="15">
+      <Template dnOrder="17">
         <Name dnOrder="0">system_definitions.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">1D0A92798D1BC56363D776AB89B97694</Checksum>
+        <Checksum dnOrder="2">82485A16A058D0F7A87505192D47FCA1</Checksum>
       </Template>
-      <Template dnOrder="16">
+      <Template dnOrder="18">
         <Name dnOrder="0">system_init.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">2B15FC6EF3D1E04D0F65E0764B9F06AA</Checksum>
+        <Checksum dnOrder="2">139FDE067CA0B2733D39C07C0D10316C</Checksum>
       </Template>
     </Templates>
     <CompilerItems dnOrder="2">
