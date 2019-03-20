@@ -1,6 +1,8 @@
 #ifndef CHANNEL_COMMON_H_A8CS3IXR
 #define CHANNEL_COMMON_H_A8CS3IXR
 
+#include "system/ports/sys_ports.h"
+
 // Configuration
 // Fake Watchdog
 #define RIGHT_TMR_MODULE        TMR_ID_4
@@ -25,6 +27,14 @@
 #define MOD_OC_MODULE   OC_ID_1
 #define MOD_OC_TMR      OC_TIMER_16BIT_TMR2
 
+// Modulator enabler
+#define RIGHT_ENABLER_PORT_IDX  PORTS_ID_0
+#define RIGHT_ENABLER_PORT      PORT_CHANNEL_C
+#define RIGHT_ENABLER_POS       PORTS_BIT_POS_2
+
+#define LEFT_ENABLER_PORT_IDX   PORTS_ID_0
+#define LEFT_ENABLER_PORT       PORT_CHANNEL_A
+#define LEFT_ENABLER_POS        PORTS_BIT_POS_9
 
 #define IS_VALID_CHANNEL_IDX(x)     ((x) < Channel_Max)
 

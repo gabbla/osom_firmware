@@ -4,19 +4,29 @@ static LaserModulatorIfc modulatorIfc[] = {
     {
         .enabled = false,
         .initialized = false,
-        .modulator = NULL
+        .modulator = NULL,
+        .enabler = {
+            .index  = RIGHT_ENABLER_PORT_IDX,
+            .port   = RIGHT_ENABLER_PORT,
+            .bitPos = RIGHT_ENABLER_POS
+        }
     },
     {
         .enabled = false,
         .initialized = false,
-        .modulator = NULL
+        .modulator = NULL,
+        .enabler = {
+            .index  = LEFT_ENABLER_PORT_IDX,
+            .port   = LEFT_ENABLER_PORT,
+            .bitPos = LEFT_ENABLER_POS
+        }
     }
 };
 
 static LaserModulator modulator = {
     .enabled = false,
     .initialized = false,
-    .tmrModule = MOD_TMR_MODULE, 
+    .tmrModule = MOD_TMR_MODULE,
     .ocModule = MOD_OC_MODULE,
     .clients = modulatorIfc,
     .clientCnt = 2
@@ -79,10 +89,16 @@ void LaserModulator_Enable(const bool enable) {
     }
 }
 
+void ChannelEnabler_Enable(const ChannelEnabler *enabler, const bool enable) {
+    if(!enabler)
+        return;
+    PLIB_PORTS_PinWrite(enabler->index, enabler->port, enabler->bitPos, enable);
+}
 
 void LaserModulatorIfc_Enable(LaserModulatorIfc *mod, const bool enable){
     if(!mod || !mod->initialized)
         return;
     mod->enabled = enable;
     LaserModulator_Enable(enable);
+    ChannelEnabler_Enable(&mod->enabler, enable);
 }

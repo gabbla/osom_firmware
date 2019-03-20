@@ -18,10 +18,17 @@ typedef struct {
     LaserModulatorIfc *clients[];
 } LaserModulator;
 
+typedef struct {
+    PORTS_MODULE_ID index;
+    PORTS_CHANNEL port;
+    PORTS_BIT_POS bitPos;
+} ChannelEnabler;
+
 struct _modulatorIfc {
     LaserModulator *modulator;
     bool enabled;
     bool initialized;
+    ChannelEnabler enabler;
 };
 
 LaserModulatorIfc *LaserModulatorIfc_Get(const ChannelIndex idx);

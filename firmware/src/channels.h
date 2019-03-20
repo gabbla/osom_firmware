@@ -11,6 +11,7 @@
 /*
  * A channel is made by:
  *  - modulator (common between the channels)
+ *  - output enable (ANDed with the modulator)
  *  - input with interrupt
  *  - (fake) watchdog
  */
