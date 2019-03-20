@@ -265,7 +265,7 @@
       <Template dnOrder="10">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/ports/src</Path>
-        <Checksum dnOrder="2">4B5A1479F2E4A6A8FF1D6A90364198AF</Checksum>
+        <Checksum dnOrder="2">AE36CDD21F00B64D0F10D39D95784BBB</Checksum>
       </Template>
       <Template dnOrder="11">
         <Name dnOrder="0">system_tasks.c</Name>
