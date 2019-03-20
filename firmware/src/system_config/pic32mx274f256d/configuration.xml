@@ -265,7 +265,7 @@
       <Template dnOrder="10">
         <Name dnOrder="0">sys_ports_static.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/ports/src</Path>
-        <Checksum dnOrder="2">01D588866537C70432BC09A09319F5E9</Checksum>
+        <Checksum dnOrder="2">4B5A1479F2E4A6A8FF1D6A90364198AF</Checksum>
       </Template>
       <Template dnOrder="11">
         <Name dnOrder="0">system_tasks.c</Name>
@@ -281,7 +281,7 @@
       <Template dnOrder="13">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">13F91275C7CB9D952E6F043665680389</Checksum>
+        <Checksum dnOrder="2">460DC9FD05983D7C5A2E232DA36E0597</Checksum>
       </Template>
       <Template dnOrder="14">
         <Name dnOrder="0">mainapp.h</Name>
