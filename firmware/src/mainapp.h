@@ -85,6 +85,9 @@ void MAINAPP_Initialize ( void );
 
 void MAINAPP_Tasks( void );
 
+void LED_Tasks();
+
+void MSG_Tasks();
 
 #endif /* _MAINAPP_H */
 

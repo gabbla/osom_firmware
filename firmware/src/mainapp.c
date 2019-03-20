@@ -1,49 +1,6 @@
 #include "mainapp.h"
 MAINAPP_DATA mainappData;
 
-#if 0
-void kickFakeWatchdog3(){
-    TMR4 = 0;
-}
-
-void __ISR(_EXTERNAL_4_VECTOR, single) leftInt(){
-    //kickFakeWatchdog3();
-    FakeWD_Kick(mainappData.rightWD);
-    IFS0bits.INT4IF = 0; // clear the flag
-}
-
-void setupLaserCapture() {
-    // Set up left channel (INT4)
-    INTCONbits.INT4EP = 0; // Falling edge
-    IFS0bits.INT4IF = 0; // clear the flag
-    IEC0bits.INT4IE = 1; // enable the interrupt
-    IPC4bits.INT4IP = 7; // max priority
-}
-
-void __ISR(_TIMER_4_VECTOR, single) watchdog3() {
-    INFO("!!!!! OBSTACLE !!!!!");
-    IFS0bits.T4IF = 0; // Clear the flag
-}
-
-void enableFakeWatchdog3(const bool en){
-    T4CONbits.ON = en;
-}
-
-void setupFakeWatchdog3() {
-    // Faking a watchdog with timer 4
-    // Kick window 550 us
-    T4CONbits.ON = 0; // Turn off the timer
-    T4CONbits.TCS = 0; // Internal clock source
-    T4CONbits.T32 = 0; // TMRx and TMRy 2 16bits timer
-    T4CONbits.TCKPS = 3; // Prescaler to 1:8
-    PR4 = 2750; // Period set to 0.55 ms
-
-    // Enable interrupt
-    IFS0bits.T4IF = 0; // Clear the flag
-    IEC0bits.T4IE = 1; // Enable the interrupt
-    IPC4bits.T4IP = 7; //High priority
-}
-#endif
 
 /*
  * @brief Power on or off the given laser(s)
@@ -53,21 +10,11 @@ void setupFakeWatchdog3() {
 void enableLaser(const uint8_t which, const bool power){
     size_t i;
     Laser *laser;
+    // FIXME does not work well with 2 channels
     for(i = 0; i < 2; ++i){
-        // TODO move to channel
-        //laser = &lasers[i];
-        //if(i & which) 
-        //    PLIB_PORTS_PinWrite(PORTS_ID_0, laser->port, laser->pin, power);
-        
         if((1 << i) & which)
             Channel_Enable(mainappData.channels[i], power);
-        
     }
-    // start or stop the modulation
-    //enableLaserModulation(power);
-    //LaserModulatorIfc_Enable(mainappData.modulator, power);
-    //enableFakeWatchdog3(power);
-    //FakeWD_Enable(mainappData.rightWD, power);
 }
 
 void nextState(MAINAPP_STATES next){
@@ -156,14 +103,6 @@ void MAINAPP_Tasks ( void )
         case MAINAPP_STATE_INIT:
         {
             bool appInitialized = true;
-            
-            appInitialized = (initializeMainappMailbox() == 0);
-            // set up laser modulation
-            //setupLaserModulation();
-            //mainappData.modulator = LaserModulatorIfc_Get(Channel_Right);
-            //setupLaserCapture();
-            //setupFakeWatchdog3();
-            
             size_t ch;
             for(ch = 0; ch < Channel_Max; ++ch){
                 mainappData.channels[ch] = Channel_Get((ChannelIndex)ch);
@@ -180,34 +119,8 @@ void MAINAPP_Tasks ( void )
 
         case MAINAPP_STATE_SERVICE_TASKS:
         {
-            // Check for messages
-            SYS_MSG_OBJECT *next;
-            if((next = SYS_MSG_MailboxMessagesGet(mainappData.commandMailBox)) 
-                    != NULL){
-                DEBUG("Found a message from %d", next->nSource);
-                Packet *p = (Packet*)next->pData;
-                size_t parserIndex = p->cmd - MAINAPP_CMD_OFFSET;
-                if(p->cmd >= BLE_CMD_MAX_CMD 
-                        || p->cmd < MAINAPP_CMD_OFFSET
-                        || (parsers[parserIndex] == NULL)) {
-                    ERROR("Command 0x%02X not supported!", p->cmd);
-                    // TODO send "Not supported"
-                    Packet *notSupported = PACKET_Create();
-                    notSupported->cmd = BLE_CMD_NOT_SUPPORTED;
-                    notSupported->pLen = 3;
-                    notSupported->payload = malloc(3);
-                    memcpy(notSupported->payload, &(p->msgID), sizeof(uint16_t));
-                    notSupported->payload[2] = p->cmd;
-                    SendPacketToBle(MSG_SRC_MAIN, notSupported);
-                } else {
-                    DEBUG("Parsing command ID 0x%02X", p->cmd);
-                    Packet *reply = PACKET_CreateForReply(p);
-                    parsers[parserIndex](p, reply);
-                    SendPacketToBle(MSG_SRC_MAIN, reply);
-                }
-                PACKET_Free(p); // really important
-            }
-            break;
+            LED_Tasks();
+            MSG_Tasks();
         }
 
         default:
@@ -215,5 +128,40 @@ void MAINAPP_Tasks ( void )
             /* TODO: Handle error in application's state machine. */
             break;
         }
+    }
+}
+
+void LED_Tasks() {
+    // TODO reflect system status
+    // - Slave conneted/disconnected
+}
+
+void MSG_Tasks() {
+    // Check for messages
+    SYS_MSG_OBJECT *next;
+    if((next = SYS_MSG_MailboxMessagesGet(mainappData.commandMailBox)) 
+            != NULL){
+        DEBUG("Found a message from %d", next->nSource);
+        Packet *p = (Packet*)next->pData;
+        size_t parserIndex = p->cmd - MAINAPP_CMD_OFFSET;
+        if(p->cmd >= BLE_CMD_MAX_CMD 
+                || p->cmd < MAINAPP_CMD_OFFSET
+                || (parsers[parserIndex] == NULL)) {
+            ERROR("Command 0x%02X not supported!", p->cmd);
+            // TODO send "Not supported"
+            Packet *notSupported = PACKET_Create();
+            notSupported->cmd = BLE_CMD_NOT_SUPPORTED;
+            notSupported->pLen = 3;
+            notSupported->payload = malloc(3);
+            memcpy(notSupported->payload, &(p->msgID), sizeof(uint16_t));
+            notSupported->payload[2] = p->cmd;
+            SendPacketToBle(MSG_SRC_MAIN, notSupported);
+        } else {
+            DEBUG("Parsing command ID 0x%02X", p->cmd);
+            Packet *reply = PACKET_CreateForReply(p);
+            parsers[parserIndex](p, reply);
+            SendPacketToBle(MSG_SRC_MAIN, reply);
+        }
+        PACKET_Free(p); // really important
     }
 }
