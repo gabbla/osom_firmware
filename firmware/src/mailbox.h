@@ -3,7 +3,7 @@
 
 #include "somparser.h" // For packet
 #include "logger.h" // log utils
-#include "system_config/Debug/system_definitions.h"
+#include "system_config/pic32mx274f256d/system_definitions.h"
 // Useful stuff about mailboxes
 // Sources
 #define MSG_SRC_BLE             (0)

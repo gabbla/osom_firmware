@@ -52,8 +52,11 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system/devcon/sys_devcon.h"
 #include "system/clk/sys_clk.h"
 #include "system/int/sys_int.h"
+#include "system/tmr/sys_tmr.h"
+#include "driver/tmr/drv_tmr.h"
 #include "driver/usart/drv_usart.h"
 #include "system/ports/sys_ports.h"
+#include "system/msg/sys_msg.h"
 #include "bleapp.h"
 #include "mainapp.h"
 
@@ -89,8 +92,11 @@ extern "C" {
 
 typedef struct
 {
+    SYS_MODULE_OBJ  sysTmr;
+    SYS_MODULE_OBJ  drvTmr0;
 
     SYS_MODULE_OBJ  drvUsart0;
+    SYS_MODULE_OBJ  sysMsg0;
 
 } SYSTEM_OBJECTS;
 

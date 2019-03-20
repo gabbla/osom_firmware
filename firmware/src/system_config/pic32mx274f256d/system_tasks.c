@@ -72,13 +72,19 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 void SYS_Tasks ( void )
 {
     /* Maintain system services */
+    SYS_MSG_Tasks( (SYS_OBJ_HANDLE) sysObj.sysMsg0 );
+    /* SYS_TMR Device layer tasks routine */ 
+    SYS_TMR_Tasks(sysObj.sysTmr);
 
     /* Maintain Device Drivers */
 
     /* Maintain Middleware & Other Libraries */
 
     /* Maintain the application's state machine. */
-    APP_Tasks();
+    BLEAPP_Tasks();
+    MAINAPP_Tasks();
+    
+    LedHeartbeatToggle();
 }
 
 

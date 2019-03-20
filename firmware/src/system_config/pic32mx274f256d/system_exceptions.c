@@ -106,6 +106,21 @@ static char *cause[] =
 // Section: Exception Handling
 // *****************************************************************************
 // *****************************************************************************
+#define READ_CORE_TIMER()                 _CP0_GET_COUNT()          // Read the MIPS Core Timer
+ 
+void BSP_DelayUs(uint16_t microseconds) {
+    uint32_t time;
+    
+    time = READ_CORE_TIMER(); // Read Core Timer    
+    time += (SYS_CLK_FREQ / 2 / 1000000) * microseconds; // calc the Stop Time    
+    while ((int32_t)(time - READ_CORE_TIMER()) > 0){};    
+}
+
+void BSP_DelayMs(uint16_t milliseconds) {
+    uint32_t i;
+    for(i = 0; i < milliseconds; ++i)
+        BSP_DelayUs(1000);
+}
 
 /*******************************************************************************
   Function:
@@ -135,6 +150,15 @@ void _general_exception_handler ( void )
     while (1)
     {
         SYS_DEBUG_BreakPoint();
+        LedStatusOff();
+        int i;
+        for(i = 0; i < _excep_code; ++i) {
+            LedStatusOn();
+            BSP_DelayMs(300);
+            LedStatusOff();
+            BSP_DelayMs(300);
+        }
+        BSP_DelayMs(3000);
     }
 }
 

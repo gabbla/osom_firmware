@@ -12,6 +12,7 @@
             <header-extensions>h</header-extensions>
             <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
+            <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>../src</sourceRootElem>
                 <sourceRootElem>../..</sourceRootElem>
@@ -20,17 +21,18 @@
                 <sourceRootElem>..\src\system_config\Debug</sourceRootElem>
                 <sourceRootElem>../src/Debug</sourceRootElem>
                 <sourceRootElem>../src/system_config/Debug</sourceRootElem>
+                <sourceRootElem>../src/pic32mx274f256d</sourceRootElem>
+                <sourceRootElem>../src/system_config/pic32mx274f256d</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>Debug</name>
+                    <name>pic32mx274f256d</name>
                     <type>2</type>
                 </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>
             </formatting>
-            <make-dep-projects/>
         </data>
     </configuration>
 </project>
