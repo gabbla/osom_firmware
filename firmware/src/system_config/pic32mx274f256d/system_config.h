@@ -154,6 +154,35 @@ extern "C" {
 // Section: Driver Configuration
 // *****************************************************************************
 // *****************************************************************************
+// *****************************************************************************
+/* I2C Driver Configuration Options
+*/
+#define DRV_I2C_INTERRUPT_MODE                    		true
+#define DRV_I2C_CLIENTS_NUMBER                    		1
+#define DRV_I2C_INSTANCES_NUMBER                  		1
+
+#define DRV_I2C_PERIPHERAL_ID_IDX0                		I2C_ID_2
+#define DRV_I2C_OPERATION_MODE_IDX0               		DRV_I2C_MODE_MASTER
+#define DRV_SCL_PORT_IDX0                               PORT_CHANNEL_A
+#define DRV_SCL_PIN_POSITION_IDX0                       PORTS_BIT_POS_2
+#define DRV_SDA_PORT_IDX0                               PORT_CHANNEL_A
+#define DRV_SDA_PIN_POSITION_IDX0                       PORTS_BIT_POS_3
+#define DRV_I2C_BIT_BANG_IDX0                           false
+#define DRV_I2C_STOP_IN_IDLE_IDX0                       false
+#define DRV_I2C_SMBus_SPECIFICATION_IDX0			    false
+#define DRV_I2C_BAUD_RATE_IDX0                    		400000
+#define DRV_I2C_BRG_CLOCK_IDX0	                  		72000000
+#define DRV_I2C_SLEW_RATE_CONTROL_IDX0      			false
+#define DRV_I2C_MASTER_INT_SRC_IDX0               		INT_SOURCE_I2C_2_MASTER
+#define DRV_I2C_SLAVE_INT_SRC_IDX0                		
+#define DRV_I2C_ERR_MX_INT_SRC_IDX0               		INT_SOURCE_I2C_2_ERROR
+#define DRV_I2C_INT_VECTOR_IDX0                         INT_VECTOR_I2C2
+#define DRV_I2C_ISR_VECTOR_IDX0                         _I2C_2_VECTOR
+#define DRV_I2C_INT_PRIORITY_IDX0                 		INT_PRIORITY_LEVEL1
+#define DRV_I2C_INT_SUB_PRIORITY_IDX0             		INT_SUBPRIORITY_LEVEL0
+#define DRV_I2C_POWER_STATE_IDX0                  		SYS_MODULE_POWER_RUN_FULL
+#define DRV_I2C_INTERRUPT_MODE                    		true
+
 /*** Timer Driver Configuration ***/
 #define DRV_TMR_INTERRUPT_MODE             true
 #define DRV_TMR_INSTANCES_NUMBER           1

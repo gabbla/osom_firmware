@@ -23,10 +23,21 @@
         </logicalFolder>
         <itemPath>../src/mainapp.h</itemPath>
         <itemPath>../src/bleapp.h</itemPath>
+        <itemPath>../src/powerapp.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
-          <logicalFolder name="f1" displayName="tmr" projectFiles="true">
+          <logicalFolder name="f1" displayName="i2c" projectFiles="true">
+            <logicalFolder name="f1" displayName="src" projectFiles="true">
+              <itemPath>../../../../framework/driver/i2c/src/drv_i2c_local.h</itemPath>
+              <itemPath>../../../../framework/driver/i2c/src/drv_i2c_variant_mapping.h</itemPath>
+            </logicalFolder>
+            <itemPath>../../../../framework/driver/i2c/drv_i2c.h</itemPath>
+            <itemPath>../../../../framework/driver/i2c/drv_i2c_device_pic32m.h</itemPath>
+            <itemPath>../../../../framework/driver/i2c/drv_i2c_compatibility.h</itemPath>
+            <itemPath>../../../../framework/driver/i2c/drv_i2c_mapping.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="tmr" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/driver/tmr/src/drv_tmr_variant_mapping.h</itemPath>
               <itemPath>../../../../framework/driver/tmr/src/drv_tmr_local.h</itemPath>
@@ -36,7 +47,7 @@
             <itemPath>../../../../framework/driver/tmr/drv_tmr_compatibility.h</itemPath>
             <itemPath>../../../../framework/driver/tmr/tmr_definitions_pic32m.h</itemPath>
           </logicalFolder>
-          <logicalFolder name="f2" displayName="usart" projectFiles="true">
+          <logicalFolder name="f3" displayName="usart" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/driver/usart/src/drv_usart_variant_mapping.h</itemPath>
               <itemPath>../../../../framework/driver/usart/src/drv_usart_local.h</itemPath>
@@ -162,17 +173,25 @@
         <itemPath>../src/mainapp.c</itemPath>
         <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/mailbox.c</itemPath>
         <itemPath>../src/bleapp.c</itemPath>
+        <itemPath>../src/powerapp.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
-          <logicalFolder name="f1" displayName="tmr" projectFiles="true">
+          <logicalFolder name="f1" displayName="i2c" projectFiles="true">
+            <logicalFolder name="f1" displayName="src" projectFiles="true">
+              <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                <itemPath>../../../../framework/driver/i2c/src/dynamic/drv_i2c.c</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="tmr" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
                 <itemPath>../../../../framework/driver/tmr/src/dynamic/drv_tmr.c</itemPath>
               </logicalFolder>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f2" displayName="usart" projectFiles="true">
+          <logicalFolder name="f3" displayName="usart" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
                 <itemPath>../../../../framework/driver/usart/src/dynamic/drv_usart.c</itemPath>
