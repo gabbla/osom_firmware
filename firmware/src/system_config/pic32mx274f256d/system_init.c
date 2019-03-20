@@ -144,6 +144,28 @@ const DRV_USART_INIT drvUsart0InitData =
     .dmaChannelReceive = DMA_CHANNEL_NONE,
     .dmaInterruptReceive = DRV_USART_RCV_INT_SRC_IDX0,    
 };
+
+const DRV_USART_INIT drvUsart1InitData =
+{
+    .moduleInit.value = DRV_USART_POWER_STATE_IDX1,
+    .usartID = DRV_USART_PERIPHERAL_ID_IDX1, 
+    .mode = DRV_USART_OPER_MODE_IDX1,
+    .flags = DRV_USART_INIT_FLAGS_IDX1,
+    .brgClock = DRV_USART_BRG_CLOCK_IDX1,
+    .lineControl = DRV_USART_LINE_CNTRL_IDX1,
+    .baud = DRV_USART_BAUD_RATE_IDX1,
+    .handshake = DRV_USART_HANDSHAKE_MODE_IDX1,
+    .linesEnable = DRV_USART_LINES_ENABLE_IDX1,
+    .interruptTransmit = DRV_USART_XMIT_INT_SRC_IDX1,
+    .interruptReceive = DRV_USART_RCV_INT_SRC_IDX1,
+    .interruptError = DRV_USART_ERR_INT_SRC_IDX1,
+    .queueSizeTransmit = DRV_USART_XMIT_QUEUE_SIZE_IDX1,
+    .queueSizeReceive = DRV_USART_RCV_QUEUE_SIZE_IDX1,
+    .dmaChannelTransmit = DMA_CHANNEL_NONE,
+    .dmaInterruptTransmit = DRV_USART_XMIT_INT_SRC_IDX1,
+    .dmaChannelReceive = DMA_CHANNEL_NONE,
+    .dmaInterruptReceive= DRV_USART_RCV_INT_SRC_IDX1,
+};
 // </editor-fold>
 
 // *****************************************************************************
@@ -160,6 +182,28 @@ SYSTEM_OBJECTS sysObj;
 // Section: Module Initialization Data
 // *****************************************************************************
 // *****************************************************************************
+// <editor-fold defaultstate="collapsed" desc="SYS_CONSOLE Initialization Data">
+/*** System Console Initialization Data ***/
+
+SYS_MODULE_OBJ sysConsoleObjects[] = { SYS_MODULE_OBJ_INVALID };
+
+/* Declared in console device implementation (sys_console_uart.c) */
+extern SYS_CONSOLE_DEV_DESC consUsartDevDesc;
+SYS_CONSOLE_INIT consUsartInit0 =
+{
+    .moduleInit = {0},
+    .consDevDesc = &consUsartDevDesc,
+};
+// </editor-fold>
+// <editor-fold defaultstate="collapsed" desc="SYS_DEBUG Initialization Data">
+/*** System Debug Initialization Data ***/
+
+SYS_DEBUG_INIT debugInit =
+{
+    .moduleInit = {0},
+    .errorLevel = SYS_ERROR_DEBUG
+};
+// </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="SYS_MSG Initialization Data">
 /*** Message System Initialization Data ***/
 
@@ -220,11 +264,19 @@ void SYS_Initialize ( void* data )
  
  
      sysObj.drvUsart0 = DRV_USART_Initialize(DRV_USART_INDEX_0, (SYS_MODULE_INIT *)&drvUsart0InitData);
+    sysObj.drvUsart1 = DRV_USART_Initialize(DRV_USART_INDEX_1, (SYS_MODULE_INIT *)&drvUsart1InitData);
     SYS_INT_VectorPrioritySet(INT_VECTOR_UART1, INT_PRIORITY_LEVEL1);
     SYS_INT_VectorSubprioritySet(INT_VECTOR_UART1, INT_SUBPRIORITY_LEVEL0);
+    SYS_INT_VectorPrioritySet(INT_VECTOR_UART2, INT_PRIORITY_LEVEL1);
+    SYS_INT_VectorSubprioritySet(INT_VECTOR_UART2, INT_SUBPRIORITY_LEVEL0);
 
     /* Initialize System Services */
     SYS_PORTS_Initialize();
+    sysObj.sysConsole0 = SYS_CONSOLE_Initialize(SYS_CONSOLE_INDEX_0, (SYS_MODULE_INIT *)&consUsartInit0);
+
+
+    /*** Debug Service Initialization Code ***/
+    sysObj.sysDebug = SYS_DEBUG_Initialize(SYS_DEBUG_INDEX_0, (SYS_MODULE_INIT*)&debugInit);
 
     /*** Interrupt Service Initialization Code ***/
     SYS_INT_Initialize();
