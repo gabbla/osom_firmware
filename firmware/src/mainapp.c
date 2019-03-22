@@ -103,6 +103,7 @@ void MAINAPP_Tasks ( void )
         case MAINAPP_STATE_INIT:
         {
             bool appInitialized = true;
+            initializeMainappMailbox();
             size_t ch;
             for(ch = 0; ch < Channel_Max; ++ch){
                 mainappData.channels[ch] = Channel_Get((ChannelIndex)ch);
@@ -121,6 +122,7 @@ void MAINAPP_Tasks ( void )
         {
             LED_Tasks();
             MSG_Tasks();
+            break;
         }
 
         default:
