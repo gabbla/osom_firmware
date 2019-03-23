@@ -178,6 +178,22 @@ void BLEAPP_Initialize(void) {
 	bleappData.packetTimeout = SYS_TMR_HANDLE_INVALID;
 }
 
+
+void powercb(BQ27441_Command cmd, uint8_t *data, size_t s) {
+    if(!data) {
+        ERROR("Invalid data received!");
+        return;
+    }
+    switch(cmd) {
+        case BQ27441_STATE_OF_CHARGE:
+            INFO("SOC: %d %%", BQ27441_GetMillivolts(data));    
+            break;
+        case BQ27441_VOLTAGE:
+            INFO("Voltage: %d mV", BQ27441_GetMillivolts(data));    
+            break;
+    }
+}
+
 uint8_t dummyData[5] = {5, 4, 56, 2, 77};
 void BLEAPP_Tasks(void) {
 
@@ -256,7 +272,7 @@ void BLEAPP_Tasks(void) {
 				Packet *p = PACKET_Get(bleappData.packet);
                 if(p->cmd < 0x10) {
                     DEBUG("Message for BLEApp");
-
+                    BQ27441_GetData(BQ27441_STATE_OF_CHARGE, &powercb);
                     PACKET_Free(p);
                 } else {
                     DEBUG("Message for MainApp");
