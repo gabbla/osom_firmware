@@ -43,6 +43,9 @@ typedef enum __attribute__((packed))_commands {
 	BLE_CMD_GET_INFO	        = 0x02,
     BLE_CMD_ACK                 = 0x03,
 
+    BLE_CMD_GET_BAT_SOC         = 0x0A,
+    BLE_CMD_GET_BAT_MV          = 0x0B,
+    BLE_CMD_GET_BAT_AVG_CURR    = 0x0C,
     // 0x10 - 0x4F commands forwarded to MainApp
     BLE_CMD_MODE                = 0x10,
     BLE_CMD_START_POS           = 0x11,
@@ -53,7 +56,12 @@ typedef enum __attribute__((packed))_commands {
     BLE_CMD_POS_STATUS          = 0x51,
     BLE_CMD_RUN_RESULTS         = 0x52,
 
-    // 0xF0 - 0xFF Special meaning 
+    // Battery related
+    BLE_CMD_BAT_SOC             = 0x6A,
+    BLE_CMD_BAT_MV              = 0x6B,
+    BLE_CMD_BAT_AVG_CURR        = 0x6C,
+    BLE_CMD_BAT_CHG             = 0x6D, // charger status (1 connected 0 disconnected)
+    // 0xF0 - 0xFF Special meaning
     BLE_CMD_NOT_SUPPORTED       = 0xF0,
     // MUST always be the last enum
     BLE_CMD_MAX_CMD
