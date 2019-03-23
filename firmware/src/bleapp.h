@@ -12,7 +12,7 @@
 #include "i2c_device.h"
 #include "osal/osal_definitions.h"
 #include "mailbox.h"
-
+#include "bq27441_parser.h"
 
 #include "PCF8574.h"
 

@@ -14,6 +14,7 @@
 #include "system_config.h"
 #include "system_definitions.h"
 #include "logger.h"
+#include "bq27441_parser.h"
 
 #define GAUGE_ADDRESS   (0xAA)
 
@@ -30,7 +31,7 @@ extern "C" {
 // Section: Type Definitions
 // *****************************************************************************
 // *****************************************************************************
-
+//
 // *****************************************************************************
 /* Application states
 
@@ -49,7 +50,10 @@ typedef enum
 	POWERAPP_STATE_SERVICE_TASKS,
 
 	/* TODO: Define states used by the application state machine. */
-
+            POWERAPP_STATE_IDLE = 9,
+            POWERAPP_STATE_WAIT = 10,
+            POWERAPP_STATE_ERROR = 11,
+            GET_VOLTAGE = 15,
 } POWERAPP_STATES;
 
 
@@ -72,10 +76,17 @@ typedef struct
     POWERAPP_STATES state;
     DRV_HANDLE gauge;
 
+    bool operationInProgress;
+    BQ27441_CALLBACK bqCallback;
+    uint8_t *bqCommand[2];
+    uint8_t *bqReply[2];
+    BQ27441_Command bqCmdId;
+    DRV_I2C_BUFFER_HANDLE hBuff;
     /* TODO: Define any additional data used by the application. */
 
 } POWERAPP_DATA;
 
+bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb);
 
 // *****************************************************************************
 // *****************************************************************************
