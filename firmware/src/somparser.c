@@ -77,6 +77,19 @@ Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus 
     return p;
 }
 
+Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd, const uint16_t data){
+    Packet *p;
+    if((p = PACKET_Create()) != NULL) {
+        p->cmd = BLE_CMD_BAT_DATA;
+        p->pLen = 3;
+        p->payload = malloc(p->pLen);
+        p->payload[0] = cmd;
+        p->payload[1] = HIBYTE(data);
+        p->payload[2] = LOBYTE(data);
+    }
+    return p;
+}
+
 uint16_t PACKET_GetMessageId(const Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
 	return p->msgID;

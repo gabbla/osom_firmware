@@ -13,6 +13,7 @@
 #include <stdlib.h> // malloc, free
 #include "osal/osal.h"  // mutex
 #include "channel_common.h"
+#include "bq27441_parser.h"
 
 
 // Preamble
@@ -32,6 +33,8 @@
 #define FIELD_COMMAND		5
 #define PAYLOAD_START		6
 
+#define LOBYTE(w) ((uint8_t)(w))
+#define HIBYTE(w) ((uint8_t)(((uint16_t)(w) >> 8) & 0xFF))
 // Command return code
 #define PING_OK				(0x00)
 
@@ -43,9 +46,7 @@ typedef enum __attribute__((packed))_commands {
 	BLE_CMD_GET_INFO	        = 0x02,
     BLE_CMD_ACK                 = 0x03,
 
-    BLE_CMD_GET_BAT_SOC         = 0x0A,
-    BLE_CMD_GET_BAT_MV          = 0x0B,
-    BLE_CMD_GET_BAT_AVG_CURR    = 0x0C,
+    BLE_CMD_GET_BAT_DATA        = 0x0A,
     // 0x10 - 0x4F commands forwarded to MainApp
     BLE_CMD_MODE                = 0x10,
     BLE_CMD_START_POS           = 0x11,
@@ -56,11 +57,7 @@ typedef enum __attribute__((packed))_commands {
     BLE_CMD_POS_STATUS          = 0x51,
     BLE_CMD_RUN_RESULTS         = 0x52,
 
-    // Battery related
-    BLE_CMD_BAT_SOC             = 0x6A,
-    BLE_CMD_BAT_MV              = 0x6B,
-    BLE_CMD_BAT_AVG_CURR        = 0x6C,
-    BLE_CMD_BAT_CHG             = 0x6D, // charger status (1 connected 0 disconnected)
+    BLE_CMD_BAT_DATA            = 0x6A,
     // 0xF0 - 0xFF Special meaning
     BLE_CMD_NOT_SUPPORTED       = 0xF0,
     // MUST always be the last enum
@@ -93,6 +90,7 @@ void PACKET_Free(Packet *p);
 // Helper function for self-generated packets
 typedef bool LASER_STATUS;
 Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus sts);
+Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd, const uint16_t data);
 
 // Utils
 
