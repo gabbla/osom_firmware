@@ -185,11 +185,36 @@ void powercb(BQ27441_Command cmd, uint8_t *data, size_t s) {
         return;
     }
     switch(cmd) {
-        case BQ27441_STATE_OF_CHARGE:
-            INFO("SOC: %d %%", BQ27441_GetMillivolts(data));    
+        case BQ27441_STATE_OF_CHARGE: {
+            soc_t soc = BQ27441_GetStateOfCharge(data);
+            DEBUG("State of charge: %d %%", soc);
+            SendPacketToBle(MSG_SRC_BLE, PACKET_CreateBatteryPacket(cmd, soc));
             break;
-        case BQ27441_VOLTAGE:
-            INFO("Voltage: %d mV", BQ27441_GetMillivolts(data));    
+        }
+        case BQ27441_VOLTAGE: {
+            millivolts_t mv = BQ27441_GetMillivolts(data);
+            DEBUG("Voltage: %d mV", mv);
+            SendPacketToBle(MSG_SRC_BLE, PACKET_CreateBatteryPacket(cmd, mv));
+            break;
+        }
+        case BQ27441_AVERAGE_CURRENT: {
+            milliamps_t avg = BQ27441_GetAverageCurrent(data);
+            DEBUG("Average current: %d mAh", avg);
+            SendPacketToBle(MSG_SRC_BLE, PACKET_CreateBatteryPacket(cmd, avg));
+            break;
+        }
+    }
+}
+
+void manageBleAppMessage(Packet *p) {
+    BLECommand cmd = p->cmd;
+    switch(cmd) {
+        case BLE_CMD_GET_BAT_DATA:
+            DEBUG("Battery request from ble [0x%X]", p->payload[0]);
+            BQ27441_GetData(p->payload[0], &powercb);
+            break;
+        default:
+            WARN("Command 0x%X not managed by BLEApp", cmd);
             break;
     }
 }
@@ -272,7 +297,7 @@ void BLEAPP_Tasks(void) {
 				Packet *p = PACKET_Get(bleappData.packet);
                 if(p->cmd < 0x10) {
                     DEBUG("Message for BLEApp");
-                    BQ27441_GetData(BQ27441_STATE_OF_CHARGE, &powercb);
+                    manageBleAppMessage(p);
                     PACKET_Free(p);
                 } else {
                     DEBUG("Message for MainApp");
