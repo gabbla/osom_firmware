@@ -53,9 +53,23 @@ typedef enum
             POWERAPP_STATE_IDLE = 9,
             POWERAPP_STATE_WAIT = 10,
             POWERAPP_STATE_ERROR = 11,
-            GET_VOLTAGE = 15,
+            POWERAPP_STATE_GET_DATA = 15,
 } POWERAPP_STATES;
 
+typedef enum {
+    REQ_FREE = 0,
+    REQ_SERVED,
+    REQ_PENDING
+} BQ_Request_Status;
+
+typedef struct {
+    BQ_Request_Status status;
+    BQ27441_CALLBACK bqCallback;
+    uint8_t *bqCommand[2];
+    uint8_t *bqReply[2];
+    BQ27441_Command bqCmdId;
+    DRV_I2C_BUFFER_HANDLE hBuff;
+} BQ_Request;
 
 // *****************************************************************************
 /* Application Data
@@ -69,19 +83,15 @@ typedef enum
   Remarks:
     Application strings and buffers are be defined outside this structure.
  */
-
+#define MAX_BQ_REQUESTS 10
 typedef struct
 {
     /* The application's current state */
     POWERAPP_STATES state;
     DRV_HANDLE gauge;
-
+    BQ_Request requests[MAX_BQ_REQUESTS];
+    BQ_Request *currentRequest;
     bool operationInProgress;
-    BQ27441_CALLBACK bqCallback;
-    uint8_t *bqCommand[2];
-    uint8_t *bqReply[2];
-    BQ27441_Command bqCmdId;
-    DRV_I2C_BUFFER_HANDLE hBuff;
     /* TODO: Define any additional data used by the application. */
 
 } POWERAPP_DATA;

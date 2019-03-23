@@ -2,50 +2,33 @@
 
 POWERAPP_DATA powerappData;
 
-void I2C_Init(const I2C_MODULE_ID module, const uint32_t freq) {
-    PLIB_I2C_Disable(module);
-    PLIB_I2C_SMBDisable(module);
-    PLIB_I2C_HighFrequencyEnable(module);
-    PLIB_I2C_StopInIdleDisable(module);
-    PLIB_I2C_BaudRateSet(module, SYS_CLK_FREQ, freq);
-    PLIB_I2C_Enable(module);
+/*
+ * Return the first free request, NULL otherwise
+ */
+BQ_Request *getFreeRequest(BQ_Request *reqs, const size_t size) {
+    int i;
+    for (i = 0; i < size; ++i)
+        if(reqs[i].status == REQ_FREE)
+            return &reqs[i];
+    return NULL;
 }
 
-bool _i2c_write_and_check(const I2C_MODULE_ID module, const uint8_t data) {
-    PLIB_I2C_TransmitterByteSend(module, data);
-    while (PLIB_I2C_TransmitterIsBusy(module))
-        ;
-    if (!PLIB_I2C_TransmitterByteWasAcknowledged(module)) {
-        asm("nop");
-        return false;
-    }
-    return true;
-}
-
-void I2C_WriteByte(const I2C_MODULE_ID module, const uint8_t address,
-                   const uint8_t data) {
-    // Wait for idle bus
-    while (!PLIB_I2C_BusIsIdle(module))
-        ;
-    // Generate start condition
-    PLIB_I2C_MasterStart(module);
-    // Send address TODO mask with 0 for !W
-    if (!_i2c_write_and_check(module, address)) return;
-    if (!_i2c_write_and_check(module, data)) return;
-    PLIB_I2C_MasterStop(module);
+BQ_Request *getNextRequest(BQ_Request *reqs, const size_t size) {
+    int i;
+    for (i = 0; i < size; ++i)
+        if (reqs[i].status == REQ_PENDING) return &reqs[i];
+    return NULL;
 }
 
 bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb) {
-    if (!powerappData.operationInProgress) {
-        uint8_t tmp[] = { (uint8_t)cmd, (uint8_t)cmd + 1 };
-        memcpy(powerappData.bqCommand, tmp, 2);
-        powerappData.state = GET_VOLTAGE;
-        powerappData.bqCallback = cb;
-        powerappData.operationInProgress = true;
-        powerappData.bqCmdId = cmd;
-        return true;
-    }
-    return false;
+    BQ_Request *req = getFreeRequest(powerappData.requests, MAX_BQ_REQUESTS);
+    if (!req) return false;
+    req->status = REQ_PENDING;
+    uint8_t tmp[] = {(uint8_t)cmd, (uint8_t)cmd + 1};
+    memcpy(req->bqCommand, tmp, 2);
+    req->bqCallback = cb;
+    req->bqCmdId = cmd;
+    return true;
 }
 
 /*******************************************************************************
@@ -56,7 +39,10 @@ bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb) {
     See prototype in powerapp.h.
  */
 
-void POWERAPP_Initialize(void) { powerappData.state = POWERAPP_STATE_INIT; }
+void POWERAPP_Initialize(void) {
+    powerappData.state = POWERAPP_STATE_INIT;
+    memset(powerappData.requests, 0, MAX_BQ_REQUESTS * sizeof(BQ_Request));
+}
 
 /******************************************************************************
   Function:
@@ -84,7 +70,7 @@ void POWERAPP_Tasks(void) {
 
             asm("nop");
             if (appInitialized) {
-                powerappData.state = POWERAPP_STATE_SERVICE_TASKS;
+                powerappData.state = POWERAPP_STATE_IDLE;
             }
             break;
         }
@@ -94,14 +80,20 @@ void POWERAPP_Tasks(void) {
         }
 
         case POWERAPP_STATE_IDLE: {
+            powerappData.currentRequest =
+                getNextRequest(powerappData.requests, MAX_BQ_REQUESTS);
+            if(powerappData.currentRequest) {
+                DEBUG("Request to serve found. Command: 0x%X", powerappData.currentRequest->bqCmdId);
+                powerappData.state = POWERAPP_STATE_GET_DATA;
+            }
             break;
         }
 
-        case GET_VOLTAGE: {
-            powerappData.hBuff = DRV_I2C_TransmitThenReceive(
-                powerappData.gauge, 0xAA, powerappData.bqCommand, 2,
-                powerappData.bqReply, 2, NULL);
-            if (!powerappData.hBuff) {
+        case POWERAPP_STATE_GET_DATA: {
+            powerappData.currentRequest->hBuff = DRV_I2C_TransmitThenReceive(
+                powerappData.gauge, 0xAA, powerappData.currentRequest->bqCommand, 2,
+                powerappData.currentRequest->bqReply, 2, NULL);
+            if (!powerappData.currentRequest->hBuff) {
                 powerappData.state = POWERAPP_STATE_ERROR;
                 break;
             }
@@ -111,11 +103,12 @@ void POWERAPP_Tasks(void) {
 
         case POWERAPP_STATE_WAIT: {
             DRV_I2C_BUFFER_EVENT status = DRV_I2C_TransferStatusGet(
-                powerappData.gauge, powerappData.hBuff);
+                powerappData.gauge, powerappData.currentRequest->hBuff);
             if (status == DRV_I2C_BUFFER_EVENT_COMPLETE) {
                 powerappData.operationInProgress = false;
-                powerappData.bqCallback(powerappData.bqCmdId,
-                                        powerappData.bqReply, 2);
+                powerappData.currentRequest->bqCallback(powerappData.currentRequest->bqCmdId,
+                                        powerappData.currentRequest->bqReply, 2);
+                powerappData.currentRequest->status = REQ_SERVED;
                 powerappData.state = POWERAPP_STATE_IDLE;
             } else if (status == DRV_I2C_BUFFER_EVENT_ERROR) {
                 powerappData.state = POWERAPP_STATE_ERROR;
@@ -125,7 +118,8 @@ void POWERAPP_Tasks(void) {
         }
 
         case POWERAPP_STATE_ERROR: {
-            powerappData.bqCallback(powerappData.bqCmdId, NULL, 0);
+            powerappData.currentRequest->bqCallback(powerappData.currentRequest->bqCmdId, NULL, 0);
+            powerappData.currentRequest->status = REQ_SERVED;
             powerappData.operationInProgress = false;
             break;
         }
