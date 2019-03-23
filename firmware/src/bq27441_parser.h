@@ -29,9 +29,18 @@ typedef enum {
 
 typedef void (*BQ27441_CALLBACK)(BQ27441_Command cmd, uint8_t *buff, size_t len);
 typedef uint16_t millivolts_t;
+typedef uint16_t soc_t;
+typedef uint16_t milliamps_t;
 
 millivolts_t BQ27441_GetMillivolts(const uint8_t *raw) {
     return ((uint16_t)raw[1] << 8 | raw[0]);
 }
 
+soc_t BQ27441_GetStateOfCharge(const uint8_t *raw) {
+    return ((uint16_t)raw[1] << 8 | raw[0]);
+}
+
+milliamps_t BQ27441_GetAverageCurrent(const uint8_t *raw) {
+    return ((uint16_t)raw[1] << 8 | raw[0]);
+}
 #endif /* end of include guard: BQ27441_PARSER_H_IZLDRN9M */
