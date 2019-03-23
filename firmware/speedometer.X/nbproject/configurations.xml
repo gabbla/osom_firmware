@@ -131,6 +131,7 @@
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/LaserInput.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/channel_common.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/channels.h</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/bq27441_parser.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
