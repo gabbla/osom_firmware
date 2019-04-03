@@ -93,6 +93,34 @@ void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx){
     }
 }
 
+void BatteryCallback(BQ27441_Command cmd, uint8_t *data, size_t s) {
+    if(!data) {
+        ERROR("Invalid data received! [0x%02X]", cmd);
+        return;
+    }
+    switch(cmd) {
+        case BQ27441_STATE_OF_CHARGE: {
+            DEBUG("State of charge: %d %%", BQ27441_GetStateOfCharge(data));
+            break;
+        }
+        case BQ27441_VOLTAGE: {
+            DEBUG("Voltage: %d mV", BQ27441_GetMillivolts(data));
+            break;
+        }
+        case BQ27441_AVERAGE_CURRENT: {
+            DEBUG("Average current: %d mAh", BQ27441_GetAverageCurrent(data));
+            break;
+        }
+    }
+}
+
+void batteryInfoCallback(uintptr_t context, uint32_t currTick) {
+    DEBUG("[%llu] Asking battery info..", currTick);
+    BQ27441_GetData(BQ27441_STATE_OF_CHARGE, &BatteryCallback);
+    BQ27441_GetData(BQ27441_VOLTAGE, &BatteryCallback);
+    BQ27441_GetData(BQ27441_AVERAGE_CURRENT, &BatteryCallback);
+}
+
 void MAINAPP_Tasks ( void )
 {
 
@@ -109,7 +137,9 @@ void MAINAPP_Tasks ( void )
                 mainappData.channels[ch] = Channel_Get((ChannelIndex)ch);
                 Channel_SetCallback(mainappData.channels[ch], wdcb, (uintptr_t *)&mainappData);
             }
-
+            
+            mainappData.batteryInfoTmr = SYS_TMR_CallbackPeriodic(60000, NULL, batteryInfoCallback);
+            
             if (appInitialized)
             {
                 INFO("Main App started!");
@@ -153,10 +183,7 @@ void MSG_Tasks() {
             // TODO send "Not supported"
             Packet *notSupported = PACKET_Create();
             notSupported->cmd = BLE_CMD_NOT_SUPPORTED;
-            notSupported->pLen = 3;
-            notSupported->payload = malloc(3);
-            memcpy(notSupported->payload, &(p->msgID), sizeof(uint16_t));
-            notSupported->payload[2] = p->cmd;
+            notSupported->tid = PACKET_GetTransactionId(p);
             SendPacketToBle(MSG_SRC_MAIN, notSupported);
         } else {
             DEBUG("Parsing command ID 0x%02X", p->cmd);

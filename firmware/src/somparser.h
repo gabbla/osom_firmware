@@ -20,18 +20,20 @@
 #define PREAMBLE0_VAL		(0x53) // DEC 83
 #define PREAMBLE1_VAL		(0x4D) // DEC 77
 
-#define PACKET_BASE_LEN 	6
+#define PACKET_BASE_LEN 	14
 #define MAX_PAYLOAD_LEN		255
 #define MAX_PACKET_LEN		(PACKET_BASE_LEN + MAX_PAYLOAD_LEN)
 
 // Byte position
 #define FIELD_PREAMBLE0		0
 #define FIELD_PREAMBLE1		1
-#define FIELD_MIDHIGH		2
-#define FIELD_MIDLOW		3
-#define FIELD_PKTLEN		4
-#define FIELD_COMMAND		5
-#define PAYLOAD_START		6
+#define FIELD_SRC   		2
+#define FIELD_DST   		3
+#define FIELD_TID           4
+#define FIELD_MID           8
+#define FIELD_PKTLEN		12
+#define FIELD_COMMAND		13
+#define PAYLOAD_START		14
 
 #define LOBYTE(w) ((uint8_t)(w))
 #define HIBYTE(w) ((uint8_t)(((uint16_t)(w) >> 8) & 0xFF))
@@ -66,7 +68,10 @@ typedef enum __attribute__((packed))_commands {
 
 typedef struct _packet {
     uint8_t 	preamble[2];
-    uint16_t    msgID;
+    uint8_t     src;
+    uint8_t     dst;
+    uint32_t    tid;
+    uint32_t    mid;
     uint8_t 	pLen;
     uint8_t 	cmd;
     uint8_t 	*payload;
@@ -94,7 +99,7 @@ Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd, const uint16_t dat
 
 // Utils
 
-inline uint16_t PACKET_GetMessageId(const Packet *p);
+inline uint16_t PACKET_GetTransactionId(const Packet *p);
 inline BLECommand PACKET_GetCommand(const Packet *p);
 
 void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]);

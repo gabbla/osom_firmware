@@ -5,6 +5,7 @@
  *      Author: gabbla
  */
 #include "somparser.h"
+#include "system/random/sys_random.h"
 
 uint8_t PACKET_IsRawValid(const uint8_t *raw) {
 	return ((raw[FIELD_PREAMBLE0] == PREAMBLE0_VAL)
@@ -37,6 +38,7 @@ Packet *PACKET_Create(){
         memset(p, 0, sizeof(Packet));
         p->preamble[0] = PREAMBLE0_VAL;
         p->preamble[1] = PREAMBLE1_VAL;
+        p->mid = SYS_RANDOM_PseudoGet();
         p->payload = NULL;
     }
     return p;
@@ -45,7 +47,10 @@ Packet *PACKET_Create(){
 Packet *PACKET_CreateForReply(const Packet *p) {
     Packet *pp = PACKET_Create();
     pp->cmd = p->cmd;
-    pp->msgID = p->msgID;
+    pp->dst = p->src;
+    pp->src = p->dst;
+    pp->tid = p->tid;
+    pp->mid = SYS_RANDOM_PseudoGet();
     return pp;
 }
 
@@ -90,9 +95,9 @@ Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd, const uint16_t dat
     return p;
 }
 
-uint16_t PACKET_GetMessageId(const Packet *p) {
+uint16_t PACKET_GetTransactionId(const Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
-	return p->msgID;
+	return p->tid;
 }
 uint8_t PACKET_GetCommand(const Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");

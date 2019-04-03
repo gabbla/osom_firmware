@@ -75,7 +75,8 @@ typedef struct
     MAINAPP_STATES state;
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
     SYSTEM_PHASE phase; 
-
+    
+    SYS_TMR_HANDLE batteryInfoTmr;
     // Left / Right
     Channel *channels[Channel_Max];
 
@@ -88,6 +89,8 @@ void MAINAPP_Tasks( void );
 void LED_Tasks();
 
 void MSG_Tasks();
+
+void POW_Tasks();
 
 #endif /* _MAINAPP_H */
 
