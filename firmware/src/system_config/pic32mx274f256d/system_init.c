@@ -316,6 +316,9 @@ void SYS_Initialize ( void* data )
     msg0Init.nQSizes = queuePriorities0;
     sysObj.sysMsg0 = SYS_MSG_Initialize(SYS_MSG_0, (SYS_OBJ_HANDLE)&msg0Init);
 
+    /*** Random Service Initialization Code ***/
+    SYS_RANDOM_Initialize(0, 0);
+
     /*** TMR Service Initialization Code ***/
     sysObj.sysTmr  = SYS_TMR_Initialize(SYS_TMR_INDEX_0, (const SYS_MODULE_INIT  * const)&sysTmrInitData);
 

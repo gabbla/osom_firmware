@@ -75,9 +75,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 void __ISR(_I2C_2_VECTOR, ipl1AUTO) _IntHandlerDrvI2CInstance0(void)
 {
     DRV_I2C_Tasks(sysObj.drvI2C0);
- 
+
 }
-     
+
  
    
 
@@ -96,7 +96,7 @@ void __ISR(_I2C_2_VECTOR, ipl1AUTO) _IntHandlerDrvI2CInstance0(void)
     DRV_USART_TasksError(sysObj.drvUsart0);
     DRV_USART_TasksReceive(sysObj.drvUsart0);
 }
- 
+
  
  
 
@@ -106,7 +106,7 @@ void __ISR(_UART_2_VECTOR, ipl1AUTO) _IntHandlerDrvUsartInstance1(void)
     DRV_USART_TasksError(sysObj.drvUsart1);
     DRV_USART_TasksReceive(sysObj.drvUsart1);
 }
- 
+
  
  
 
@@ -117,13 +117,27 @@ void __ISR(_UART_2_VECTOR, ipl1AUTO) _IntHandlerDrvUsartInstance1(void)
  
 
  
- 
+  
+void __ISR(_CHANGE_NOTICE_VECTOR, ipl1AUTO) _IntHandlerChangeNotification(void)
+{
+    /* TODO: Add code to process interrupt here */
+    if (BQ_PGoodStateGet()) { // Disconnected
+        LedStatusOff();
+        asm("nop");
+    } else { // Connected
+        LedStatusOn();
+        asm("nop");
+    }
+
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_CHANGE_NOTICE_C);
+}
+
  
 
 void __ISR(_TIMER_1_VECTOR, ipl1AUTO) IntHandlerDrvTmrInstance0(void)
 {
     DRV_TMR_Tasks(sysObj.drvTmr0);
 }
- /*******************************************************************************
- End of File
-*/
+/*******************************************************************************
+End of File
+ */

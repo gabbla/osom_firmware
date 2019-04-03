@@ -108,7 +108,7 @@ void POWERAPP_Tasks(void) {
                 powerappData.operationInProgress = false;
                 powerappData.currentRequest->bqCallback(powerappData.currentRequest->bqCmdId,
                                         powerappData.currentRequest->bqReply, 2);
-                powerappData.currentRequest->status = REQ_SERVED;
+                powerappData.currentRequest->status = REQ_FREE;
                 powerappData.state = POWERAPP_STATE_IDLE;
             } else if (status == DRV_I2C_BUFFER_EVENT_ERROR) {
                 powerappData.state = POWERAPP_STATE_ERROR;
@@ -119,7 +119,7 @@ void POWERAPP_Tasks(void) {
 
         case POWERAPP_STATE_ERROR: {
             powerappData.currentRequest->bqCallback(powerappData.currentRequest->bqCmdId, NULL, 0);
-            powerappData.currentRequest->status = REQ_SERVED;
+            powerappData.currentRequest->status = REQ_FREE;
             powerappData.operationInProgress = false;
             break;
         }

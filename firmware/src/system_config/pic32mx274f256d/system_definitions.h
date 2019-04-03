@@ -58,6 +58,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "system/clk/sys_clk.h"
 #include "system/int/sys_int.h"
 #include "system/console/sys_console.h"
+#include "system/random/sys_random.h"
 #include "system/tmr/sys_tmr.h"
 #include "driver/tmr/drv_tmr.h"
 #include "driver/usart/drv_usart.h"

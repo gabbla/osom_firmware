@@ -107,10 +107,10 @@ extern "C" {
 #define SYS_PORT_C_ANSEL        0xFC00
 #define SYS_PORT_C_TRIS         0xFFCA
 #define SYS_PORT_C_LAT          0x0010
-#define SYS_PORT_C_ODC          0x0010
+#define SYS_PORT_C_ODC          0x0050
 #define SYS_PORT_C_CNPU         0x0000
 #define SYS_PORT_C_CNPD         0x0000
-#define SYS_PORT_C_CNEN         0x0000
+#define SYS_PORT_C_CNEN         0x0040
 
 
 /*** Console System Service Configuration ***/
@@ -138,6 +138,12 @@ extern "C" {
 
 #define SYS_MSG_MAX_MAILBOXES        4
 #define SYS_MSG_MAX_TYPES            2
+
+// *****************************************************************************
+/* Random System Service Configuration Options
+*/
+
+#define SYS_RANDOM_CRYPTO_SEED_SIZE  32
 
 /*** Timer System Service Configuration ***/
 #define SYS_TMR_POWER_STATE             SYS_MODULE_POWER_RUN_FULL
@@ -331,6 +337,9 @@ extern "C" {
 #define StatusLeftOff() PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_8)
 #define StatusLeftStateGet() PLIB_PORTS_PinGetLatched(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_8)
 #define StatusLeftStateSet(Value) PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_8, Value)
+
+/*** Functions for BQ_PGood pin ***/
+#define BQ_PGoodStateGet() PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_6)
 
 
 /*** Application Instance 0 Configuration ***/
