@@ -69,6 +69,7 @@ void PACKET_Free(Packet *p) {
 	SYS_ASSERT(p != NULL, "Packet is null");
 	if (p->pLen)
 		free(p->payload);
+    free(p);
 }
 
 Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus sts){
