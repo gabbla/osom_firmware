@@ -207,7 +207,7 @@ void manageBleAppMessage(Packet *p) {
     BLECommand cmd = p->cmd;
     switch(cmd) {
         case BLE_CMD_GET_BAT_DATA:
-            DEBUG("Battery request from ble [0x%X]", p->payload[0]);
+            DEBUG("Battery request from ble [0x%02X]", p->payload[0]);
             BQ27441_GetData(p->payload[0], &powercb);
             break;
         default:

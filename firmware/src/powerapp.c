@@ -83,7 +83,7 @@ void POWERAPP_Tasks(void) {
             powerappData.currentRequest =
                 getNextRequest(powerappData.requests, MAX_BQ_REQUESTS);
             if(powerappData.currentRequest) {
-                DEBUG("Request to serve found. Command: 0x%X", powerappData.currentRequest->bqCmdId);
+                DEBUG("Request to serve found. Command: 0x%02X", powerappData.currentRequest->bqCmdId);
                 powerappData.state = POWERAPP_STATE_GET_DATA;
             }
             break;
