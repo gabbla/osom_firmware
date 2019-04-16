@@ -124,8 +124,10 @@ void bleOutgoingCallback(SYS_MSG_OBJECT *pMessage) {
             msg->buff = malloc(size);
             PACKET_GetByteArray(p, msg->buff);
 
-//            for(k = 0; k < size; ++k)
-//                DEBUG("0x%02x", ((uint8_t*)msg->buff)[k]);
+            SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "Sending: ");
+            for(k = 0; k < size; ++k)
+                SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%02X ", ((uint8_t*)msg->buff)[k]);
+            SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
 
             DRV_USART_BufferAddWrite(bleappData.hm10, &msg->handler, msg->buff, size);
 	        if (DRV_USART_BUFFER_HANDLE_INVALID == msg->handler) {
@@ -284,8 +286,9 @@ void BLEAPP_Tasks(void) {
 			DEBUG("Packet length: %d bytes, Payload length: %d bytes", processedSize, payLen);
             
 			size_t i;
+            SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "Receiving: ");
 			for (i = 0; i < processedSize; i++)
-				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%02x ", bleappData.packet[i]);
+				SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "0x%02X ", bleappData.packet[i]);
 			SYS_DEBUG_PRINT(SYS_ERROR_DEBUG, "\n");
 
 			if (PACKET_IsRawValid(bleappData.packet)) {
