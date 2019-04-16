@@ -299,7 +299,10 @@ void BLEAPP_Tasks(void) {
 				stopPacketGuard();
 
 				Packet *p = PACKET_Get(bleappData.packet);
+                // TODO move this part in a more appropriate section. ie where also nrf message will come
+                DEBUG("Received from 0x%02X to 0x%02X", p->src, p->dst);
                 DEBUG("Received: TID: 0x%08X MID:0x%08X", p->tid, p->mid);
+                // FIXME For now let's ignore the destination, let's assume that every message destination is master
                 if(p->cmd < 0x10) {
                     DEBUG("Message for BLEApp");
                     manageBleAppMessage(p);
