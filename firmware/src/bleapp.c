@@ -178,28 +178,31 @@ void BLEAPP_Initialize(void) {
 }
 
 
-void powercb(BQ27441_Command cmd, uint8_t *data, size_t s) {
+void powercb(BQ27441_Command cmd, uint8_t *data, size_t s, uintptr_t user_data) {
     if(!data) {
         ERROR("Invalid data received!");
         return;
     }
+    // FIXME why I have to do this trick to use req in PACKET_Creat.....??
+    Packet req = *((Packet*)user_data);
+    Packet *reply = PACKET_CreateForReply(&req);
     switch(cmd) {
         case BQ27441_STATE_OF_CHARGE: {
             soc_t soc = BQ27441_GetStateOfCharge(data);
             DEBUG("State of charge: %d %%", soc);
-            SendPacketToBle(MSG_SRC_BLE, PACKET_CreateBatteryPacket(cmd, soc));
+            SendPacketToBle(MSG_SRC_BLE, PACKET_FillBatteryData(reply, cmd, soc));
             break;
         }
         case BQ27441_VOLTAGE: {
             millivolts_t mv = BQ27441_GetMillivolts(data);
             DEBUG("Voltage: %d mV", mv);
-            SendPacketToBle(MSG_SRC_BLE, PACKET_CreateBatteryPacket(cmd, mv));
+            SendPacketToBle(MSG_SRC_BLE, PACKET_FillBatteryData(reply, cmd, mv));
             break;
         }
         case BQ27441_AVERAGE_CURRENT: {
             milliamps_t avg = BQ27441_GetAverageCurrent(data);
             DEBUG("Average current: %d mAh", avg);
-            SendPacketToBle(MSG_SRC_BLE, PACKET_CreateBatteryPacket(cmd, avg));
+            SendPacketToBle(MSG_SRC_BLE, PACKET_FillBatteryData(reply, cmd, avg));
             break;
         }
     }
@@ -210,7 +213,7 @@ void manageBleAppMessage(Packet *p) {
     switch(cmd) {
         case BLE_CMD_GET_BAT_DATA:
             DEBUG("Battery request from ble [0x%02X]", p->payload[0]);
-            BQ27441_GetData(p->payload[0], &powercb);
+            BQ27441_GetData(p->payload[0], &powercb, (uintptr_t)p);
             break;
         default:
             WARN("Command 0x%X not managed by BLEApp", cmd);

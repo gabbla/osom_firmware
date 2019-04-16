@@ -7,16 +7,16 @@
 // *****************************************************************************
 // *****************************************************************************
 
-#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include "bq27441_parser.h"
+#include "logger.h"
 #include "system_config.h"
 #include "system_definitions.h"
-#include "logger.h"
-#include "bq27441_parser.h"
 
-#define GAUGE_ADDRESS   (0xAA)
+#define GAUGE_ADDRESS (0xAA)
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -24,7 +24,7 @@
 extern "C" {
 
 #endif
-// DOM-IGNORE-END 
+// DOM-IGNORE-END
 
 // *****************************************************************************
 // *****************************************************************************
@@ -43,28 +43,24 @@ extern "C" {
     determine the behavior of the application at various times.
 */
 
-typedef enum
-{
-	/* Application's state machine's initial state. */
-	POWERAPP_STATE_INIT=0,
-	POWERAPP_STATE_SERVICE_TASKS,
+typedef enum {
+    /* Application's state machine's initial state. */
+    POWERAPP_STATE_INIT = 0,
+    POWERAPP_STATE_SERVICE_TASKS,
 
-	/* TODO: Define states used by the application state machine. */
-            POWERAPP_STATE_IDLE = 9,
-            POWERAPP_STATE_WAIT = 10,
-            POWERAPP_STATE_ERROR = 11,
-            POWERAPP_STATE_GET_DATA = 15,
+    /* TODO: Define states used by the application state machine. */
+    POWERAPP_STATE_IDLE = 9,
+    POWERAPP_STATE_WAIT = 10,
+    POWERAPP_STATE_ERROR = 11,
+    POWERAPP_STATE_GET_DATA = 15,
 } POWERAPP_STATES;
 
-typedef enum {
-    REQ_FREE = 0,
-    REQ_SERVED,
-    REQ_PENDING
-} BQ_Request_Status;
+typedef enum { REQ_FREE = 0, REQ_SERVED, REQ_PENDING } BQ_Request_Status;
 
 typedef struct {
     BQ_Request_Status status;
     BQ27441_CALLBACK bqCallback;
+    uintptr_t user_data;
     uint8_t *bqCommand[2];
     uint8_t *bqReply[2];
     BQ27441_Command bqCmdId;
@@ -84,8 +80,7 @@ typedef struct {
     Application strings and buffers are be defined outside this structure.
  */
 #define MAX_BQ_REQUESTS 10
-typedef struct
-{
+typedef struct {
     /* The application's current state */
     POWERAPP_STATES state;
     DRV_HANDLE gauge;
@@ -96,7 +91,8 @@ typedef struct
 
 } POWERAPP_DATA;
 
-bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb);
+bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb,
+                     uintptr_t user_data);
 
 // *****************************************************************************
 // *****************************************************************************
@@ -104,8 +100,8 @@ bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb);
 // *****************************************************************************
 // *****************************************************************************
 /* These routines are called by drivers when certain events occur.
-*/
-	
+ */
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Initialization and State Machine Functions
@@ -120,8 +116,8 @@ bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb);
      MPLAB Harmony application initialization routine.
 
   Description:
-    This function initializes the Harmony application.  It places the 
-    application in its initial state and prepares it to run so that its 
+    This function initializes the Harmony application.  It places the
+    application in its initial state and prepares it to run so that its
     APP_Tasks function can be called.
 
   Precondition:
@@ -143,8 +139,7 @@ bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb);
     This routine must be called from the SYS_Initialize function.
 */
 
-void POWERAPP_Initialize ( void );
-
+void POWERAPP_Initialize(void);
 
 /*******************************************************************************
   Function:
@@ -176,16 +171,15 @@ void POWERAPP_Initialize ( void );
     This routine must be called from SYS_Tasks() routine.
  */
 
-void POWERAPP_Tasks( void );
-
+void POWERAPP_Tasks(void);
 
 #endif /* _POWERAPP_H */
 
-//DOM-IGNORE-BEGIN
+// DOM-IGNORE-BEGIN
 #ifdef __cplusplus
 }
 #endif
-//DOM-IGNORE-END
+// DOM-IGNORE-END
 
 /*******************************************************************************
  End of File

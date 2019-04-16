@@ -8,8 +8,7 @@ POWERAPP_DATA powerappData;
 BQ_Request *getFreeRequest(BQ_Request *reqs, const size_t size) {
     int i;
     for (i = 0; i < size; ++i)
-        if(reqs[i].status == REQ_FREE)
-            return &reqs[i];
+        if (reqs[i].status == REQ_FREE) return &reqs[i];
     return NULL;
 }
 
@@ -20,13 +19,15 @@ BQ_Request *getNextRequest(BQ_Request *reqs, const size_t size) {
     return NULL;
 }
 
-bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb) {
+bool BQ27441_GetData(const BQ27441_Command cmd, BQ27441_CALLBACK cb,
+                     uintptr_t user_data) {
     BQ_Request *req = getFreeRequest(powerappData.requests, MAX_BQ_REQUESTS);
     if (!req) return false;
     req->status = REQ_PENDING;
     uint8_t tmp[] = {(uint8_t)cmd, (uint8_t)cmd + 1};
     memcpy(req->bqCommand, tmp, 2);
     req->bqCallback = cb;
+    req->user_data = user_data;
     req->bqCmdId = cmd;
     return true;
 }
@@ -82,8 +83,9 @@ void POWERAPP_Tasks(void) {
         case POWERAPP_STATE_IDLE: {
             powerappData.currentRequest =
                 getNextRequest(powerappData.requests, MAX_BQ_REQUESTS);
-            if(powerappData.currentRequest) {
-                DEBUG("Request to serve found. Command: 0x%02X", powerappData.currentRequest->bqCmdId);
+            if (powerappData.currentRequest) {
+                DEBUG("Request to serve found. Command: 0x%02X",
+                      powerappData.currentRequest->bqCmdId);
                 powerappData.state = POWERAPP_STATE_GET_DATA;
             }
             break;
@@ -91,7 +93,8 @@ void POWERAPP_Tasks(void) {
 
         case POWERAPP_STATE_GET_DATA: {
             powerappData.currentRequest->hBuff = DRV_I2C_TransmitThenReceive(
-                powerappData.gauge, 0xAA, powerappData.currentRequest->bqCommand, 2,
+                powerappData.gauge, 0xAA,
+                powerappData.currentRequest->bqCommand, 2,
                 powerappData.currentRequest->bqReply, 2, NULL);
             if (!powerappData.currentRequest->hBuff) {
                 powerappData.state = POWERAPP_STATE_ERROR;
@@ -106,8 +109,10 @@ void POWERAPP_Tasks(void) {
                 powerappData.gauge, powerappData.currentRequest->hBuff);
             if (status == DRV_I2C_BUFFER_EVENT_COMPLETE) {
                 powerappData.operationInProgress = false;
-                powerappData.currentRequest->bqCallback(powerappData.currentRequest->bqCmdId,
-                                        powerappData.currentRequest->bqReply, 2);
+                powerappData.currentRequest->bqCallback(
+                    powerappData.currentRequest->bqCmdId,
+                    powerappData.currentRequest->bqReply, 2,
+                    powerappData.currentRequest->user_data);
                 powerappData.currentRequest->status = REQ_FREE;
                 powerappData.state = POWERAPP_STATE_IDLE;
             } else if (status == DRV_I2C_BUFFER_EVENT_ERROR) {
@@ -118,13 +123,17 @@ void POWERAPP_Tasks(void) {
         }
 
         case POWERAPP_STATE_ERROR: {
-            powerappData.currentRequest->bqCallback(powerappData.currentRequest->bqCmdId, NULL, 0);
+            powerappData.currentRequest->bqCallback(
+                powerappData.currentRequest->bqCmdId, NULL, 0,
+                powerappData.currentRequest->user_data);
             powerappData.currentRequest->status = REQ_FREE;
             powerappData.operationInProgress = false;
             break;
         }
 
         /* The default state should never be executed. */
-        default: { break; }
+        default: {
+            break;
+        }
     }
 }

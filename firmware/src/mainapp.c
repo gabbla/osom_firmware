@@ -93,7 +93,7 @@ void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx){
     }
 }
 
-void BatteryCallback(BQ27441_Command cmd, uint8_t *data, size_t s) {
+void BatteryCallback(BQ27441_Command cmd, uint8_t *data, size_t s, uintptr_t user_data) {
     if(!data) {
         ERROR("Invalid data received! [0x%02X]", cmd);
         return;
@@ -116,9 +116,9 @@ void BatteryCallback(BQ27441_Command cmd, uint8_t *data, size_t s) {
 
 void batteryInfoCallback(uintptr_t context, uint32_t currTick) {
     DEBUG("[%llu] Asking battery info..", currTick);
-    BQ27441_GetData(BQ27441_STATE_OF_CHARGE, &BatteryCallback);
-    BQ27441_GetData(BQ27441_VOLTAGE, &BatteryCallback);
-    BQ27441_GetData(BQ27441_AVERAGE_CURRENT, &BatteryCallback);
+    BQ27441_GetData(BQ27441_STATE_OF_CHARGE, &BatteryCallback, NULL);
+    BQ27441_GetData(BQ27441_VOLTAGE, &BatteryCallback, NULL);
+    BQ27441_GetData(BQ27441_AVERAGE_CURRENT, &BatteryCallback, NULL);
 }
 
 void MAINAPP_Tasks ( void )
@@ -138,7 +138,7 @@ void MAINAPP_Tasks ( void )
                 Channel_SetCallback(mainappData.channels[ch], wdcb, (uintptr_t *)&mainappData);
             }
             
-            mainappData.batteryInfoTmr = SYS_TMR_CallbackPeriodic(60000, NULL, batteryInfoCallback);
+            //mainappData.batteryInfoTmr = SYS_TMR_CallbackPeriodic(60000, NULL, batteryInfoCallback);
             
             if (appInitialized)
             {

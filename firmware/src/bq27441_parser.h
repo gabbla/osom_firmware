@@ -7,9 +7,9 @@ typedef enum {
     BQ27441_CONTROL = 0x00,
     BQ27441_TEMPERATURE = 0x02,
     BQ27441_VOLTAGE = 0x04,
-    BQ27441_FLAGS =0x06,
+    BQ27441_FLAGS = 0x06,
     BQ27441_NOMINAL_AVAIL_CAPACITY = 0x08,
-    BQ27441_FULL_AVAIL_CAPACITY =0x0A,
+    BQ27441_FULL_AVAIL_CAPACITY = 0x0A,
     BQ27441_REMAINING_CAPACITY = 0x0C,
     BQ27441_FULL_CHARGE_CAPACITY = 0x0E,
     BQ27441_AVERAGE_CURRENT = 0x10,
@@ -27,7 +27,8 @@ typedef enum {
     BQ27441_TRUE_REMAINING_CAPACITY = 0x6A
 } BQ27441_Command;
 
-typedef void (*BQ27441_CALLBACK)(BQ27441_Command cmd, uint8_t *buff, size_t len);
+typedef void (*BQ27441_CALLBACK)(BQ27441_Command cmd, uint8_t *buff, size_t len,
+                                 uintptr_t user_data);
 typedef uint16_t millivolts_t;
 typedef uint16_t soc_t;
 typedef uint16_t milliamps_t;
