@@ -20,6 +20,19 @@ void PACKET_Init(Packet *p) {
 	p->payload = NULL;
 }
 
+Packet *PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len) {
+    if(!p)
+        return p;
+    p->pLen = len;
+    if(p->payload)
+        free(p->payload);
+    p->payload = malloc(len);
+    if(!p->payload)
+        return p;
+    memcpy((void*)p->payload, payload, len);
+    return p;
+}
+
 Packet *PACKET_Get(const uint8_t *raw) {
     Packet *p = malloc(sizeof(Packet));
 	memcpy(p, raw, PACKET_BASE_LEN);
@@ -93,6 +106,15 @@ Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd, const uint16_t dat
         p->payload[1] = HIBYTE(data);
         p->payload[2] = LOBYTE(data);
     }
+    return p;
+}
+
+Packet *PACKET_FillBatteryData(Packet *p, const BQ27441_Command cmd,
+                               const uint16_t data) {
+    if(!p)
+        return p;
+    uint8_t payload[] = {cmd, HIBYTE(data), LOBYTE(data)};
+    PACKET_SetPayload(p, payload, 3);
     return p;
 }
 
