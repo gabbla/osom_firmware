@@ -7,6 +7,88 @@
 #include "somparser.h"
 #include "system/random/sys_random.h"
 
+uint32_t swapEndian(const uint32_t value) {
+    return (((value >> 24) & 0x000000ff) | ((value >> 8) & 0x0000ff00) |
+	    ((value << 8) & 0x00ff0000) | ((value << 24) & 0xff000000));
+ }
+
+SOM_INLINE int8_t PACKET_SetSource(Packet *p, const uint8_t src) {
+    SYS_ASSERT(p != NULL, "PACKET_SetSource() Packet is null");
+    p->src = src;
+    return 0;
+}
+
+SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst) {
+    SYS_ASSERT(p != NULL, "PACKET_SetDestination() Packet is null");
+    p->dst = dst;
+    return 0;
+}
+
+SOM_INLINE int8_t PACKET_SetTransactionID(Packet *p, const uint32_t tid) {
+    SYS_ASSERT(p != NULL, "PACKET_SetTransactionID() Packet is null");
+    p->tid = swapEndian(tid);
+    return 0;
+}
+
+SOM_INLINE int8_t PACKET_SetMessageID(Packet *p, const uint32_t mid) {
+    SYS_ASSERT(p != NULL, "PACKET_SetMessageID() Packet is null");
+    p->mid = swapEndian(mid);
+    return 0;
+}
+
+SOM_INLINE int8_t PACKET_SetCommand(Packet *p, const uint8_t cmd) {
+    SYS_ASSERT(p != NULL, "PACKET_SetCommand() Packet is null");
+    p->cmd = cmd;
+    return 0;
+}
+
+int8_t PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len) {
+    SYS_ASSERT(p != NULL, "PACKET_SetPayload() Packet is null");
+    p->pLen = len;
+    if(p->payload)
+        free(p->payload);
+    p->payload = malloc(len);
+    if(!p->payload)
+        return -1;
+    memcpy((void*)p->payload, payload, len);
+    return 0;
+}
+
+SOM_INLINE uint8_t PACKET_GetSource(const Packet *p) {
+    SYS_ASSERT(p != NULL, "PACKET_GetSource() Packet is null");
+    return p->src;
+}
+
+SOM_INLINE uint8_t PACKET_GetDestination(const Packet *p) {
+    SYS_ASSERT(p != NULL, "PACKET_GetDestination() Packet is null");
+    return p->dst;
+}
+
+SOM_INLINE uint32_t PACKET_GetTransactionID(const Packet *p) {
+    SYS_ASSERT(p != NULL, "PACKET_GetTransactionId() Packet is null");
+    return swapEndian(p->tid);
+}
+
+SOM_INLINE uint32_t PACKET_GetMessageID(const Packet *p) {
+    SYS_ASSERT(p != NULL, "PACKET_GetMessageID() Packet is null");
+    return swapEndian(p->mid);
+}
+
+SOM_INLINE uint8_t PACKET_GetCommand(const Packet *p) {
+    SYS_ASSERT(p != NULL, "PACKET_GetCommand() Packet is null");
+    return p->cmd;
+}
+
+SOM_INLINE size_t PACKET_GetPayload(const Packet *p, uint8_t *payload) {
+    SYS_ASSERT(p != NULL, "PACKET_GetPayload() Packet is null");
+    if(!p->payload) {
+        payload = NULL;
+        return 0;
+    }
+    memcpy(payload, p->payload, p->pLen);
+    return p->pLen;
+}
+
 uint8_t PACKET_IsRawValid(const uint8_t *raw) {
 	return ((raw[FIELD_PREAMBLE0] == PREAMBLE0_VAL)
 			&& (raw[FIELD_PREAMBLE1] == PREAMBLE1_VAL));
@@ -20,18 +102,6 @@ void PACKET_Init(Packet *p) {
 	p->payload = NULL;
 }
 
-Packet *PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len) {
-    if(!p)
-        return p;
-    p->pLen = len;
-    if(p->payload)
-        free(p->payload);
-    p->payload = malloc(len);
-    if(!p->payload)
-        return p;
-    memcpy((void*)p->payload, payload, len);
-    return p;
-}
 
 Packet *PACKET_Get(const uint8_t *raw) {
     Packet *p = malloc(sizeof(Packet));
@@ -51,7 +121,8 @@ Packet *PACKET_Create(){
         memset(p, 0, sizeof(Packet));
         p->preamble[0] = PREAMBLE0_VAL;
         p->preamble[1] = PREAMBLE1_VAL;
-        p->mid = SYS_RANDOM_PseudoGet();
+		PACKET_SetMessageID(p, SYS_RANDOM_PseudoGet());
+        //p->mid = SYS_RANDOM_PseudoGet();
         p->payload = NULL;
     }
     return p;
@@ -59,11 +130,16 @@ Packet *PACKET_Create(){
 
 Packet *PACKET_CreateForReply(const Packet *p) {
     Packet *pp = PACKET_Create();
-    pp->cmd = p->cmd;
-    pp->dst = p->src;
-    pp->src = p->dst;
-    pp->tid = p->tid;
-    pp->mid = SYS_RANDOM_PseudoGet();
+	PACKET_SetCommand(pp, PACKET_GetCommand(p));
+    PACKET_SetDestination(pp, PACKET_GetSource(p));
+    PACKET_SetSource(pp, PACKET_GetDestination(p));
+    PACKET_SetTransactionID(pp, PACKET_GetTransactionID(p));
+    PACKET_SetMessageID(pp, SYS_RANDOM_PseudoGet());
+    //pp->cmd = p->cmd;
+    //pp->dst = p->src;
+    //pp->src = p->dst;
+    //pp->tid = p->tid;
+    //pp->mid = SYS_RANDOM_PseudoGet();
     return pp;
 }
 
@@ -116,15 +192,6 @@ Packet *PACKET_FillBatteryData(Packet *p, const BQ27441_Command cmd,
     uint8_t payload[] = {cmd, HIBYTE(data), LOBYTE(data)};
     PACKET_SetPayload(p, payload, 3);
     return p;
-}
-
-uint16_t PACKET_GetTransactionId(const Packet *p) {
-	SYS_ASSERT(p != NULL, "Packet is null");
-	return p->tid;
-}
-uint8_t PACKET_GetCommand(const Packet *p) {
-	SYS_ASSERT(p != NULL, "Packet is null");
-	return p->cmd;
 }
 
 void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]) {

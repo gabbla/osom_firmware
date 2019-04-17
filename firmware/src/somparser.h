@@ -39,6 +39,7 @@
 // Command return code
 #define PING_OK (0x00)
 
+
 #define MAINAPP_CMD_OFFSET (0x10)
 typedef enum __attribute__((packed)) _commands {
     // 0x00 to 0x0F commands that are not propagated, managed by BLE APP
@@ -82,9 +83,25 @@ typedef enum packet_code {
     PACKET_FAIL = -2
 } PACKET_CODE;
 
+// Access utilities
+#define SOM_INLINE inline __attribute__((always_inline))
+
+SOM_INLINE int8_t PACKET_SetSource(Packet *p, const uint8_t src);
+SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst);
+SOM_INLINE int8_t PACKET_SetTransactionID(Packet *p, const uint32_t tid);
+SOM_INLINE int8_t PACKET_SetMessageID(Packet *p, const uint32_t mid);
+SOM_INLINE int8_t PACKET_SetCommand(Packet *p, const uint8_t cmd);
+SOM_INLINE int8_t PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len);
+
+SOM_INLINE uint8_t PACKET_GetSource(const Packet *p);
+SOM_INLINE uint8_t PACKET_GetDestination(const Packet *p);
+SOM_INLINE uint32_t PACKET_GetTransactionID(const Packet *p);
+SOM_INLINE uint32_t PACKET_GetMessageID(const Packet *p);
+SOM_INLINE uint8_t PACKET_GetCommand(const Packet *p);
+SOM_INLINE size_t PACKET_GetPayload(const Packet *p, uint8_t *payload);
+
 uint8_t PACKET_IsRawValid(const uint8_t *raw);
 void PACKET_Init(Packet *p);
-Packet *PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len);
 
 Packet *PACKET_Get(const uint8_t *raw);
 Packet *PACKET_Create();
@@ -101,9 +118,6 @@ Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd,
 Packet *PACKET_FillBatteryData(Packet *p, const BQ27441_Command cmd,
                                const uint16_t data);
 // Utils
-
-inline uint16_t PACKET_GetTransactionId(const Packet *p);
-inline BLECommand PACKET_GetCommand(const Packet *p);
 
 void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]);
 size_t PACKET_GetFullSize(const Packet *p);
