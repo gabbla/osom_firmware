@@ -29,20 +29,24 @@ void positioningPhase(){
     nextState(MAINAPP_STATE_SERVICE_TASKS);
 }
 
-void BLE_CMD_MODE_Parser(const Packet *in, Packet *out){
+void BLE_CMD_MODE_Parser(const Packet *in, Packet *out, uintptr_t context){
     DEBUG("%s()", __func__);
-    enableLaser(MODE_GetLaser(in->payload), true);
+    MAINAPP_DATA *data = (MAINAPP_DATA*)context;
 
+    if(PACKET_GetRunMode(in, &data->runMode, &data->activeChannels) > 0) {
+        INFO("Entering new mode 0x%02X (channels 0x%02X)",
+                data->runMode, data->activeChannels);
+    }
 }
 
-void BLE_CMD_START_POS_Parser(const Packet *in, Packet *out){
+void BLE_CMD_START_POS_Parser(const Packet *in, Packet *out, uintptr_t context){
     DEBUG("%s()", __func__);
     enableLaser(POS_GetLaser(in->payload), true);
     mainappData.phase = SP_POSITIONING_PHASE;
     //nextState(POSITIONING_PHASE);
 }
 
-void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out){
+void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out, uintptr_t context){
     DEBUG("%s()", __func__);
     enableLaser(LASER_DX | LASER_SX, false);
     nextState(MAINAPP_STATE_SERVICE_TASKS);
@@ -188,7 +192,7 @@ void MSG_Tasks() {
         } else {
             DEBUG("Parsing command ID 0x%02X", p->cmd);
             Packet *reply = PACKET_CreateForReply(p);
-            parsers[parserIndex](p, reply);
+            parsers[parserIndex](p, reply, (uintptr_t)&mainappData);
             SendPacketToBle(MSG_SRC_MAIN, reply);
         }
         PACKET_Free(p); // really important

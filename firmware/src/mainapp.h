@@ -66,7 +66,7 @@ typedef enum {
 } SYSTEM_PHASE;
 
 // Command function parser prototype
-typedef void (*cmdParserFunction)(const Packet *, Packet *);
+typedef void (*cmdParserFunction)(const Packet *, Packet *, uintptr_t);
 
 
 typedef struct
