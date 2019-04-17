@@ -77,11 +77,6 @@ typedef struct _packet {
     uint8_t *payload;
 } Packet;
 
-typedef enum packet_code {
-    PACKET_OK = 0,
-    PACKET_NO_MEM = -1,
-    PACKET_FAIL = -2
-} PACKET_CODE;
 
 // Access utilities
 #define SOM_INLINE inline __attribute__((always_inline))

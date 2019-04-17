@@ -143,15 +143,15 @@ Packet *PACKET_CreateForReply(const Packet *p) {
     return pp;
 }
 
-PACKET_CODE copyPacket(const Packet *src, Packet *dst) {
+int8_t copyPacket(const Packet *src, Packet *dst) {
 	memcpy((void*) dst, (void*) src, PACKET_BASE_LEN);
 	if (src->pLen) {
 		dst->payload = malloc(dst->pLen);
 		if (dst->payload == NULL)
-			return PACKET_NO_MEM;
+			return -1;
 		memcpy((void*) dst->payload, (void*) src->payload, dst->pLen);
 	}
-	return PACKET_OK;
+	return 0;
 }
 
 void PACKET_Free(Packet *p) {
