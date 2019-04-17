@@ -80,6 +80,9 @@ typedef struct
     // Left / Right
     Channel *channels[Channel_Max];
 
+    // Configuration data
+    RunMode runMode;
+    uint8_t activeChannels;
 } MAINAPP_DATA;
 
 void MAINAPP_Initialize ( void );
