@@ -204,3 +204,29 @@ void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]) {
 size_t PACKET_GetFullSize(const Packet *p){
     return PACKET_BASE_LEN + p->pLen;
 }
+
+int8_t PACKET_GetRunMode(const Packet *p, RunMode *mode, uint8_t *channel) {
+    SYS_ASSERT(p != NULL, "PACKET_GetRunMode() Packet is null");
+    if (PACKET_GetCommand(p) != BLE_CMD_MODE) {
+        ERROR(
+            "Packet TID: 0x%08X MID: 0x%08X cmd 0x%02X not BLE_CMD_MODE "
+            "[0x%02X]",
+            PACKET_GetTransactionID(p), PACKET_GetMessageID(p),
+            PACKET_GetCommand(p), BLE_CMD_MODE);
+        return -1;
+    }
+    uint8_t dummy[2];
+    size_t res;
+    if ((res = PACKET_GetPayload(p, dummy)) < 2) {
+        ERROR("Error while getting payload TID: 0x%08X MID: 0x%08X",
+              PACKET_GetTransactionID(p), PACKET_GetMessageID(p));
+        return -1;
+    }
+    DEBUG("Packet TID: 0x%08X MID: 0x%08X Mode: 0x%02X Ch: 0x%02X",
+          PACKET_GetTransactionID(p), PACKET_GetMessageID(p), dummy[0], dummy[1]);
+    *mode = dummy[0];
+    *channel = dummy[1];
+    return res;
+}
+
+

@@ -13,6 +13,7 @@
 #include <string.h>  // memcpy
 #include "bq27441_parser.h"
 #include "channel_common.h"
+#include "channels.h"
 #include "osal/osal.h"  // mutex
 
 // Preamble
@@ -77,6 +78,13 @@ typedef struct _packet {
     uint8_t *payload;
 } Packet;
 
+typedef enum {
+    RUN_MODE_INVALID = -1,
+    RUN_MODE_NONE = 0,
+    RUN_MODE_FREE_START,
+
+    RUN_MODE_CNT
+} RunMode;
 
 // Access utilities
 #define SOM_INLINE inline __attribute__((always_inline))
@@ -112,6 +120,12 @@ Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd,
 
 Packet *PACKET_FillBatteryData(Packet *p, const BQ27441_Command cmd,
                                const uint16_t data);
+
+/* Starting from now, every API to get data from packets payload must return
+ * the number of read bytes (aka pLen) or negative error codes
+ */
+int8_t PACKET_GetRunMode(const Packet *p, RunMode *mode, uint8_t *channel);
+
 // Utils
 
 void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]);
