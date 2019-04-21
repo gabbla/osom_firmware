@@ -121,8 +121,8 @@ Packet *PACKET_Create(){
         memset(p, 0, sizeof(Packet));
         p->preamble[0] = PREAMBLE0_VAL;
         p->preamble[1] = PREAMBLE1_VAL;
+		PACKET_SetTransactionID(p, SYS_RANDOM_PseudoGet());
 		PACKET_SetMessageID(p, SYS_RANDOM_PseudoGet());
-        //p->mid = SYS_RANDOM_PseudoGet();
         p->payload = NULL;
     }
     return p;
