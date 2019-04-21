@@ -20,6 +20,32 @@ void enableLaser(const uint8_t which, const bool power) {
     }
 }
 
+void ChannelStatusCallback(uintptr_t context, uint32_t currTick) {
+    MAINAPP_DATA *data = (MAINAPP_DATA*) context;
+    DEBUG("%s() @ %lu ms", __func__, currTick);
+    uint8_t channels = data->activeChannels;
+    uint8_t ch = 0;
+    uint8_t sts = 0;
+    ChannelStatus temp_status;
+    if(channels & LASER_DX) {
+        temp_status = Channel_GetStatus(data->channels[Channel_Right]);
+        ch |= LASER_DX;
+        sts |= (temp_status == ChannelStatusActive? LASER_DX : 0x00);
+    }
+    if(channels & LASER_SX) {
+        temp_status = Channel_GetStatus(data->channels[Channel_Left]);
+        ch |= LASER_SX;
+        sts |= (temp_status == ChannelStatusActive? LASER_SX : 0x00);
+    }
+    enableLaser(LASER_DX | LASER_SX, false);
+    DEBUG("%s() Ch: 0x%02X Status: 0x%02X", __func__, ch, sts);
+    Packet *reply = PACKET_Create();
+    uint8_t dummy[] = { ch, sts };
+    PACKET_SetCommand(reply, BLE_CMD_CH_STATUS);
+    PACKET_SetPayload(reply, dummy, 2);
+    SendPacketToBle(MSG_SRC_MAIN, reply);
+}
+
 void nextState(MAINAPP_STATES next) { mainappData.state = next; }
 
 void positioningPhase() {
@@ -68,11 +94,35 @@ void BLE_CMD_DONE_POS_Parser(const Packet *in, Packet *out, uintptr_t context) {
     nextState(MAINAPP_STATE_SERVICE_TASKS);
 }
 
+void BLE_CMD_GET_CHANNEL_STS_Parser(const Packet *in, Packet *out, uintptr_t context) {
+    DEBUG("%s()", __func__);
+    MAINAPP_DATA *data = (MAINAPP_DATA *)context;
+    PACKET_SetCommand(out, BLE_CMD_RESPONSE);
+    uint8_t res;
+    uint8_t channel;
+    if (PACKET_GetPayload(in, &channel) != 1) {
+        ERROR("Cannot get the channel(s) to check");
+        res = CMD_RESPONSE_FAIL;
+    } else {
+        data->activeChannels = channel;
+        enableLaser(channel, true);
+        if (SYS_TMR_CallbackSingle(100, context, ChannelStatusCallback) ==
+            SYS_TMR_HANDLE_INVALID) {
+            ERROR("%s() Failed to set timer callback", __func__);
+            res = CMD_RESPONSE_FAIL;
+        } else {
+            res = CMD_RESPONSE_OK;
+        }
+    }
+    PACKET_SetPayload(out, &res, 1);
+}
+
 // Single command parse function
 static cmdParserFunction parsers[] = {
     &BLE_CMD_MODE_Parser,       // 0x10
     &BLE_CMD_START_POS_Parser,  // 0x11
     &BLE_CMD_DONE_POS_Parser,   // 0x12
+    &BLE_CMD_GET_CHANNEL_STS_Parser, // 0x13
 };
 
 int8_t initializeMainappMailbox() {
