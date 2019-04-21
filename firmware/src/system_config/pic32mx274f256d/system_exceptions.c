@@ -147,6 +147,9 @@ void _general_exception_handler ( void )
     SYS_DEBUG_PRINT(SYS_ERROR_FATAL, "\n\rGeneral Exception %s (cause=%d, addr=%x).\n\r",
                     _cause_str, _excep_code, _excep_addr);
 
+    // In case of exception, turn off the lasers
+    ControlRightOff();
+    ControlLeftOff();
     while (1)
     {
         SYS_DEBUG_BreakPoint();
