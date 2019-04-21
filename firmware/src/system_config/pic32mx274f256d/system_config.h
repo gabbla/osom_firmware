@@ -82,7 +82,7 @@ extern "C" {
 /* Clock System Service Configuration Options
 */
 #define SYS_CLK_FREQ                        72000000ul
-#define SYS_CLK_BUS_PERIPHERAL_1            72000000ul
+#define SYS_CLK_BUS_PERIPHERAL_1            8000000ul
 #define SYS_CLK_UPLL_BEFORE_DIV2_FREQ       96000000ul
 #define SYS_CLK_CONFIG_PRIMARY_XTAL         8000000ul
 #define SYS_CLK_CONFIG_SECONDARY_XTAL       32768ul
@@ -177,7 +177,7 @@ extern "C" {
 #define DRV_I2C_STOP_IN_IDLE_IDX0                       false
 #define DRV_I2C_SMBus_SPECIFICATION_IDX0			    false
 #define DRV_I2C_BAUD_RATE_IDX0                    		400000
-#define DRV_I2C_BRG_CLOCK_IDX0	                  		72000000
+#define DRV_I2C_BRG_CLOCK_IDX0	                  		8000000
 #define DRV_I2C_SLEW_RATE_CONTROL_IDX0      			false
 #define DRV_I2C_MASTER_INT_SRC_IDX0               		INT_SOURCE_I2C_2_MASTER
 #define DRV_I2C_SLAVE_INT_SRC_IDX0                		
@@ -229,7 +229,7 @@ extern "C" {
 #define DRV_USART_INIT_FLAG_AUTO_BAUD_IDX0          false
 #define DRV_USART_INIT_FLAG_STOP_IN_IDLE_IDX0       false
 #define DRV_USART_INIT_FLAGS_IDX0                   0
-#define DRV_USART_BRG_CLOCK_IDX0                    72000000
+#define DRV_USART_BRG_CLOCK_IDX0                    8000000
 #define DRV_USART_BAUD_RATE_IDX0                    115200
 #define DRV_USART_LINE_CNTRL_IDX0                   DRV_USART_LINE_CONTROL_8NONE1
 #define DRV_USART_HANDSHAKE_MODE_IDX0               DRV_USART_HANDSHAKE_NONE
@@ -254,7 +254,7 @@ extern "C" {
 #define DRV_USART_INIT_FLAG_AUTO_BAUD_IDX1          false
 #define DRV_USART_INIT_FLAG_STOP_IN_IDLE_IDX1       false
 #define DRV_USART_INIT_FLAGS_IDX1                   0
-#define DRV_USART_BRG_CLOCK_IDX1                    72000000
+#define DRV_USART_BRG_CLOCK_IDX1                    8000000
 #define DRV_USART_BAUD_RATE_IDX1                    115200
 #define DRV_USART_LINE_CNTRL_IDX1                   DRV_USART_LINE_CONTROL_8NONE1
 #define DRV_USART_HANDSHAKE_MODE_IDX1               DRV_USART_HANDSHAKE_NONE

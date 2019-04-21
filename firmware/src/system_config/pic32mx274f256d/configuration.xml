@@ -325,12 +325,12 @@
       <Template dnOrder="14">
         <Name dnOrder="0">sys_clk_pic32mx.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/clk/src</Path>
-        <Checksum dnOrder="2">6C421F612F5BB770AEEE8455A404A3C5</Checksum>
+        <Checksum dnOrder="2">E427D97E5555934E9784B03DDE5CFD7B</Checksum>
       </Template>
       <Template dnOrder="15">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">A386AC788BAFCEF19A0C9ED80D65B975</Checksum>
+        <Checksum dnOrder="2">596B11F4B99530AB66F04BA140A0BD4E</Checksum>
       </Template>
       <Template dnOrder="16">
         <Name dnOrder="0">mainapp.h</Name>
@@ -344,7 +344,7 @@
       <Template dnOrder="18">
         <Name dnOrder="0">system_init.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">AF7FC2F2C2C270E5659B9A4CE09955E8</Checksum>
+        <Checksum dnOrder="2">65D36FF80D2FF27B8208DABF49E6DA94</Checksum>
       </Template>
     </Templates>
     <CompilerItems dnOrder="2">
