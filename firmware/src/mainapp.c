@@ -10,9 +10,13 @@ void enableLaser(const uint8_t which, const bool power) {
     DEBUG("%s() which: 0x%02X power: %d", __func__, which, power);
     if (which & LASER_DX) {
         Channel_Enable(mainappData.channels[Channel_Right], power);
+    } else {
+        Channel_Enable(mainappData.channels[Channel_Right], false);
     }
     if (which & LASER_SX) {
         Channel_Enable(mainappData.channels[Channel_Left], power);
+    } else {
+        Channel_Enable(mainappData.channels[Channel_Left], false);
     }
 }
 
