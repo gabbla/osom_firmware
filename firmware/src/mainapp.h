@@ -30,8 +30,8 @@ extern "C" {
 
 
 // Laser stuff
-#define LASER_DX            (0x00)
-#define LASER_SX            (0x01)
+#define LASER_DX            (0x01)
+#define LASER_SX            (0x02)
 
 typedef struct {
     PORTS_CHANNEL port;
