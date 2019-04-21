@@ -135,11 +135,6 @@ Packet *PACKET_CreateForReply(const Packet *p) {
     PACKET_SetSource(pp, PACKET_GetDestination(p));
     PACKET_SetTransactionID(pp, PACKET_GetTransactionID(p));
     PACKET_SetMessageID(pp, SYS_RANDOM_PseudoGet());
-    //pp->cmd = p->cmd;
-    //pp->dst = p->src;
-    //pp->src = p->dst;
-    //pp->tid = p->tid;
-    //pp->mid = SYS_RANDOM_PseudoGet();
     return pp;
 }
 
