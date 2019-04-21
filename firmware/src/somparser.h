@@ -94,7 +94,7 @@ typedef enum {
 } CommandResponse;
 
 // Access utilities
-#define SOM_INLINE inline __attribute__((always_inline))
+#define SOM_INLINE inline
 
 SOM_INLINE int8_t PACKET_SetSource(Packet *p, const uint8_t src);
 SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst);
