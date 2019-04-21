@@ -62,7 +62,8 @@ typedef enum __attribute__((packed)) _commands {
 
     BLE_CMD_BAT_DATA = 0x6A,
     // 0xF0 - 0xFF Special meaning
-    BLE_CMD_NOT_SUPPORTED = 0xF0,
+    BLE_CMD_RESPONSE = 0xF0,
+    BLE_CMD_NOT_SUPPORTED = 0xF1,
     // MUST always be the last enum
     BLE_CMD_MAX_CMD
 } BLECommand;
@@ -81,10 +82,16 @@ typedef struct _packet {
 typedef enum {
     RUN_MODE_INVALID = -1,
     RUN_MODE_NONE = 0,
+    RUN_MODE_POSITIONING,
     RUN_MODE_FREE_START,
 
     RUN_MODE_CNT
 } RunMode;
+
+typedef enum {
+    CMD_RESPONSE_FAIL = -1,
+    CMD_RESPONSE_OK = 0,
+} CommandResponse;
 
 // Access utilities
 #define SOM_INLINE inline __attribute__((always_inline))
