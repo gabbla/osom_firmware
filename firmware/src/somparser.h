@@ -95,6 +95,16 @@ typedef enum {
     CMD_RESPONSE_OK = 0,
 } CommandResponse;
 
+typedef enum {
+    DEV_APPLICATION = (1 << 0),
+    DEV_MASTER = (1 << 1),
+    DEV_SLAVE0 = (1 << 2),
+    DEV_SLAVE1 = (1 << 3),
+    DEV_SLAVE2 = (1 << 4),
+    DEV_SLAVE3 = (1 << 5),
+    DEV_SLAVE4 = (1 << 6),
+} Device;
+
 // Access utilities
 #define SOM_INLINE inline
 
