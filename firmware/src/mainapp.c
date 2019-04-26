@@ -41,6 +41,7 @@ void ChannelStatusCallback(uintptr_t context, uint32_t currTick) {
     DEBUG("%s() Ch: 0x%02X Status: 0x%02X", __func__, ch, sts);
     Packet *reply = PACKET_Create();
     uint8_t dummy[] = { ch, sts };
+    PACKET_SetDestination(reply, DEV_APPLICATION);
     PACKET_SetCommand(reply, BLE_CMD_CH_STATUS);
     PACKET_SetPayload(reply, dummy, 2);
     SendPacketToBle(MSG_SRC_MAIN, reply);
@@ -157,6 +158,7 @@ void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx) {
     switch (data->runMode) {
         case RUN_MODE_POSITIONING: {
             Packet *reply = PACKET_CreatePositionStatus(idx, s);
+            PACKET_SetDestination(reply, DEV_APPLICATION);
             SendPacketToBle(MSG_SRC_MAIN, reply);
             break;
         }
