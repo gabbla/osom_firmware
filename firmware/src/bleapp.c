@@ -114,7 +114,26 @@ void hm10EventHandler(DRV_USART_BUFFER_EVENT event, DRV_USART_BUFFER_HANDLE hand
 void bleOutgoingCallback(SYS_MSG_OBJECT *pMessage) {
     DEBUG("Dispatching message for %d", pMessage->nSource);
     Packet *p = (Packet*)pMessage->pData;
-    DEBUG("Cmd: 0x%02X TID: 0x%X MID: 0x%X", p->cmd, p->tid, p->mid);
+    DEBUG("Cmd: 0x%02X TID: 0x%X MID: 0x%X",
+            PACKET_GetCommand(p),
+            PACKET_GetTransactionID(p),
+            PACKET_GetMessageID(p));
+    DEBUG("Source: 0x%02X Destination: 0x%02X",
+            PACKET_GetSource(p),
+            PACKET_GetDestination(p));
+
+    if(!PACKET_GetSource(p)) {
+        // Actually I should add the source here.
+        // TODO add a method to get the device ID (0 - 5)
+        WARN("No source found");
+        // XXX for now setting as master
+        PACKET_SetSource(p, DEV_MASTER);
+    }
+    if(!PACKET_GetDestination(p)) {
+        ERROR("No destination found! Discarding packet..");
+        PACKET_Free(p);
+        return;
+    }
     size_t size = PACKET_GetFullSize(p);
     size_t i, k;
     for(i = 0; i < MAX_BLE_OUT_QUEUE; i++) {
