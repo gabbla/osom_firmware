@@ -37,7 +37,12 @@ void ChannelStatusCallback(uintptr_t context, uint32_t currTick) {
         ch |= LASER_SX;
         sts |= (temp_status == ChannelStatusActive? LASER_SX : 0x00);
     }
-    enableLaser(LASER_DX | LASER_SX, false);
+    // This check fix an issue while entering the Positioning activity.
+    // Since this callback will be called after SET_MODE (that turns on the 
+    // channels) the already turned on channels will be shut off
+    if(data->runMode != RUN_MODE_POSITIONING) {
+        enableLaser(LASER_DX | LASER_SX, false);
+    }
     DEBUG("%s() Ch: 0x%02X Status: 0x%02X", __func__, ch, sts);
     Packet *reply = PACKET_Create();
     uint8_t dummy[] = { ch, sts };
