@@ -38,6 +38,8 @@
 
 #define IS_VALID_CHANNEL_IDX(x)     ((x) < Channel_Max)
 
+#define CH_IDX_TO_MASK(x)       (1 << (x))
+
 typedef enum {
     Channel_Right = 0,
     Channel_Left,
