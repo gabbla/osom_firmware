@@ -160,8 +160,8 @@ Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus 
     Packet *p;
     if((p = PACKET_Create()) != NULL) {
         PACKET_SetCommand(p, BLE_CMD_POS_STATUS);
-        uint8_t data = (idx << 4) | sts;
-        PACKET_SetPayload(p, &data, 1);
+        uint8_t data[] = { CH_IDX_TO_MASK(idx), sts << idx};
+        PACKET_SetPayload(p, data, 2);
     }
     return p;
 }
