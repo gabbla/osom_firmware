@@ -69,6 +69,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "bleapp.h"
 #include "mainapp.h"
 #include "powerapp.h"
+#include "nrfapp.h"
 
 
 // DOM-IGNORE-BEGIN

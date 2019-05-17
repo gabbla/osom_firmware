@@ -362,6 +362,7 @@ void SYS_Initialize ( void* data )
     BLEAPP_Initialize();
     MAINAPP_Initialize();
     POWERAPP_Initialize();
+    NRFAPP_Initialize();
 }
 
 

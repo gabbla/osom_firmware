@@ -85,7 +85,7 @@ void SYS_Tasks ( void )
     BLEAPP_Tasks();
     MAINAPP_Tasks();
     POWERAPP_Tasks();
-    
+    NRFAPP_Tasks();
     LedHeartbeatToggle();
 }
 
