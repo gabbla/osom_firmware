@@ -7,6 +7,13 @@
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
+#include "logger.h"
+#include "memory_map.h"
+
+#include <xc.h>
+#include <sys/attribs.h>
+#include <peripheral/peripheral.h>
+#include "nrf_ifc.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -15,24 +22,28 @@ extern "C" {
 
 #endif
 
+typedef struct {
+    uint8_t reg;
+    uint8_t value;
+} NRFConfig;
+
 typedef enum
 {
 	/* Application's state machine's initial state. */
 	NRFAPP_STATE_INIT=0,
+    NRFAPP_STATE_CONFIG,
 	NRFAPP_STATE_SERVICE_TASKS,
 
 	/* TODO: Define states used by the application state machine. */
 
 } NRFAPP_STATES;
 
-
-
 typedef struct
 {
     /* The application's current state */
     NRFAPP_STATES state;
-
-    /* TODO: Define any additional data used by the application. */
+    // general purpose timer
+    SYS_TMR_HANDLE gpTimer;
 
 } NRFAPP_DATA;
 
