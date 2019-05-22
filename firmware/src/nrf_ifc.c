@@ -67,11 +67,11 @@ NRF_Status NRF_PowerEnable(const bool power) {
 NRF_Status NRF_CleanInterrupts(const uint8_t int_mask) {
     uint8_t status;
     nrf_read_register(STATUS, &status);
-    if(status & RX_DR)
+    if(int_mask & RX_DR)
         status |= (1 << RX_DR);
-    if(status & TX_DS)
+    if(int_mask & TX_DS)
         status |= (1 << TX_DS);
-    if(status & MAX_RT)
+    if(int_mask & MAX_RT)
         status |= (1<< MAX_RT);
     return nrf_write_register(STATUS, status);
 }
