@@ -105,6 +105,13 @@
 #define EN_AA_VALID			0x3F
 #define ARC_CNT_MASK		0x0F
 
+/* Address widths */
+#define BYTES_TO_AW(x)      ((x) - 2)
+#define AW_TO_BYTES(x)      ((x) + 2)
+#define AW_3_BYTES          0x01
+#define AW_4_BYTES          0x02
+#define AW_5_BYTES          0x03
+
 /* Instruction Mnemonics */
 #define R_REGISTER    0x00
 #define W_REGISTER    0x20
