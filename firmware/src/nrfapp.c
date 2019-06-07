@@ -16,25 +16,30 @@ void NRFAPP_Initialize(void) {
 }
 
 bool configureSPI() {
+    PLIB_SPI_Disable(SPI_ID_1);
     PLIB_SPI_MasterEnable(SPI_ID_1);
     PLIB_SPI_BufferClear(SPI_ID_1);
     PLIB_SPI_StopInIdleDisable(SPI_ID_1);
     PLIB_SPI_CommunicationWidthSelect(SPI_ID_1, SPI_COMMUNICATION_WIDTH_8BITS);
     PLIB_SPI_InputSamplePhaseSelect(SPI_ID_1,
-            SPI_INPUT_SAMPLING_PHASE_IN_MIDDLE);
-    PLIB_SPI_ClockPolaritySelect(SPI_ID_1, SPI_CLOCK_POLARITY_IDLE_LOW);
+                                    SPI_INPUT_SAMPLING_PHASE_IN_MIDDLE);
+    PLIB_SPI_ClockPolaritySelect(SPI_ID_1,
+                                 SPI_CLOCK_POLARITY_IDLE_LOW);  // CKP 0
     PLIB_SPI_OutputDataPhaseSelect(
-            SPI_ID_1, SPI_OUTPUT_DATA_PHASE_ON_IDLE_TO_ACTIVE_CLOCK);
-    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_PERIPHERAL_1, 100000);
+        SPI_ID_1, SPI_OUTPUT_DATA_PHASE_ON_ACTIVE_TO_IDLE_CLOCK);  // CKE 1
+    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_PERIPHERAL_1, 1000000);
     //    PLIB_SPI_PinEnable(
-    //        SPI_ID_1, SPI_PIN_SLAVE_SELECT | SPI_PIN_DATA_OUT | SPI_PIN_DATA_IN);
+    //        SPI_ID_1, SPI_PIN_SLAVE_SELECT | SPI_PIN_DATA_OUT |
+    //        SPI_PIN_DATA_IN);
     PLIB_SPI_FramedCommunicationDisable(SPI_ID_1);
     PLIB_SPI_FIFOEnable(SPI_ID_1);
     PLIB_SPI_Enable(SPI_ID_1);
 
-    //PLIB_SPI_FIFOInterruptModeSelect(SPI_ID_1, SPI_FIFO_INTERRUPT_WHEN_TRANSMIT_BUFFER_IS_COMPLETELY_EMPTY);
+    // PLIB_SPI_FIFOInterruptModeSelect(SPI_ID_1,
+    // SPI_FIFO_INTERRUPT_WHEN_TRANSMIT_BUFFER_IS_COMPLETELY_EMPTY);
 
     spi_idle();
+    NRF_CEOff();  // TODO
     return true;
 }
 
