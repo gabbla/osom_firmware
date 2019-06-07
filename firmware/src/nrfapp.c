@@ -2,17 +2,40 @@
 
 NRFAPP_DATA nrfappData;
 
-/*******************************************************************************
-  Function:
-    void NRFAPP_Initialize ( void )
-
-  Remarks:
-    See prototype in nrfapp.h.
- */
+void __ISR(_EXTERNAL_4_VECTOR, IPL2SOFT) nrf_irq_handler(void) {
+    NRF_Status sts = NRF_GetStatus();
+    DEBUG("%s() Status: 0x%02X", __func__, sts.status);
+    
+    if(sts.rx_data_ready) {
+        
+        NRF_CleanInterrupts(RX_DR);
+    }
+    if(sts.tx_data_sent) {
+        
+        NRF_CleanInterrupts(TX_DS);
+    }
+    if(sts.max_retransmissions) {
+        
+        NRF_CleanInterrupts(MAX_RT);
+    }
+    
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_EXTERNAL_4);
+}
 
 void NRFAPP_Initialize(void) {
     /* Place the App state machine in its initial state. */
     nrfappData.state = NRFAPP_STATE_INIT;
+    
+    // Address
+    nrfappData.aw_bytes = AW_TO_BYTES(AW_5_BYTES);
+    // Broadcast address, common to all devices
+    const uint8_t pipe0address[] = { 0x00, 0xEF, 0xBE, 0xAD, 0xDE };
+    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
+    // TODO get the serial number (4bytes)
+    // TODO pipe 1-5 will be numbered <serial>x where x 1-5
+//    const uint8_t pipeBaseaddress[] = { 0x01, 0xCE, 0xCA, 0xEF, 0xBE };
+//    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
+    
 }
 
 bool configureSPI() {
@@ -43,6 +66,14 @@ bool configureSPI() {
     return true;
 }
 
+void configure_irq() {
+    DEBUG("%s()", __func__);
+    PLIB_INT_Enable(INT_ID_0);
+    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_EXTERNAL_4);
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_EXTERNAL_4);
+    PLIB_INT_ExternalFallingEdgeSelect(INT_ID_0, INT_SOURCE_EXTERNAL_4);
+}
+
 void NRFAPP_Tasks(void) {
     /* Check the application's current state. */
     switch (nrfappData.state) {
@@ -51,6 +82,7 @@ void NRFAPP_Tasks(void) {
         {
             if (configureSPI()) {
                 INFO("NRF App started!");
+                configure_irq();
                 nrfappData.gpTimer = SYS_TMR_DelayMS(1000);
                 nrfappData.state = NRFAPP_STATE_CONFIG;
             } else {
@@ -62,13 +94,19 @@ void NRFAPP_Tasks(void) {
         case NRFAPP_STATE_CONFIG:
         {
             if (!SYS_TMR_DelayStatusGet(nrfappData.gpTimer)) break;
-            volatile NRF_Status sts;
-            volatile size_t kkk = sizeof (NRF_Status);
-            sts = NRF_Initialize();
-            asm("nop");
+            NRF_Status sts;
+            NRF_Initialize();
+            NRF_SetAddressWidth(BYTES_TO_AW(nrfappData.aw_bytes));
+            NRF_SetPipe0Address(nrfappData.pipe0, nrfappData.aw_bytes);
+            
+            nrfappData.state = NRFAPP_STATE_IDLE;
             break;
         }
-
+        
+        case NRFAPP_STATE_IDLE: {
+            
+            break;
+        }
             /* TODO: implement your application state machine.*/
 
             /* The default state should never be executed. */

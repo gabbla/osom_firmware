@@ -44,7 +44,11 @@ typedef struct
     NRFAPP_STATES state;
     // general purpose timer
     SYS_TMR_HANDLE gpTimer;
-
+    
+    // Address info
+    uint8_t aw_bytes;
+    uint8_t pipe0[5];
+    uint8_t pipe1[5];
 } NRFAPP_DATA;
 
 
