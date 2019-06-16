@@ -1,6 +1,7 @@
 #ifndef NRF_IFC_H_3P8AGRVE
 #define NRF_IFC_H_3P8AGRVE
 
+#include "system_definitions.h"
 #include <peripheral/peripheral.h>
 #include "memory_map.h"
 #include "logger.h"
@@ -44,6 +45,7 @@ NRF_Status NRF_GetStatus();
  */
 NRF_Status NRF_PowerEnable(const bool power);
 
+NRF_Status NRF_SetMode(const uint8_t mode);
 /*
  * @brief Clean the interrupts flags
  * @param int_mask Any ORed combination of RX_DR, TX_DS and MAX_RT
@@ -72,31 +74,28 @@ NRF_Status NRF_DisableInterrupts(const uint8_t int_mask);
  */
 NRF_Status NRF_SetAddressWidth(const uint8_t aw);
 
-/*
- * @brief Set the pipe0 address. Write max AW bytes
- * @param addr vector filled with address, LSB first
- * @oaram len address length
- * @return Chip STATUS register
- */
-NRF_Status NRF_SetPipe0Address(const uint8_t *addr, const size_t len);
+NRF_Status NRF_SetPipeAddress(const uint8_t pipe, const uint64_t address);
+
+NRF_Status NRF_SetTxAddress(const uint64_t address);
+
+NRF_Status NRF_OpenWritingPipe(const uint64_t addr);
+
+NRF_Status NRF_CloseReadingPipe(const uint8_t pipe);
+NRF_Status NRF_OpenReadingPipe(const uint8_t pipe, const uint64_t addr);
 
 /*
- * @brief Set the pipe 1-5 base address. Write max AW bytes.
- * @param addr vector filled with address, LSB first
- * @oaram len address length
+ * @brief Enable the desired features
+ * @param features any ORed combination of EN_DPL, EN_ACK_PAY or EN_DYN_ACK
  * @return Chip STATUS register
  */
-NRF_Status NRF_SetPipeBaseAddress(const uint8_t *addr, const size_t len);
+NRF_Status NRF_EnableFeatures(const uint8_t features);
 
-/*
- * @brief Set the pipe 1-5 LSB
- * @param pipe Index from 1 to 5
- * @param addr byte addr to set to pipe
- * @return Chip STATUS register
- */
-NRF_Status NRF_SetPipeXAddress(const uint8_t pipe, const uint8_t addr);
+NRF_Status NRF_EnableDynPayload(const uint8_t pipe);
 
-NRF_Status NRF_StartListening();
+NRF_Status NRF_EnableRxPipe(const uint8_t pipe);
+NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe);
+
+NRF_Status NRF_Write(const uint8_t pipe, const void *data, const size_t size);
 
 
 /*

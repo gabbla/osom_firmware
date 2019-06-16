@@ -32,9 +32,11 @@ typedef enum
 	/* Application's state machine's initial state. */
 	NRFAPP_STATE_INIT=0,
     NRFAPP_STATE_CONFIG,
-	NRFAPP_STATE_SERVICE_TASKS,
+	NRFAPP_STATE_IDLE,
 
-	/* TODO: Define states used by the application state machine. */
+    NRFAPP_STATE_PWR_TX,
+    NRFAPP_STATE_SEND_PYLOAD,
+    NRFAPP_STATE_START_TX
 
 } NRFAPP_STATES;
 
@@ -44,11 +46,11 @@ typedef struct
     NRFAPP_STATES state;
     // general purpose timer
     SYS_TMR_HANDLE gpTimer;
-    
+
     // Address info
     uint8_t aw_bytes;
-    uint8_t pipe0[5];
-    uint8_t pipe1[5];
+    uint64_t pipe0;
+    uint64_t pipe1;
 } NRFAPP_DATA;
 
 

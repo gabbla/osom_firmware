@@ -29,8 +29,8 @@ void NRFAPP_Initialize(void) {
     // Address
     nrfappData.aw_bytes = AW_TO_BYTES(AW_5_BYTES);
     // Broadcast address, common to all devices
-    const uint8_t pipe0address[] = { 0x00, 0xEF, 0xBE, 0xAD, 0xDE };
-    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
+    nrfappData.pipe0 = 0xDEADBEEF00;
+    nrfappData.pipe1 = 0xAABBCCDD01;
     // TODO get the serial number (4bytes)
     // TODO pipe 1-5 will be numbered <serial>x where x 1-5
 //    const uint8_t pipeBaseaddress[] = { 0x01, 0xCE, 0xCA, 0xEF, 0xBE };
@@ -97,22 +97,32 @@ void NRFAPP_Tasks(void) {
             NRF_Status sts;
             NRF_Initialize();
             NRF_SetAddressWidth(BYTES_TO_AW(nrfappData.aw_bytes));
-            NRF_SetPipe0Address(nrfappData.pipe0, nrfappData.aw_bytes);
-            
+#if SOM_MASTER
+            NRF_OpenReadingPipe(1, nrfappData.pipe0);
+            NRF_OpenWritingPipe(nrfappData.pipe1);
+#else
+            NRF_OpenReadingPipe(0, nrfappData.pipe1);
+            NRF_OpenWritingPipe(nrfappData.pipe0);
+#endif
             nrfappData.state = NRFAPP_STATE_IDLE;
             break;
         }
-        
+
         case NRFAPP_STATE_IDLE: {
-            
+
             break;
         }
-            /* TODO: implement your application state machine.*/
 
-            /* The default state should never be executed. */
+        case NRFAPP_STATE_PWR_TX: {
+                                      NRF_SetMode(0); // Tx
+                                      NRF_PowerEnable(true);
+                                      // WIP
+
+                                      break;
+        }
+
         default:
         {
-            /* TODO: Handle error in application's state machine. */
             break;
         }
     }
