@@ -27,12 +27,16 @@ typedef struct {
     uint8_t value;
 } NRFConfig;
 
-typedef enum
-{
-	/* Application's state machine's initial state. */
-	NRFAPP_STATE_INIT=0,
+typedef enum {
+    /* Application's state machine's initial state. */
+    NRFAPP_STATE_INIT = 0,
     NRFAPP_STATE_CONFIG,
-	NRFAPP_STATE_IDLE,
+    NRFAPP_STATE_IDLE,
+
+    NRFAPP_STATE_PRE_TX,
+    NRFAPP_STATE_TX,
+    NRFAPP_STATE_PRE_RX,
+    NRFAPP_STATE_RX,
 
     NRFAPP_STATE_PWR_TX,
     NRFAPP_STATE_SEND_PYLOAD,

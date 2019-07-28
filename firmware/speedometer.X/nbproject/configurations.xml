@@ -183,6 +183,7 @@
         <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/mailbox.c</itemPath>
         <itemPath>../src/bleapp.c</itemPath>
         <itemPath>../src/powerapp.c</itemPath>
+        <itemPath>/home/gabbla/projects/som_firmware/firmware/src/nrfapp.c</itemPath>
         <itemPath>../src/nrfapp.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="framework" projectFiles="true">
@@ -414,7 +415,7 @@
         <property key="exceptions" value="true"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="/opt/microchip/xc32/v1.40/pic32-libs/include;../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework"/>
+                  value="/opt/microchip/xc32/v1.40/pic32-libs/include;../src;../src/system_config/Debug;../src/Debug;../../../../framework;../src/system_config/Debug/framework;../src/system_config/pic32mx274f256d"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -431,6 +432,7 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
+        <appendMe value="-fpermissive"/>
       </C32CPP>
       <C32Global>
         <property key="common-include-directories" value=""/>

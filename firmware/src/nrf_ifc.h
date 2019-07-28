@@ -26,6 +26,12 @@ typedef union {
     uint8_t status;
 } NRF_Status;
 
+typedef enum {
+    NRF_1MBPS = 0x00,
+    NRF_2MBPS = 0x01,
+    NRF_250KBPS = 0x02
+} speed_t;
+
 /*
  * @brief Initialize the chip at default state
  * @return Chip STATE register
@@ -83,6 +89,10 @@ NRF_Status NRF_OpenWritingPipe(const uint64_t addr);
 NRF_Status NRF_CloseReadingPipe(const uint8_t pipe);
 NRF_Status NRF_OpenReadingPipe(const uint8_t pipe, const uint64_t addr);
 
+NRF_Status NRF_SetChannel(const uint8_t channel);
+
+NRF_Status NRF_SetBaudrate(const speed_t baudrate);
+
 /*
  * @brief Enable the desired features
  * @param features any ORed combination of EN_DPL, EN_ACK_PAY or EN_DYN_ACK
@@ -95,9 +105,17 @@ NRF_Status NRF_EnableDynPayload(const uint8_t pipe);
 NRF_Status NRF_EnableRxPipe(const uint8_t pipe);
 NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe);
 
+NRF_Status NRF_StartListening();
+
+NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size);
+
 NRF_Status NRF_Write(const uint8_t pipe, const void *data, const size_t size);
 
+bool NRF_Available(uint8_t *pipe);
 
+NRF_Status NRF_DumpRegisters();
+
+NRF_Status NRF_ReadPayload(void *buf, const size_t len);
 /*
  * @brief Send the command FLUSH_TX to the chip
  * @return Chip STATUS register
