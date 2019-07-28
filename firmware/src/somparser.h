@@ -48,6 +48,7 @@ typedef enum __attribute__((packed)) _commands {
     BLE_CMD_GET_SN = 0x01,
     BLE_CMD_GET_INFO = 0x02,
     BLE_CMD_ACK = 0x03,
+    BLE_CMD_SYS_RESET = 0x04,
 
     BLE_CMD_GET_BAT_DATA = 0x0A,
     // 0x10 - 0x4F commands forwarded to MainApp

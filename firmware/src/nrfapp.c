@@ -124,8 +124,8 @@ void NRFAPP_Tasks(void) {
             NRF_OpenReadingPipe(1, nrfappData.pipe0);
             NRF_OpenWritingPipe(nrfappData.pipe1);
 #endif
-            // nrfappData.state = NRFAPP_STATE_IDLE;
-            nrfappData.state = NRFAPP_STATE_PRE_RX;
+            nrfappData.state = NRFAPP_STATE_IDLE;
+            //nrfappData.state = NRFAPP_STATE_PRE_RX;
             break;
         }
 
