@@ -5,11 +5,11 @@ NRFAPP_DATA nrfappData;
 void __ISR(_EXTERNAL_4_VECTOR, IPL1AUTO) nrf_irq_handler(void) {
     NRF_Status sts = NRF_GetStatus();
     DEBUG("%s() Status: 0x%02X", __func__, sts.status);
-    
+
      uint8_t dummy;
             NRF_GetPayloadSize(0, &dummy);
             NRF_GetPayloadSize(1, &dummy);
-    
+
     uint8_t buf[32];
     NRF_ReadPayload(buf, 32);
     int i;
@@ -37,12 +37,38 @@ void NRFAPP_Initialize(void) {
     // Address
     nrfappData.aw_bytes = AW_TO_BYTES(AW_5_BYTES);
     // Broadcast address, common to all devices
-    nrfappData.pipe0 = 0x0000000000;
-    nrfappData.pipe1 = 0x1111111111;
+    nrfappData.pipe0 = 0x314E6F6465; // 1Node
+    nrfappData.pipe1 = 0x324e6f6465; // 2Node
     // TODO get the serial number (4bytes)
     // TODO pipe 1-5 will be numbered <serial>x where x 1-5
     //    const uint8_t pipeBaseaddress[] = { 0x01, 0xCE, 0xCA, 0xEF, 0xBE };
     //    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
+#ifdef SOM_MASTER
+    nrfappData.device_type = 1;
+#else
+    nrfappData.device_type = 0;
+#endif
+}
+
+int8_t initializeNRFappMailbox() {
+    nrfappData.commandMailBox = SYS_MSG_MailboxOpen(NRF_MAILBOX, NULL);
+    if (nrfappData.commandMailBox == SYS_OBJ_HANDLE_INVALID) {
+        ERROR("Failed to open Command Mail Box");
+        return -1;
+    } else {
+        DEBUG("NRFApp mailbox is open");
+    }
+
+    SYS_OBJ_HANDLE msgType =
+        SYS_MSG_TypeCreate(NRF_MAILBOX, NRF_MSG_ID, NRF_MSG_PRIORITY);
+    // Add the message type
+    if (msgType != SYS_OBJ_HANDLE_INVALID) {
+        SYS_MSG_MailboxMsgAdd(nrfappData.commandMailBox, msgType);
+        DEBUG("Subuscribed to NRFApp mailbox");
+        return 0;
+    }
+    WARN("Subscription to NRFApp mailbox failed!");
+    return -2;
 }
 
 bool configureSPI() {
@@ -98,9 +124,12 @@ void NRFAPP_Tasks(void) {
         case NRFAPP_STATE_INIT: {
             if (configureSPI()) {
                 INFO("NRF App started!");
-                configure_irq();
-                nrfappData.gpTimer = SYS_TMR_DelayMS(1000);
+                DEBUG("Device type: %s [%d]", nrfappData.device_type ? "Master" : "Slave",
+                      nrfappData.device_type);
+                //configure_irq();
+                nrfappData.gpTimer = SYS_TMR_DelayMS(5000);
                 nrfappData.state = NRFAPP_STATE_CONFIG;
+                initializeNRFappMailbox();
             } else {
                 ERROR("Failed to initialize NRF App!");
             }
@@ -110,22 +139,22 @@ void NRFAPP_Tasks(void) {
         case NRFAPP_STATE_CONFIG: {
             printOnceState(NRFAPP_STATE_CONFIG, "config");
             if (!SYS_TMR_DelayStatusGet(nrfappData.gpTimer)) break;
-            NRF_Status sts = NRF_Initialize();
-            if(sts.status == 0) {
-                WARN("Status is 0!!!");
+            NRF_Status status = NRF_Initialize();
+            if(!status.status) {
+                WARN("Status is 0!");
             }
-            NRF_SetAddressWidth(BYTES_TO_AW(nrfappData.aw_bytes));
-            NRF_SetChannel(76);
-            NRF_SetBaudrate(NRF_1MBPS);
-#if SOM_MASTER
-            NRF_OpenReadingPipe(0, nrfappData.pipe0);
-            //NRF_OpenWritingPipe(nrfappData.pipe0);
-#else
-            NRF_OpenReadingPipe(1, nrfappData.pipe0);
-            NRF_OpenWritingPipe(nrfappData.pipe1);
-#endif
+            DEBUG("Status is: 0x%02X", status);
+            NRF_SetPALevel(NRF_PA_LOW);
+
+            if(nrfappData.device_type) {
+                NRF_OpenWritingPipe(nrfappData.pipe1);
+                NRF_OpenReadingPipe(1, nrfappData.pipe0);
+            } else {
+                NRF_OpenWritingPipe(nrfappData.pipe0);
+                NRF_OpenReadingPipe(1, nrfappData.pipe1);
+            }
+            NRF_StartListening();
             nrfappData.state = NRFAPP_STATE_IDLE;
-            //nrfappData.state = NRFAPP_STATE_PRE_RX;
             break;
         }
 

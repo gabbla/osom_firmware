@@ -26,12 +26,42 @@ typedef union {
     uint8_t status;
 } NRF_Status;
 
+typedef struct {
+    union {
+        struct {
+            uint8_t p_variant : 1;
+            uint8_t dyn_payload : 1;
+        };
+        uint8_t value;
+    } flags;
+    uint8_t address_width;
+    size_t payload_size;
+    uint64_t pipe0_address;
+} _NRF_Internal;
+
 typedef enum {
     NRF_1MBPS = 0x00,
     NRF_2MBPS = 0x01,
     NRF_250KBPS = 0x02
 } speed_t;
 
+typedef enum {
+    NRF_PTX,
+    NRF_PRX
+} NRF_Mode;
+
+typedef enum {
+    NRF_PA_MIN = 0,
+    NRF_PA_LOW,
+    NRF_PA_HIGH,
+    NRF_PA_MAX,
+    NRF_PA_ERROR
+} NRF_PA;
+
+typedef enum {
+    NRF_CRC_1_BYTE,
+    NRF_CRC_2_BYTE,
+} NRF_CRC_LEN;
 /*
  * @brief Initialize the chip at default state
  * @return Chip STATE register
@@ -51,7 +81,7 @@ NRF_Status NRF_GetStatus();
  */
 NRF_Status NRF_PowerEnable(const bool power);
 
-NRF_Status NRF_SetMode(const uint8_t mode);
+NRF_Status NRF_SetMode(const NRF_Mode mode);
 /*
  * @brief Clean the interrupts flags
  * @param int_mask Any ORed combination of RX_DR, TX_DS and MAX_RT
@@ -93,14 +123,22 @@ NRF_Status NRF_SetChannel(const uint8_t channel);
 
 NRF_Status NRF_SetBaudrate(const speed_t baudrate);
 
+NRF_Status NRF_SetCrcLen(const NRF_CRC_LEN len);
+
+NRF_Status NRF_SetRetries(const uint8_t retries, const uint8_t delay);
+
+NRF_Status NRF_SetPALevel(const NRF_PA level);
+
 /*
  * @brief Enable the desired features
  * @param features any ORed combination of EN_DPL, EN_ACK_PAY or EN_DYN_ACK
  * @return Chip STATUS register
  */
 NRF_Status NRF_EnableFeatures(const uint8_t features);
+NRF_Status NRF_DisableFeatures(const uint8_t features);
 
 NRF_Status NRF_EnableDynPayload(const uint8_t pipe);
+NRF_Status NRF_DisableDynPayload(const uint8_t pipe);
 
 NRF_Status NRF_EnableRxPipe(const uint8_t pipe);
 NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe);

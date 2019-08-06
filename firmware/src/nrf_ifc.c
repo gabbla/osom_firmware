@@ -24,6 +24,14 @@ static const uint8_t reg[] = {
 
 static uint64_t rx_addr_p0;
 
+static _NRF_Internal internal = {
+    .flags.dyn_payload = 0,
+    .flags.p_variant = 0,
+
+    .address_width = 5,
+    .payload_size = 32,
+};
+
 void __delay_us(uint16_t microseconds) {
     uint32_t time;
     time = _CP0_GET_COUNT(); // Read Core Timer
@@ -76,15 +84,29 @@ NRF_Status nrf_send_command(const uint8_t cmd) {
 }
 
 NRF_Status NRF_Initialize() {
-    // Power down the module
-    NRF_PowerEnable(false);
-    // Enable irq reflection (default)
-    NRF_EnableInterrupts(RX_DR | TX_DS | MAX_RT);
-    // Clear interrupts
+    // Set CRC len to 2bytes
+    NRF_SetCrcLen(NRF_CRC_2_BYTE);
+    // Set 15 retries every (5 + 1) * 250 uS
+    NRF_SetRetries(15, 5);
+    // Set 1Mbps
+    NRF_SetBaudrate(NRF_1MBPS);
+    // TODO maybe I can get rid of this flag
+    internal.flags.p_variant = 1;
+    // Disable all the features
+    NRF_DisableFeatures(EN_DPL | EN_ACK_PAY | EN_DYN_ACK);
+    // Disable all the dynamic payloads
+    nrf_write_register(DYNPD, 0);
+    internal.flags.dyn_payload = 0;
+    // Clear irqs
     NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT);
-    // Flush pipes
+    NRF_SetChannel(76);
+    // Flush the pipes
     NRF_FlushRx();
     NRF_FlushTx();
+    // Power the module
+    NRF_PowerEnable(true);
+    // Device as transmitter
+    NRF_SetMode(NRF_PTX);
     return NRF_GetStatus();
 }
 
@@ -102,11 +124,10 @@ NRF_Status NRF_PowerEnable(const bool power) {
     return nrf_write_register(CONFIG, config);
 }
 
-// TODO fix param
-NRF_Status NRF_SetMode(const uint8_t mode) {
+NRF_Status NRF_SetMode(const NRF_Mode mode) {
     uint8_t config;
     nrf_read_register(CONFIG, &config);
-    if(mode) // as receiver
+    if(mode == NRF_PRX) // as receiver
         config |= _BV(PRIM_RX);
     else
         config &= ~_BV(PRIM_RX);
@@ -182,27 +203,42 @@ NRF_Status NRF_SetTxAddress(const uint64_t address) {
 }
 
 NRF_Status NRF_OpenWritingPipe(const uint64_t addr) {
-    NRF_SetPipeAddress(0, addr);
-    NRF_SetTxAddress(addr);
+    uint8_t vAddr[5];
+    addressToVect(addr, vAddr);
+    nrf_write_register_size(RX_ADDR_P0, vAddr, internal.address_width);
+    nrf_write_register_size(TX_ADDR, vAddr, internal.address_width);
 
-//    const uint8_t max_payload_size = 32;
-//   write_register(RX_PW_P0, min(payload_size, max_payload_size));
+    return nrf_write_register(RX_PW_P0, internal.payload_size);
 }
 
 NRF_Status NRF_CloseReadingPipe(const uint8_t pipe) {
-    // TODO
-    return NRF_GetStatus();
+    uint8_t en_rxaddr;
+    nrf_read_register(EN_RXADDR, &en_rxaddr);
+    return nrf_write_register(EN_RXADDR,
+                              en_rxaddr & ~_BV(child_pipe_enable[pipe]));
 }
 
 NRF_Status NRF_OpenReadingPipe(const uint8_t pipe, const uint64_t addr) {
-    // How to enable a pipe in reading mod:
-    // 1. set the address for the given pipe
-    NRF_SetPipeAddress(pipe, addr);
-    // 2. enable that pipe
-    NRF_EnableRxPipe(pipe);
-    return nrf_write_register(child_payload_size[pipe], 32);
-    // 3. Enable dyn payload
-    //return NRF_EnableDynPayload(pipe);
+    // Cache pipe0 address
+    if (pipe == 0) internal.pipe0_address = addr;
+
+    if (pipe <= 6) {
+        if (pipe < 2) {
+            uint8_t vAddr[5];
+            addressToVect(addr, vAddr);
+            nrf_write_register_size(child_pipe[pipe], vAddr,
+                                    internal.address_width);
+        } else {
+            nrf_write_register(child_pipe[pipe], (uint8_t)(addr >> 32));
+        }
+        nrf_write_register(child_payload_size[pipe], internal.payload_size);
+
+        uint8_t en_rxaddr;
+        nrf_read_register(EN_RXADDR, &en_rxaddr);
+        return nrf_write_register(EN_RXADDR,
+                                  en_rxaddr | _BV(child_pipe_enable[pipe]));
+    }
+    return NRF_GetStatus();
 }
 
 NRF_Status NRF_SetChannel(const uint8_t channel) {
@@ -229,6 +265,33 @@ NRF_Status NRF_SetBaudrate(const speed_t baudrate) {
     return nrf_write_register(RF_SETUP, rf_setup);
 }
 
+NRF_Status NRF_SetCrcLen(const NRF_CRC_LEN len) {
+    uint8_t config;
+    nrf_read_register(CONFIG, &config);
+    if(len == NRF_CRC_2_BYTE)
+        config |= (1 << CRCO);
+    else // 1 byte
+        config &= (~(1 << CRCO));
+    return nrf_write_register(CONFIG, config);
+}
+
+NRF_Status NRF_SetRetries(const uint8_t retries, const uint8_t delay) {
+    uint8_t setup_retr = ((delay << ARD) | (retries & 0x0F));
+    return nrf_write_register(SETUP_RETR, setup_retr);
+}
+
+NRF_Status NRF_SetPALevel(const NRF_PA level) {
+    uint8_t rf_setup, l;
+    nrf_read_register(RF_SETUP, &rf_setup);
+    // Set the 3 LSB to 0
+    rf_setup &= 0xF8;
+    if(level > NRF_PA_MAX)
+        l = (NRF_PA_MAX << 1);
+    else
+        l = (level << 1);
+    return nrf_write_register(RF_SETUP, rf_setup | l);
+}
+
 NRF_Status NRF_EnableFeatures(const uint8_t features) {
     uint8_t feature;
     nrf_read_register(FEATURE, &feature);
@@ -241,13 +304,32 @@ NRF_Status NRF_EnableFeatures(const uint8_t features) {
     return nrf_write_register(FEATURE, feature);
 }
 
+NRF_Status NRF_DisableFeatures(const uint8_t features) {
+    uint8_t feature;
+    nrf_read_register(FEATURE, &feature);
+    if(features & EN_DPL)
+        feature &= ~_BV(EN_DPL);
+    if(features & EN_ACK_PAY)
+        feature &= ~_BV(EN_ACK_PAY);
+    if(features & EN_DYN_ACK)
+        feature &= ~_BV(EN_DYN_ACK);
+    return nrf_write_register(FEATURE, feature);
+}
+
 NRF_Status NRF_EnableDynPayload(const uint8_t pipe) {
     // Each operation that enable DYNPD needs bit EN_DPL and ENAA_Px set
     NRF_EnableFeatures(EN_DPL);
     uint8_t dynpd, en_aa;
     nrf_read_register(DYNPD, &dynpd);
     NRF_EnableEnanchedShockBurst(pipe);
+    // FIXME this will enable only one dyn payload at once
     return nrf_write_register(DYNPD, _BV(child_dynpd[pipe]));
+}
+
+NRF_Status NRF_DisableDynPayload(const uint8_t pipe) {
+    uint8_t dynpd;
+    nrf_read_register(DYNPD, &dynpd);
+    return nrf_write_register(DYNPD, dynpd & ~_BV(child_dynpd[pipe]));
 }
 
 NRF_Status NRF_EnableRxPipe(const uint8_t pipe) {
@@ -286,24 +368,21 @@ NRF_Status write_payload(const void *data, const size_t size) {
 }
 
 NRF_Status NRF_StartListening() {
-    NRF_Status status;
-    uint8_t config;
-    nrf_read_register(CONFIG, &config);
-    // Powerup and PRIM_RX
-    config |= (_BV(PWR_UP) | _BV(PRIM_RX));
+    NRF_SetMode(NRF_PRX);
     NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT);
-    // Restore pipe0 address, if any (??)
-    if(rx_addr_p0)
-        status = NRF_SetPipeAddress(0, rx_addr_p0);
+    if(internal.pipe0_address) {
+        uint8_t vAddr[5];
+        addressToVect(internal.pipe0_address, vAddr);
+        nrf_write_register_size(RX_ADDR_P0, vAddr, internal.address_width);
+    }else {
+        NRF_CloseReadingPipe(0);
+    }
 
-    NRF_FlushTx();
-    NRF_FlushRx();
-    
-    status = nrf_write_register(CONFIG, config);
-    
-    NRF_CEOn();
-    __delay_us(130);
-    return status;
+    uint8_t feature;
+    NRF_Status s = nrf_read_register(FEATURE, &feature);
+    if(feature & _BV(EN_ACK_PAY))
+        s = NRF_FlushTx();
+    return s;
 }
 
 NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size) {

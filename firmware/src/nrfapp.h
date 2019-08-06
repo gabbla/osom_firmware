@@ -50,7 +50,11 @@ typedef struct
     NRFAPP_STATES state;
     // general purpose timer
     SYS_TMR_HANDLE gpTimer;
+    // Here the app receives the packets
+    SYS_OBJ_HANDLE commandMailBox;
 
+    // device type
+    uint8_t device_type;
     // Address info
     uint8_t aw_bytes;
     uint64_t pipe0;
