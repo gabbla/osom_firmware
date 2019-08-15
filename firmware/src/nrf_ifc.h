@@ -62,6 +62,17 @@ typedef enum {
     NRF_CRC_1_BYTE,
     NRF_CRC_2_BYTE,
 } NRF_CRC_LEN;
+
+typedef struct {
+    NRF_Status status;
+    uint8_t tx_addr;
+    uint8_t en_aa;
+    uint8_t en_rxaddr;
+    uint8_t rf_ch;
+    uint8_t rf_setup;
+    uint8_t config;
+    uint8_t dynpd;
+} NRF_Info;
 /*
  * @brief Initialize the chip at default state
  * @return Chip STATE register
@@ -144,10 +155,11 @@ NRF_Status NRF_EnableRxPipe(const uint8_t pipe);
 NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe);
 
 NRF_Status NRF_StartListening();
+NRF_Status NRF_StopListening();
 
 NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size);
 
-NRF_Status NRF_Write(const uint8_t pipe, const void *data, const size_t size);
+NRF_Status NRF_Write(const void *data, const size_t size);
 
 bool NRF_Available(uint8_t *pipe);
 
@@ -166,4 +178,5 @@ NRF_Status NRF_FlushTx();
  */
 NRF_Status NRF_FlushRx();
 
+NRF_Info NRF_GetInfo();
 #endif /* end of include guard: NRF_IFC_H_3P8AGRVE */

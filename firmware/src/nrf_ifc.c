@@ -34,21 +34,22 @@ static _NRF_Internal internal = {
 
 void __delay_us(uint16_t microseconds) {
     uint32_t time;
-    time = _CP0_GET_COUNT(); // Read Core Timer
-    time += (SYS_CLK_FREQ / 2 / 1000000) * microseconds; // calc the Stop Time
-    while ((int32_t)(time - _CP0_GET_COUNT()) > 0){};
+    time = _CP0_GET_COUNT();                              // Read Core Timer
+    time += (SYS_CLK_FREQ / 2 / 1000000) * microseconds;  // calc the Stop Time
+    while ((int32_t)(time - _CP0_GET_COUNT()) > 0) {
+    };
 }
 
-NRF_Status nrf_write_register_size(const uint8_t reg, const uint8_t *data, const size_t len) {
-    //DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, value);
+NRF_Status nrf_write_register_size(const uint8_t reg, const uint8_t *data,
+                                   const size_t len) {
+    // DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, value);
     PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
     PLIB_SPI_BufferWrite(NRF_SPI_ID, W_REGISTER | (REGISTER_MASK & reg));
     size_t i;
-    for(i = 0; i < len; ++i)
-        PLIB_SPI_BufferWrite(NRF_SPI_ID, data[i]);
-    while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
-        ; // Wait until the shift register is empty
+    for (i = 0; i < len; ++i) PLIB_SPI_BufferWrite(NRF_SPI_ID, data[i]);
+    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
+        ;  // Wait until the shift register is empty
     spi_idle();
     return (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
 }
@@ -58,18 +59,18 @@ NRF_Status nrf_write_register(const uint8_t reg, const uint8_t value) {
 }
 
 NRF_Status nrf_read_register(const uint8_t reg, uint8_t *value) {
-    //DEBUG("%s() reg: 0x%02X", __func__, reg);
+    // DEBUG("%s() reg: 0x%02X", __func__, reg);
     NRF_Status status;
     PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
     PLIB_SPI_BufferWrite(NRF_SPI_ID, R_REGISTER | (REGISTER_MASK & reg));
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, 0); // Just generate the clock
-    while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
-        ; // Wait untill the shift register is empty
+    PLIB_SPI_BufferWrite(NRF_SPI_ID, 0);  // Just generate the clock
+    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
+        ;  // Wait untill the shift register is empty
     spi_idle();
-    status.status = PLIB_SPI_BufferRead(NRF_SPI_ID); // status
+    status.status = PLIB_SPI_BufferRead(NRF_SPI_ID);  // status
     *value = PLIB_SPI_BufferRead(NRF_SPI_ID);
-    //DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, value);
+    // DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, value);
     return status;
 }
 
@@ -77,8 +78,8 @@ NRF_Status nrf_send_command(const uint8_t cmd) {
     PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
     PLIB_SPI_BufferWrite(NRF_SPI_ID, cmd);
-    while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
-        ; // Wait until the shift register is empty
+    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
+        ;  // Wait until the shift register is empty
     spi_idle();
     return (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
 }
@@ -117,7 +118,7 @@ NRF_Status NRF_GetStatus() {
 NRF_Status NRF_PowerEnable(const bool power) {
     uint8_t config;
     nrf_read_register(CONFIG, &config);
-    if(power)
+    if (power)
         config |= (1 << PWR_UP);
     else
         config &= ~(1 << PWR_UP);
@@ -127,7 +128,7 @@ NRF_Status NRF_PowerEnable(const bool power) {
 NRF_Status NRF_SetMode(const NRF_Mode mode) {
     uint8_t config;
     nrf_read_register(CONFIG, &config);
-    if(mode == NRF_PRX) // as receiver
+    if (mode == NRF_PRX)  // as receiver
         config |= _BV(PRIM_RX);
     else
         config &= ~_BV(PRIM_RX);
@@ -137,36 +138,27 @@ NRF_Status NRF_SetMode(const NRF_Mode mode) {
 NRF_Status NRF_CleanInterrupts(const uint8_t int_mask) {
     uint8_t status;
     nrf_read_register(STATUS, &status);
-    if(int_mask & RX_DR)
-        status |= (1 << RX_DR);
-    if(int_mask & TX_DS)
-        status |= (1 << TX_DS);
-    if(int_mask & MAX_RT)
-        status |= (1<< MAX_RT);
+    if (int_mask & RX_DR) status |= (1 << RX_DR);
+    if (int_mask & TX_DS) status |= (1 << TX_DS);
+    if (int_mask & MAX_RT) status |= (1 << MAX_RT);
     return nrf_write_register(STATUS, status);
 }
 
 NRF_Status NRF_EnableInterrupts(const uint8_t int_mask) {
     uint8_t config;
     nrf_read_register(CONFIG, &config);
-    if(int_mask & RX_DR)
-        config &= ~(1 << MASK_RX_DR);
-    if(int_mask & MASK_TX_DS)
-        config &= ~(1 << TX_DS);
-    if(int_mask & MASK_MAX_RT)
-        config &= ~(1<< MAX_RT);
+    if (int_mask & RX_DR) config &= ~(1 << MASK_RX_DR);
+    if (int_mask & MASK_TX_DS) config &= ~(1 << TX_DS);
+    if (int_mask & MASK_MAX_RT) config &= ~(1 << MAX_RT);
     return nrf_write_register(CONFIG, config);
 }
 
 NRF_Status NRF_DisableInterrupts(const uint8_t int_mask) {
     uint8_t config;
     nrf_read_register(CONFIG, &config);
-    if(int_mask & RX_DR)
-        config |= (1 << MASK_RX_DR);
-    if(int_mask & MASK_TX_DS)
-        config |= (1 << TX_DS);
-    if(int_mask & MASK_MAX_RT)
-        config |= (1<< MAX_RT);
+    if (int_mask & RX_DR) config |= (1 << MASK_RX_DR);
+    if (int_mask & MASK_TX_DS) config |= (1 << TX_DS);
+    if (int_mask & MASK_MAX_RT) config |= (1 << MAX_RT);
     return nrf_write_register(CONFIG, config);
 }
 
@@ -175,7 +167,7 @@ NRF_Status NRF_SetAddressWidth(const uint8_t aw) {
     return nrf_write_register(SETUP_AW, aw);
 }
 
-void addressToVect(const uint64_t addr, uint8_t *v){
+void addressToVect(const uint64_t addr, uint8_t *v) {
     v[0] = ((uint8_t)(addr >> 0));
     v[1] = ((uint8_t)(addr >> 8));
     v[2] = ((uint8_t)(addr >> 16));
@@ -187,9 +179,8 @@ NRF_Status NRF_SetPipeAddress(const uint8_t pipe, const uint64_t address) {
     uint8_t vAddr[5];
     addressToVect(address, vAddr);
     NRF_Status status;
-    if(pipe == 0)
-        rx_addr_p0 = address;
-    if(pipe <= 2)
+    if (pipe == 0) rx_addr_p0 = address;
+    if (pipe <= 2)
         status = nrf_write_register_size(child_pipe[pipe], vAddr, 5);
     else
         status = nrf_write_register_size(child_pipe[pipe], vAddr, 1);
@@ -252,7 +243,7 @@ NRF_Status NRF_SetBaudrate(const speed_t baudrate) {
     return nrf_write_register(RF_SETUP, 0x07);
     // Go for 0bXX0X0XXX
     rf_setup &= (~((1 << RF_DR_LOW) | (1 << RF_DR_HIGH)));
-    switch(baudrate) {
+    switch (baudrate) {
         case NRF_1MBPS:
             break;
         case NRF_2MBPS:
@@ -268,9 +259,9 @@ NRF_Status NRF_SetBaudrate(const speed_t baudrate) {
 NRF_Status NRF_SetCrcLen(const NRF_CRC_LEN len) {
     uint8_t config;
     nrf_read_register(CONFIG, &config);
-    if(len == NRF_CRC_2_BYTE)
+    if (len == NRF_CRC_2_BYTE)
         config |= (1 << CRCO);
-    else // 1 byte
+    else  // 1 byte
         config &= (~(1 << CRCO));
     return nrf_write_register(CONFIG, config);
 }
@@ -285,7 +276,7 @@ NRF_Status NRF_SetPALevel(const NRF_PA level) {
     nrf_read_register(RF_SETUP, &rf_setup);
     // Set the 3 LSB to 0
     rf_setup &= 0xF8;
-    if(level > NRF_PA_MAX)
+    if (level > NRF_PA_MAX)
         l = (NRF_PA_MAX << 1);
     else
         l = (level << 1);
@@ -295,24 +286,18 @@ NRF_Status NRF_SetPALevel(const NRF_PA level) {
 NRF_Status NRF_EnableFeatures(const uint8_t features) {
     uint8_t feature;
     nrf_read_register(FEATURE, &feature);
-    if(features & EN_DPL)
-        feature |= _BV(EN_DPL);
-    if(features & EN_ACK_PAY)
-        feature |= _BV(EN_ACK_PAY);
-    if(features & EN_DYN_ACK)
-        feature |= _BV(EN_DYN_ACK);
+    if (features & EN_DPL) feature |= _BV(EN_DPL);
+    if (features & EN_ACK_PAY) feature |= _BV(EN_ACK_PAY);
+    if (features & EN_DYN_ACK) feature |= _BV(EN_DYN_ACK);
     return nrf_write_register(FEATURE, feature);
 }
 
 NRF_Status NRF_DisableFeatures(const uint8_t features) {
     uint8_t feature;
     nrf_read_register(FEATURE, &feature);
-    if(features & EN_DPL)
-        feature &= ~_BV(EN_DPL);
-    if(features & EN_ACK_PAY)
-        feature &= ~_BV(EN_ACK_PAY);
-    if(features & EN_DYN_ACK)
-        feature &= ~_BV(EN_DYN_ACK);
+    if (features & EN_DPL) feature &= ~_BV(EN_DPL);
+    if (features & EN_ACK_PAY) feature &= ~_BV(EN_ACK_PAY);
+    if (features & EN_DYN_ACK) feature &= ~_BV(EN_DYN_ACK);
     return nrf_write_register(FEATURE, feature);
 }
 
@@ -349,16 +334,16 @@ NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe) {
 NRF_Status write_payload(const void *data, const size_t size) {
     NRF_Status status;
     size_t len = size;
-    uint8_t *current = (uint8_t*)data;
+    uint8_t *current = (uint8_t *)data;
     PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
 
     // send the W_TX_PAYLOAD
     PLIB_SPI_BufferWrite(NRF_SPI_ID, W_TX_PAYLOAD);
     while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
-        ; // Wait until the shift register is empty
+        ;  // Wait until the shift register is empty
     status = (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
-    while(len--){
+    while (len--) {
         // TODO verifiy enenached SPI
         PLIB_SPI_BufferWrite(NRF_SPI_ID, *current);
         current++;
@@ -370,45 +355,74 @@ NRF_Status write_payload(const void *data, const size_t size) {
 NRF_Status NRF_StartListening() {
     NRF_SetMode(NRF_PRX);
     NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT);
-    if(internal.pipe0_address) {
+    if (internal.pipe0_address) {
         uint8_t vAddr[5];
         addressToVect(internal.pipe0_address, vAddr);
         nrf_write_register_size(RX_ADDR_P0, vAddr, internal.address_width);
-    }else {
+    } else {
         NRF_CloseReadingPipe(0);
     }
 
     uint8_t feature;
     NRF_Status s = nrf_read_register(FEATURE, &feature);
-    if(feature & _BV(EN_ACK_PAY))
-        s = NRF_FlushTx();
+    if (feature & _BV(EN_ACK_PAY)) s = NRF_FlushTx();
+    NRF_CEOn();
+    __delay_us(130);
     return s;
+}
+
+NRF_Status NRF_StopListening() {
+    nrf_clr_ce();
+    __delay_us(200);  // TODO calculate
+    uint8_t dummy;
+    nrf_read_register(FEATURE, &dummy);
+    if (dummy & _BV(EN_ACK_PAY)) {
+        __delay_us(200);  // TODO calculate
+        NRF_FlushTx();
+    }
+    NRF_SetMode(NRF_PTX);
+    // Enable rx on pipe0 (??)
+    nrf_read_register(EN_RXADDR, &dummy);
+    return nrf_write_register(EN_RXADDR, dummy | _BV(child_pipe_enable[0]));
 }
 
 NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size) {
     return nrf_read_register(child_payload_size[pipe], size);
 }
 
-NRF_Status NRF_Write(const uint8_t pipe, const void *data, const size_t size) {
-    uint8_t config;
+NRF_Status NRF_Write(const void *data, const size_t size) {
+    const uint8_t *current = (uint8_t*)data;
+    size_t len = (size < internal.payload_size? size : internal.payload_size);
+    volatile size_t blank = internal.flags.dyn_payload? 0 : internal.payload_size - len;
     NRF_Status status;
-    nrf_read_register(CONFIG, &config);
-    config = ((config | _BV(PWR_UP)) & ~_BV(PRIM_RX));
-    // We need to wait 150uS to be sure the tx is powered up
-    __delay_us(150);
-    status = write_payload(data, size);
-
-    // Transmit
-    NRF_CEOn();
-    __delay_us(15);
-    NRF_CEOff();
+    size_t currentByte = 0, byteToSend = len + blank;
+    PLIB_SPI_BufferClear(NRF_SPI_ID);
+    spi_active();
+    PLIB_SPI_BufferWrite(NRF_SPI_ID, W_TX_PAYLOAD);
+    status = (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
+    PLIB_SPI_BufferClear(NRF_SPI_ID);
+    // FIXME
+    uint8_t i, k, chunks = byteToSend / 16;
+    for(i = 0; i < chunks ; ++i) {
+        for(k = 0; k < 16; ++k) {
+            size_t idx = k + 16 * i;
+            if(idx < len)
+                PLIB_SPI_BufferWrite(NRF_SPI_ID, *current++);
+            else
+                PLIB_SPI_BufferWrite(NRF_SPI_ID, 0);
+        }
+        while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
+        ;  // Wait until the shift register is empty
+    }
+    
+    spi_idle();
     return status;
 }
 
 bool NRF_Available(uint8_t *pipe) {
     uint8_t fifo_status;
     nrf_read_register(FIFO_STATUS, &fifo_status);
-    if (fifo_status & _BV(RX_EMPTY)) {
+    if (!(fifo_status & _BV(RX_EMPTY))) {
         if (pipe) {
             NRF_Status status = NRF_GetStatus();
             *pipe = status.rx_pipe_number;
@@ -422,24 +436,70 @@ NRF_Status NRF_DumpRegisters() {
     size_t len, i;
     uint8_t dummy;
     NRF_Status status;
-    for(i = 0, len = sizeof(reg); i < len; ++i)
+    for (i = 0, len = sizeof(reg); i < len; ++i)
         status = nrf_read_register(reg[i], &dummy);
     return status;
 }
 
 NRF_Status NRF_ReadPayload(void *buf, const size_t len) {
     size_t total = len;
-    uint8_t *current = (uint8_t*)buf;
-    NRF_Status status = nrf_send_command(R_RX_PAYLOAD);
-    while(total--)
-        *current++ = nrf_send_command(NOP).status;
+    NRF_Status status;
+    uint8_t *current = (uint8_t *)buf;
+    if (len > internal.payload_size) total = internal.payload_size;
+    uint8_t blank =
+        internal.flags.dyn_payload ? 0 : internal.payload_size - len;
+    size_t byteToSend = total + blank;
+    size_t currentByte = 0;
+    // We need to combine multiple commands in the same transaction
+    PLIB_SPI_BufferClear(NRF_SPI_ID);
+    spi_active();
+    PLIB_SPI_BufferWrite(NRF_SPI_ID, R_RX_PAYLOAD);
+    status = (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
+    // read data
+    // Clear the buffer again (probably useless)
+    PLIB_SPI_BufferClear(NRF_SPI_ID);
+    while (currentByte <= byteToSend) {
+        // read the data of interest
+        // If SPI buffer is full, let's get some data
+        if (PLIB_SPI_ReceiverBufferIsFull(NRF_SPI_ID)) {
+            while (PLIB_SPI_FIFOCountGet(NRF_SPI_ID, SPI_FIFO_TYPE_RECEIVE)) {
+                uint8_t data = PLIB_SPI_BufferRead(NRF_SPI_ID);
+                if (--total) *current++ = data;
+            }
+        }
+        PLIB_SPI_BufferWrite(NRF_SPI_ID, 0xFF);
+        ++currentByte;
+    }
+    // Wait until the shift register is empty
+    while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID)) {
+        asm("NOP");
+    }
+    spi_idle();
     return status;
 }
 
-NRF_Status NRF_FlushTx() {
-    return nrf_send_command(FLUSH_TX);
-}
+NRF_Status NRF_FlushTx() { return nrf_send_command(FLUSH_TX); }
 
-NRF_Status NRF_FlushRx() {
-    return nrf_send_command(FLUSH_RX);
+NRF_Status NRF_FlushRx() { return nrf_send_command(FLUSH_RX); }
+
+NRF_Info NRF_GetInfo() {
+#if 0
+  print_address_register(PSTR("RX_ADDR_P0-1"),RX_ADDR_P0,2);
+  print_byte_register(PSTR("RX_ADDR_P2-5"),RX_ADDR_P2,4);
+  print_byte_register(PSTR("RX_PW_P0-6"),RX_PW_P0,6);
+  printf_P(PSTR("Data Rate\t = " PRIPSTR "\r\n"),pgm_read_word(&rf24_datarate_e_str_P[getDataRate()]));
+  printf_P(PSTR("Model\t\t = " PRIPSTR "\r\n"),pgm_read_word(&rf24_model_e_str_P[isPVariant()]));
+  printf_P(PSTR("CRC Length\t = " PRIPSTR "\r\n"),pgm_read_word(&rf24_crclength_e_str_P[getCRCLength()]));
+  printf_P(PSTR("PA Power\t = " PRIPSTR "\r\n"),  pgm_read_word(&rf24_pa_dbm_e_str_P[getPALevel()]));
+#endif
+    NRF_Info info;
+    nrf_read_register(STATUS, &info.status.status);
+    nrf_read_register(TX_ADDR, &info.tx_addr);
+    nrf_read_register(EN_AA, &info.en_aa);
+    nrf_read_register(EN_RXADDR, &info.en_rxaddr);
+    nrf_read_register(RF_CH, &info.rf_ch);
+    nrf_read_register(RF_SETUP, &info.rf_setup);
+    nrf_read_register(CONFIG, &info.config);
+    nrf_read_register(DYNPD, &info.dynpd);
+    return info;
 }
