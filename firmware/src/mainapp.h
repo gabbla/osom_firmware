@@ -65,6 +65,12 @@ typedef enum {
     SP_POSITIONING_PHASE,
 } SYSTEM_PHASE;
 
+typedef enum {
+    LED_STATUS_INVALID = 0,
+    LED_STATUS_DISCONNECTED,
+    LED_STATUS_CONNECTED,
+} LEDStatus;
+
 // Command function parser prototype
 typedef void (*cmdParserFunction)(const Packet *, Packet *, uintptr_t);
 
@@ -83,6 +89,9 @@ typedef struct
     // Configuration data
     RunMode runMode;
     uint8_t activeChannels;
+    
+    // Led status
+    LEDStatus ledStatus;
 } MAINAPP_DATA;
 
 void MAINAPP_Initialize ( void );

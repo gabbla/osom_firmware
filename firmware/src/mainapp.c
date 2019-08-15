@@ -239,6 +239,36 @@ void MAINAPP_Tasks(void) {
 void LED_Tasks() {
     // TODO reflect system status
     // - Slave conneted/disconnected
+    static uint32_t cnt = 0;
+    switch(mainappData.ledStatus) {
+        case LED_STATUS_INVALID:
+        case LED_STATUS_DISCONNECTED: {
+            if(SYS_TMR_TickCountGet() - cnt >= 500) {
+                LedStatusToggle();
+                cnt = SYS_TMR_TickCountGet();
+            }
+            break;
+        }
+        case LED_STATUS_CONNECTED: {
+            static uint8_t loop = 0;
+            if(loop < 4) {
+                if(SYS_TMR_TickCountGet() - cnt >= 150) {
+                    LedStatusToggle();
+                    cnt = SYS_TMR_TickCountGet();
+                    loop++;
+                }
+            } else {
+                if(SYS_TMR_TickCountGet() - cnt >= 1000) {
+                    loop = 0;
+                    cnt = SYS_TMR_TickCountGet();
+                }
+            }
+            break;
+        }
+        default:
+            LedStatusOff();
+            break;
+    }
 }
 
 void MSG_Tasks() {
