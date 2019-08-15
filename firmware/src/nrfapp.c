@@ -2,19 +2,11 @@
 
 NRFAPP_DATA nrfappData;
 
+void printNRFStatus(const NRF_Status *status);
+
 void __ISR(_EXTERNAL_4_VECTOR, IPL1AUTO) nrf_irq_handler(void) {
     NRF_Status sts = NRF_GetStatus();
-    DEBUG("%s() Status: 0x%02X", __func__, sts.status);
-
-     uint8_t dummy;
-            NRF_GetPayloadSize(0, &dummy);
-            NRF_GetPayloadSize(1, &dummy);
-
-    uint8_t buf[32];
-    NRF_ReadPayload(buf, 32);
-    int i;
-    for(; i < 32; ++i)
-        DEBUG("0x%02X", buf[i]);
+    printNRFStatus(&sts);
 
     if (sts.rx_data_ready) {
         NRF_CleanInterrupts(RX_DR);
@@ -23,6 +15,7 @@ void __ISR(_EXTERNAL_4_VECTOR, IPL1AUTO) nrf_irq_handler(void) {
         NRF_CleanInterrupts(TX_DS);
     }
     if (sts.max_retransmissions) {
+        NRF_FlushTx();
         NRF_CleanInterrupts(MAX_RT);
     }
 
@@ -39,15 +32,15 @@ void NRFAPP_Initialize(void) {
     // Broadcast address, common to all devices
     nrfappData.pipe0 = 0x314E6F6465; // 1Node
     nrfappData.pipe1 = 0x324e6f6465; // 2Node
+    nrfappData.pipe0 = 0x65646F4E31; // 1Node
+    nrfappData.pipe1 = 0x65646F4E32; // 2Node
     // TODO get the serial number (4bytes)
     // TODO pipe 1-5 will be numbered <serial>x where x 1-5
     //    const uint8_t pipeBaseaddress[] = { 0x01, 0xCE, 0xCA, 0xEF, 0xBE };
     //    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
-#ifdef SOM_MASTER
-    nrfappData.device_type = 1;
-#else
-    nrfappData.device_type = 0;
-#endif
+
+    nrfappData.device_type = 1; // 1 = RX | 0 = TX
+    INFO("Bootloader PIN: %d", nrfappData.device_type);
 }
 
 int8_t initializeNRFappMailbox() {
@@ -109,12 +102,32 @@ void configure_irq() {
     PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_EXTERNAL_4);
 }
 
-inline void printOnceState(const NRFAPP_STATES state, const char *strstatus) {
+void printOnceState(const NRFAPP_STATES state, const char *strstatus) {
     static NRFAPP_STATES s = 123;
     if (state != s) {
         s = state;
         DEBUG("New state: %s", strstatus);
     }
+}
+
+void printNRFStatus(const NRF_Status *status) {
+    DEBUG("STATUS:      0x%02X", status->status);
+    DEBUG(" TX_FULL:    %d", status->tx_full);
+    DEBUG(" RX_PIPE_NUM 0x%02X", status->rx_pipe_number);
+    DEBUG(" MAX_RET     %d", status->max_retransmissions);
+    DEBUG(" TX_DS       %d", status->tx_data_sent);
+    DEBUG(" RX_DR       %d", status->rx_data_ready);
+}
+
+void printNRFInfo(const NRF_Info *info) {
+    printNRFStatus(&info->status);
+    DEBUG("TX_ADDR:     0x%02X", info->tx_addr);
+    DEBUG("EN_AA:       0x%02X", info->en_aa);
+    DEBUG("EN_RXADDR:   0x%02X", info->en_rxaddr);
+    DEBUG("RF_CH:       0x%02X", info->rf_ch);
+    DEBUG("RF_SETUP:    0x%02X", info->rf_setup);
+    DEBUG("CONFIG:      0x%02X", info->config);
+    DEBUG("DYNPD:       0x%02X", info->dynpd);
 }
 
 void NRFAPP_Tasks(void) {
@@ -126,7 +139,7 @@ void NRFAPP_Tasks(void) {
                 INFO("NRF App started!");
                 DEBUG("Device type: %s [%d]", nrfappData.device_type ? "Master" : "Slave",
                       nrfappData.device_type);
-                //configure_irq();
+                configure_irq();
                 nrfappData.gpTimer = SYS_TMR_DelayMS(5000);
                 nrfappData.state = NRFAPP_STATE_CONFIG;
                 initializeNRFappMailbox();
@@ -137,8 +150,9 @@ void NRFAPP_Tasks(void) {
         }
 
         case NRFAPP_STATE_CONFIG: {
-            printOnceState(NRFAPP_STATE_CONFIG, "config");
             if (!SYS_TMR_DelayStatusGet(nrfappData.gpTimer)) break;
+            printOnceState(NRFAPP_STATE_CONFIG, "config");
+            nrfappData.gpTimer = SYS_TMR_HANDLE_INVALID;
             NRF_Status status = NRF_Initialize();
             if(!status.status) {
                 WARN("Status is 0!");
@@ -149,18 +163,22 @@ void NRFAPP_Tasks(void) {
             if(nrfappData.device_type) {
                 NRF_OpenWritingPipe(nrfappData.pipe1);
                 NRF_OpenReadingPipe(1, nrfappData.pipe0);
+                nrfappData.state = NRFAPP_STATE_RX;
             } else {
                 NRF_OpenWritingPipe(nrfappData.pipe0);
                 NRF_OpenReadingPipe(1, nrfappData.pipe1);
+                nrfappData.state = NRFAPP_STATE_TX;
+                nrfappData.gpTimer = SYS_TMR_DelayMS(500);
             }
             NRF_StartListening();
-            nrfappData.state = NRFAPP_STATE_IDLE;
+            NRF_Info info = NRF_GetInfo();
+            printNRFInfo(&info);
             break;
         }
 
         case NRFAPP_STATE_IDLE: {
             printOnceState(NRFAPP_STATE_IDLE, "IDLE");
-
+            NRF_Status s = NRF_GetStatus();
             break;
         }
 
@@ -172,15 +190,18 @@ void NRFAPP_Tasks(void) {
         }
 
         case NRFAPP_STATE_TX: {
+            if (!SYS_TMR_DelayStatusGet(nrfappData.gpTimer)) break;
             printOnceState(NRFAPP_STATE_TX, "tx");
-
+            NRF_StopListening();
+            static uint32_t cnt = 0xAABBCCDD;
+            DEBUG("Writing 0x%X", cnt);
+            NRF_Write(&cnt, sizeof(uint32_t));
+            //nrfappData.state = NRFAPP_STATE_IDLE;
+            ++cnt;
+            NRF_StartListening();
+            nrfappData.gpTimer = SYS_TMR_DelayMS(500);
             break;
         }
-        // TODO:
-        // - check the baudrate
-        // - check the channels
-        // - check the pipe address
-        // - dump a config from arduino
 
         case NRFAPP_STATE_PRE_RX: {
             printOnceState(NRFAPP_STATE_PRE_RX, "pre_rx");
@@ -195,6 +216,10 @@ void NRFAPP_Tasks(void) {
             uint8_t pipe;
             if(NRF_Available(&pipe)) {
                 INFO("Data available for pipe :%d", pipe);
+                unsigned long got_time;
+                NRF_ReadPayload(&got_time, sizeof(unsigned long));
+                INFO("Got: %lu", got_time);
+                //NRF_StopListening();
             }
             break;
         }
