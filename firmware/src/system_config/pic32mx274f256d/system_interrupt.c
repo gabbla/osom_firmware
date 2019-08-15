@@ -122,14 +122,6 @@ void __ISR(_UART_2_VECTOR, ipl1AUTO) _IntHandlerDrvUsartInstance1(void)
 void __ISR(_CHANGE_NOTICE_VECTOR, ipl1AUTO) _IntHandlerChangeNotification(void)
 {
     /* TODO: Add code to process interrupt here */
-    if (BQ_PGoodStateGet()) { // Disconnected
-        LedStatusOff();
-        asm("nop");
-    } else { // Connected
-        LedStatusOn();
-        asm("nop");
-    }
-
     PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_CHANGE_NOTICE_C);
 }
  

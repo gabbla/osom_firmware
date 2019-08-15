@@ -97,7 +97,7 @@ extern "C" {
 #define SYS_PORT_A_CNEN         0x0000
 
 #define SYS_PORT_B_ANSEL        0x1C40
-#define SYS_PORT_B_TRIS         0x5CEE
+#define SYS_PORT_B_TRIS         0x5CFE
 #define SYS_PORT_B_LAT          0x0000
 #define SYS_PORT_B_ODC          0x0000
 #define SYS_PORT_B_CNPU         0x0000
@@ -136,8 +136,8 @@ extern "C" {
 #define SYS_INT                     true
 /*** Message System Service Configuration ***/
 
-#define SYS_MSG_MAX_MAILBOXES        4
-#define SYS_MSG_MAX_TYPES            2
+#define SYS_MSG_MAX_MAILBOXES        5
+#define SYS_MSG_MAX_TYPES            5
 
 // *****************************************************************************
 /* Random System Service Configuration Options
@@ -354,6 +354,9 @@ extern "C" {
 
 /*** Functions for BQ_PGood pin ***/
 #define BQ_PGoodStateGet() PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_C, PORTS_BIT_POS_6)
+
+/*** Functions for Bootloader pin ***/
+#define BootloaderStateGet() PLIB_PORTS_PinGet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_4)
 
 
 /*** Application Instance 0 Configuration ***/
