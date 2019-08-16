@@ -330,6 +330,7 @@ NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe) {
 NRF_Status NRF_StartListening() {
     NRF_SetMode(NRF_PRX);
     NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT);
+    nrf_set_ce();
     if (internal.pipe0_address) {
         uint8_t vAddr[5];
         addressToVect(internal.pipe0_address, vAddr);
@@ -341,8 +342,8 @@ NRF_Status NRF_StartListening() {
     uint8_t feature;
     NRF_Status s = nrf_read_register(FEATURE, &feature);
     if (feature & _BV(EN_ACK_PAY)) s = NRF_FlushTx();
-    nrf_set_ce();
-    __delay_us(130);
+    //nrf_set_ce();
+    //__delay_us(130);
     return s;
 }
 
@@ -365,26 +366,37 @@ NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size) {
     return nrf_read_register(child_payload_size[pipe], size);
 }
 
-NRF_Status NRF_Write(const void *data, const size_t size) {
+NRF_Status write_payload(const void *data, const size_t size) {
+    NRF_Status status;
     const uint8_t *current = (uint8_t *)data;
     size_t len = (size < internal.payload_size ? size : internal.payload_size);
     volatile size_t blank =
         internal.flags.dyn_payload ? 0 : internal.payload_size - len;
-    NRF_Status status;
     spi_active();
     status = (NRF_Status)spi_xfer(W_TX_PAYLOAD);
-    while (--len) spi_xfer(*current++);
-    while (--blank) spi_xfer(0);
+    while (len--) spi_xfer(*current++);
+    while (blank--) spi_xfer(0);
     spi_idle();
+    return status;
+}
 
-    nrf_set_ce();
+NRF_Status startFastWrite(const void *data, const size_t len, bool startTx) {
+    NRF_Status s = write_payload(data, len);
+    if(startTx)
+        nrf_set_ce();
+    return s;
+}
 
-    while (NRF_GetStatus().status & (_BV(TX_DS | _BV(MAX_RT)))) {
+NRF_Status NRF_Write(const void *data, const size_t size) {
+    startFastWrite(data, size, 1);
+
+    while (!(NRF_GetStatus().status & (_BV(TX_DS) | _BV(MAX_RT)))) {
         __delay_us(100);
     }
 
-    // nrf_clr_ce();
-    if (NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT).status & _BV(MAX_RT)) {
+    nrf_clr_ce();
+    NRF_Status status = NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT);
+    if (status.max_retransmissions) {
         NRF_FlushTx();
         status.status = 0;
     }
@@ -395,7 +407,6 @@ bool NRF_Available(uint8_t *pipe) {
     uint8_t fifo_status;
     nrf_read_register(FIFO_STATUS, &fifo_status);
     if (!(fifo_status & _BV(RX_EMPTY))) {
-        DEBUG("%s() fifo_status: 0x%02X", __func__, fifo_status);
         if (pipe) {
             NRF_Status status = NRF_GetStatus();
             *pipe = status.rx_pipe_number;
@@ -423,8 +434,8 @@ NRF_Status NRF_ReadPayload(void *buf, const size_t len) {
         internal.flags.dyn_payload ? 0 : internal.payload_size - len;
     spi_active();
     status = (NRF_Status)spi_xfer(R_RX_PAYLOAD);
-    while (--total) *current++ = spi_xfer(0);
-    while (--blank) spi_xfer(0);
+    while (total--) *current++ = spi_xfer(0);
+    while (blank--) spi_xfer(0);
     spi_idle();
     return status;
 }
