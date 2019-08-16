@@ -40,18 +40,23 @@ void __delay_us(uint16_t microseconds) {
     };
 }
 
+uint8_t spi_xfer(const uint8_t data) {
+    PLIB_SPI_BufferWrite(NRF_SPI_ID, data);
+    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
+        ;
+    return PLIB_SPI_BufferRead(NRF_SPI_ID);
+}
+
 NRF_Status nrf_write_register_size(const uint8_t reg, const uint8_t *data,
                                    const size_t len) {
     // DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, value);
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
+    NRF_Status s;
     spi_active();
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, W_REGISTER | (REGISTER_MASK & reg));
+    s.status = spi_xfer(W_REGISTER | (REGISTER_MASK & reg));
     size_t i;
-    for (i = 0; i < len; ++i) PLIB_SPI_BufferWrite(NRF_SPI_ID, data[i]);
-    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
-        ;  // Wait until the shift register is empty
+    for (i = 0; i < len; ++i) spi_xfer(data[i]);
     spi_idle();
-    return (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
+    return s;
 }
 
 NRF_Status nrf_write_register(const uint8_t reg, const uint8_t value) {
@@ -61,27 +66,20 @@ NRF_Status nrf_write_register(const uint8_t reg, const uint8_t value) {
 NRF_Status nrf_read_register(const uint8_t reg, uint8_t *value) {
     // DEBUG("%s() reg: 0x%02X", __func__, reg);
     NRF_Status status;
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, R_REGISTER | (REGISTER_MASK & reg));
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, 0);  // Just generate the clock
-    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
-        ;  // Wait untill the shift register is empty
+    status.status = spi_xfer(R_REGISTER | (REGISTER_MASK & reg));
+    *value = spi_xfer(0);  // Just generate the clock
     spi_idle();
-    status.status = PLIB_SPI_BufferRead(NRF_SPI_ID);  // status
-    *value = PLIB_SPI_BufferRead(NRF_SPI_ID);
-    // DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, value);
+    // DEBUG("%s() reg: 0x%02X value: 0x%02X", __func__, reg, *value);
     return status;
 }
 
 NRF_Status nrf_send_command(const uint8_t cmd) {
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
+    NRF_Status s;
     spi_active();
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, cmd);
-    while (PLIB_SPI_IsBusy(NRF_SPI_ID))
-        ;  // Wait until the shift register is empty
+    s.status = spi_xfer(cmd);
     spi_idle();
-    return (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
+    return s;
 }
 
 NRF_Status NRF_Initialize() {
@@ -111,9 +109,7 @@ NRF_Status NRF_Initialize() {
     return NRF_GetStatus();
 }
 
-NRF_Status NRF_GetStatus() {
-    return nrf_send_command(NOP);
-}
+NRF_Status NRF_GetStatus() { return nrf_send_command(NOP); }
 
 NRF_Status NRF_PowerEnable(const bool power) {
     uint8_t config;
@@ -331,27 +327,6 @@ NRF_Status NRF_EnableEnanchedShockBurst(const uint8_t pipe) {
     return nrf_write_register(EN_AA, en_aa);
 }
 
-NRF_Status write_payload(const void *data, const size_t size) {
-    NRF_Status status;
-    size_t len = size;
-    uint8_t *current = (uint8_t *)data;
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
-    spi_active();
-
-    // send the W_TX_PAYLOAD
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, W_TX_PAYLOAD);
-    while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
-        ;  // Wait until the shift register is empty
-    status = (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
-    while (len--) {
-        // TODO verifiy enenached SPI
-        PLIB_SPI_BufferWrite(NRF_SPI_ID, *current);
-        current++;
-    }
-    spi_idle();
-    return status;
-}
-
 NRF_Status NRF_StartListening() {
     NRF_SetMode(NRF_PRX);
     NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT);
@@ -366,7 +341,7 @@ NRF_Status NRF_StartListening() {
     uint8_t feature;
     NRF_Status s = nrf_read_register(FEATURE, &feature);
     if (feature & _BV(EN_ACK_PAY)) s = NRF_FlushTx();
-    NRF_CEOn();
+    nrf_set_ce();
     __delay_us(130);
     return s;
 }
@@ -391,31 +366,28 @@ NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size) {
 }
 
 NRF_Status NRF_Write(const void *data, const size_t size) {
-    const uint8_t *current = (uint8_t*)data;
-    size_t len = (size < internal.payload_size? size : internal.payload_size);
-    volatile size_t blank = internal.flags.dyn_payload? 0 : internal.payload_size - len;
+    const uint8_t *current = (uint8_t *)data;
+    size_t len = (size < internal.payload_size ? size : internal.payload_size);
+    volatile size_t blank =
+        internal.flags.dyn_payload ? 0 : internal.payload_size - len;
     NRF_Status status;
-    size_t currentByte = 0, byteToSend = len + blank;
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, W_TX_PAYLOAD);
-    status = (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
-    // FIXME
-    uint8_t i, k, chunks = byteToSend / 16;
-    for(i = 0; i < chunks ; ++i) {
-        for(k = 0; k < 16; ++k) {
-            size_t idx = k + 16 * i;
-            if(idx < len)
-                PLIB_SPI_BufferWrite(NRF_SPI_ID, *current++);
-            else
-                PLIB_SPI_BufferWrite(NRF_SPI_ID, 0);
-        }
-        while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID))
-        ;  // Wait until the shift register is empty
-    }
-    
+    status = (NRF_Status)spi_xfer(W_TX_PAYLOAD);
+    while (--len) spi_xfer(*current++);
+    while (--blank) spi_xfer(0);
     spi_idle();
+
+    nrf_set_ce();
+
+    while (NRF_GetStatus().status & (_BV(TX_DS | _BV(MAX_RT)))) {
+        __delay_us(100);
+    }
+
+    // nrf_clr_ce();
+    if (NRF_CleanInterrupts(RX_DR | TX_DS | MAX_RT).status & _BV(MAX_RT)) {
+        NRF_FlushTx();
+        status.status = 0;
+    }
     return status;
 }
 
@@ -423,6 +395,7 @@ bool NRF_Available(uint8_t *pipe) {
     uint8_t fifo_status;
     nrf_read_register(FIFO_STATUS, &fifo_status);
     if (!(fifo_status & _BV(RX_EMPTY))) {
+        DEBUG("%s() fifo_status: 0x%02X", __func__, fifo_status);
         if (pipe) {
             NRF_Status status = NRF_GetStatus();
             *pipe = status.rx_pipe_number;
@@ -448,32 +421,10 @@ NRF_Status NRF_ReadPayload(void *buf, const size_t len) {
     if (len > internal.payload_size) total = internal.payload_size;
     uint8_t blank =
         internal.flags.dyn_payload ? 0 : internal.payload_size - len;
-    size_t byteToSend = total + blank;
-    size_t currentByte = 0;
-    // We need to combine multiple commands in the same transaction
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
     spi_active();
-    PLIB_SPI_BufferWrite(NRF_SPI_ID, R_RX_PAYLOAD);
-    status = (NRF_Status)PLIB_SPI_BufferRead(NRF_SPI_ID);
-    // read data
-    // Clear the buffer again (probably useless)
-    PLIB_SPI_BufferClear(NRF_SPI_ID);
-    while (currentByte <= byteToSend) {
-        // read the data of interest
-        // If SPI buffer is full, let's get some data
-        if (PLIB_SPI_ReceiverBufferIsFull(NRF_SPI_ID)) {
-            while (PLIB_SPI_FIFOCountGet(NRF_SPI_ID, SPI_FIFO_TYPE_RECEIVE)) {
-                uint8_t data = PLIB_SPI_BufferRead(NRF_SPI_ID);
-                if (--total) *current++ = data;
-            }
-        }
-        PLIB_SPI_BufferWrite(NRF_SPI_ID, 0xFF);
-        ++currentByte;
-    }
-    // Wait until the shift register is empty
-    while (!PLIB_SPI_FIFOShiftRegisterIsEmpty(NRF_SPI_ID)) {
-        asm("NOP");
-    }
+    status = (NRF_Status)spi_xfer(R_RX_PAYLOAD);
+    while (--total) *current++ = spi_xfer(0);
+    while (--blank) spi_xfer(0);
     spi_idle();
     return status;
 }

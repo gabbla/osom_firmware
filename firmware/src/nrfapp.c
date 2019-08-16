@@ -81,7 +81,7 @@ bool configureSPI() {
     //        SPI_ID_1, SPI_PIN_SLAVE_SELECT | SPI_PIN_DATA_OUT |
     //        SPI_PIN_DATA_IN);
     PLIB_SPI_FramedCommunicationDisable(SPI_ID_1);
-    PLIB_SPI_FIFOEnable(SPI_ID_1);
+    PLIB_SPI_FIFODisable(SPI_ID_1);
     PLIB_SPI_Enable(SPI_ID_1);
 
     // PLIB_SPI_FIFOInterruptModeSelect(SPI_ID_1,
