@@ -11,8 +11,8 @@
 #define spi_active() PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_0); asm("nop")
 #define spi_idle()   PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_0); asm("nop")
 
-#define nrf_set_ce() PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_15); asm("nop")
-#define nrf_clr_ce() PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_15); asm("nop")
+#define nrf_set_ce() PLIB_PORTS_PinSet(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_15); asm("nop")
+#define nrf_clr_ce() PLIB_PORTS_PinClear(PORTS_ID_0, PORT_CHANNEL_B, PORTS_BIT_POS_15); asm("nop")
 
 typedef union {
     struct {
