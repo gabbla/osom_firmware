@@ -76,7 +76,7 @@ bool configureSPI() {
                                  SPI_CLOCK_POLARITY_IDLE_LOW);  // CKP 0
     PLIB_SPI_OutputDataPhaseSelect(
         SPI_ID_1, SPI_OUTPUT_DATA_PHASE_ON_ACTIVE_TO_IDLE_CLOCK);  // CKE 1
-    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_PERIPHERAL_1, 1000000);
+    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_PERIPHERAL_1, 8000000);
     //    PLIB_SPI_PinEnable(
     //        SPI_ID_1, SPI_PIN_SLAVE_SELECT | SPI_PIN_DATA_OUT |
     //        SPI_PIN_DATA_IN);
@@ -139,7 +139,7 @@ void NRFAPP_Tasks(void) {
                 INFO("NRF App started!");
                 DEBUG("Device type: %s [%d]", nrfappData.device_type ? "Master" : "Slave",
                       nrfappData.device_type);
-                configure_irq();
+                //configure_irq();
                 nrfappData.gpTimer = SYS_TMR_DelayMS(5000);
                 nrfappData.state = NRFAPP_STATE_CONFIG;
                 initializeNRFappMailbox();
@@ -170,7 +170,7 @@ void NRFAPP_Tasks(void) {
                 nrfappData.state = NRFAPP_STATE_TX;
                 nrfappData.gpTimer = SYS_TMR_DelayMS(500);
             }
-            NRF_StartListening();
+            NRF_StartListening(); 
             NRF_Info info = NRF_GetInfo();
             printNRFInfo(&info);
             break;
@@ -178,7 +178,7 @@ void NRFAPP_Tasks(void) {
 
         case NRFAPP_STATE_IDLE: {
             printOnceState(NRFAPP_STATE_IDLE, "IDLE");
-            NRF_Status s = NRF_GetStatus();
+            //NRF_Status s = NRF_GetStatus();
             break;
         }
 
@@ -199,6 +199,7 @@ void NRFAPP_Tasks(void) {
             //nrfappData.state = NRFAPP_STATE_IDLE;
             ++cnt;
             NRF_StartListening();
+            
             nrfappData.gpTimer = SYS_TMR_DelayMS(500);
             break;
         }
@@ -216,10 +217,14 @@ void NRFAPP_Tasks(void) {
             uint8_t pipe;
             if(NRF_Available(&pipe)) {
                 INFO("Data available for pipe :%d", pipe);
-                unsigned long got_time;
-                NRF_ReadPayload(&got_time, sizeof(unsigned long));
-                INFO("Got: %lu", got_time);
-                //NRF_StopListening();
+                uint64_t got_time;
+                NRF_ReadPayload(&got_time, sizeof(uint64_t));
+                INFO("Got: %lu", got_time);              
+                NRF_StopListening();
+                NRF_Write(&got_time, sizeof(uint64_t));
+                DEBUG("Sent response");
+                NRF_StartListening();
+
             }
             break;
         }
