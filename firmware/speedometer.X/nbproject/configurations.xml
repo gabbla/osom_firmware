@@ -129,9 +129,7 @@
         </logicalFolder>
       </logicalFolder>
       <itemPath>../src/eeprom.h</itemPath>
-      <itemPath>../src/i2c_device.h</itemPath>
       <itemPath>../src/somparser.h</itemPath>
-      <itemPath>../src/PCF8574.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/mailbox.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/fake_watchdog.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/modulator.h</itemPath>
@@ -140,6 +138,7 @@
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/channels.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/bq27441_parser.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/nrf_ifc.h</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/i2cifc.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -247,12 +246,12 @@
         </logicalFolder>
       </logicalFolder>
       <itemPath>../src/eeprom.c</itemPath>
-      <itemPath>../src/PCF8574.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/fake_watchdog.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/modulator.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/LaserInput.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/channels.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/nrf_ifc.c</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/i2cifc.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -313,6 +312,34 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="../src/powerapp.c" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="../src/powerapp.h" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
       <C32>
         <property key="additional-warnings" value="false"/>
         <property key="addresss-attribute-use" value="false"/>
@@ -485,6 +512,7 @@
         <property key="UART2" value="true"/>
         <property key="USB" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -499,7 +527,7 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d003fff"/>
-        <property key="poweroptions.powerenable" value="true"/>
+        <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
