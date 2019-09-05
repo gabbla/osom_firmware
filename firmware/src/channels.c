@@ -1,15 +1,32 @@
 #include "channels.h"
 
+#define LedOn(x) SYS_PORTS_PinSet(x->module_id, x->port, x->bit)
+#define LedOff(x) SYS_PORTS_PinClear(x->module_id, x->port, x->bit)
+
+struct _led {
+    PORTS_MODULE_ID module_id;
+    PORTS_CHANNEL port;
+    PORTS_BIT_POS bit;
+};
+
+static Led rightStatus = {
+    .module_id = PORTS_ID_0, .port = PORT_CHANNEL_C, .bit = PORTS_BIT_POS_0};
+
+static Led leftStatus = {
+    .module_id = PORTS_ID_0, .port = PORT_CHANNEL_B, .bit = PORTS_BIT_POS_8};
+
 static Channel channels[] = {
-    {
+    { // right
         .status = ChannelStatusUnknown,
         .enabled = false,
-        .initialized = false
+        .initialized = false,
+        .led = &rightStatus
     },
-    {
+    { // left
         .status = ChannelStatusUnknown,
         .enabled = false,
-        .initialized = false
+        .initialized = false,
+        .led = &leftStatus
     }
 };
 
@@ -69,6 +86,7 @@ bool Channel_SetCallback(Channel *ch, CHANNEL_STATUS_EVENT callback, uintptr_t *
 // If this callback is fired, we are in ChannelStatusInactive for sure
 void Channel_FakeWDCallback(const ChannelIndex idx, uintptr_t *context) {
     Channel *c = Channel_Get(idx);
+    LedOff(c->led);
     if(c->status != ChannelStatusInactive && c->callback){
         c->status = ChannelStatusInactive;
         c->callback(idx, c->status, c->context);
@@ -80,6 +98,7 @@ void Channel_LaserInputCallback(const ChannelIndex idx, uintptr_t *context) {
     Channel *c = Channel_Get(idx);
     FakeWD_Kick(c->wdog);
     if(c->status != ChannelStatusActive && c->callback){
+        LedOn(c->led);
         c->status = ChannelStatusActive;
         c->callback(idx, c->status, c->context);
     }

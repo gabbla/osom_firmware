@@ -19,6 +19,8 @@
 
 typedef void (*CHANNEL_STATUS_EVENT)(const ChannelIndex, const ChannelStatus, uintptr_t *);
 
+typedef struct _led Led;
+
 typedef struct {
     ChannelStatus status;
     bool enabled;
@@ -26,6 +28,7 @@ typedef struct {
     LaserModulatorIfc *modulator;
     FakeWatchdog *wdog;
     LaserInput *input;
+    Led *led;
     // Callback
     CHANNEL_STATUS_EVENT callback;
     uintptr_t *context;
