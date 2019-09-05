@@ -52,9 +52,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "driver/i2c/drv_i2c.h"
          
      
+     
  
- 
- #include "system/devcon/sys_devcon.h"
+#include "system/devcon/sys_devcon.h"
 #include "system/clk/sys_clk.h"
 #include "system/int/sys_int.h"
 #include "system/console/sys_console.h"
