@@ -128,6 +128,7 @@ void POWERAPP_Tasks(void) {
                 powerappData.currentRequest->user_data);
             powerappData.currentRequest->status = REQ_FREE;
             powerappData.operationInProgress = false;
+            powerappData.state = POWERAPP_STATE_IDLE;
             break;
         }
 
