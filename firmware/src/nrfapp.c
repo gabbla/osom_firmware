@@ -76,7 +76,11 @@ bool configureSPI() {
                                  SPI_CLOCK_POLARITY_IDLE_LOW);  // CKP 0
     PLIB_SPI_OutputDataPhaseSelect(
         SPI_ID_1, SPI_OUTPUT_DATA_PHASE_ON_ACTIVE_TO_IDLE_CLOCK);  // CKE 1
-    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_PERIPHERAL_1, 8000000);
+    // Selecting Reference clock (MCLK) as source clock for this SPI
+    // MCLK value is stored in SYS_CLK_BUS_REFERENCE_1 and now is 18 Mhz
+    // This output around 9 Mhz clock
+    PLIB_SPI_BaudRateClockSelect(SPI_ID_1, SPI_BAUD_RATE_MCLK_CLOCK);
+    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_REFERENCE_1, 9000000);
     //    PLIB_SPI_PinEnable(
     //        SPI_ID_1, SPI_PIN_SLAVE_SELECT | SPI_PIN_DATA_OUT |
     //        SPI_PIN_DATA_IN);
