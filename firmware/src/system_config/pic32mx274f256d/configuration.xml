@@ -307,7 +307,6 @@
         <Name dnOrder="0">system_interrupt.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
         <Checksum dnOrder="2">08783F758B790A175454958D18897C7E</Checksum>
-        <ProjectFileChecksum dnOrder="3">B4D348707E2A1D2E7F233008768BBB67</ProjectFileChecksum>
       </Template>
       <Template dnOrder="12">
         <Name dnOrder="0">system_exceptions.c</Name>
@@ -333,12 +332,12 @@
       <Template dnOrder="16">
         <Name dnOrder="0">sys_clk_pic32mx.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/app/system_config/pic32mx274f256d/framework/system/clk/src</Path>
-        <Checksum dnOrder="2">6C421F612F5BB770AEEE8455A404A3C5</Checksum>
+        <Checksum dnOrder="2">3D5E28A14C2BB0C162C01FC02D596774</Checksum>
       </Template>
       <Template dnOrder="17">
         <Name dnOrder="0">system_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/app/system_config/pic32mx274f256d</Path>
-        <Checksum dnOrder="2">BB5C0B515162E18D78134642CAFA3EEB</Checksum>
+        <Checksum dnOrder="2">48E5358CC36CFE7EC916C2703C1A7320</Checksum>
       </Template>
       <Template dnOrder="18">
         <Name dnOrder="0">mainapp.h</Name>
