@@ -8,7 +8,7 @@
 // Sources
 #define MSG_SRC_BLE             (0)
 #define MSG_SRC_MAIN            (1)
-#define MSG_SRC_COM             (2)
+#define MSG_SRC_NRF             (2)
 
 // BLE Outgoing
 #define BLEOUT_MAILBOX          (SYS_MSG_0)
@@ -20,6 +20,10 @@
 #define MAIN_MSG_PRIORITY      (0)
 #define MAIN_MSG_ID            (1)
 
+// NRF
+#define NRF_MAILBOX           (SYS_MSG_0)
+#define NRF_MSG_PRIORITY      (0)
+#define NRF_MSG_ID            (2)
 
 // Utils
 
