@@ -261,11 +261,15 @@ void manageBleAppMessage(Packet *p) {
             BQ27441_GetData(p->payload[0], &powercb, (uintptr_t)p);
             break;
         case BLE_CMD_SYS_RESET: {
+            uint8_t btReset;
+            PACKET_GetPayload(p, &btReset);
             // It makes no sense trying to print something here
-            BT_ResetOff();  // needs to be low >100mS
-            uint32_t start = SYS_TMR_TickCountGet();
-            while (SYS_TMR_TickCountGet() - start < 100)
-                ;
+            if(btReset) {
+                BT_ResetOff();  // needs to be low >100mS
+                uint32_t start = SYS_TMR_TickCountGet();
+                while (SYS_TMR_TickCountGet() - start < 100)
+                    ;
+            }
             SytemReset();
             break;
         }
