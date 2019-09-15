@@ -11,10 +11,18 @@
 #include <stdint.h>  // uint8_t ecc
 #include <stdlib.h>  // malloc, free
 #include <string.h>  // memcpy
+#include <stdio.h>   // sprintf
 #include "bq27441_parser.h"
 #include "channel_common.h"
-#include "channels.h"
-#include "osal/osal.h"  // mutex
+#include "logger.h"
+
+#ifdef __XC32
+#include "system/random/sys_random.h"
+#elif defined __linux__
+#include <stdbool.h>
+#include <stdlib.h>
+#define SYS_RANDOM_PseudoGet() random()
+#endif
 
 // Preamble
 #define PREAMBLE0_VAL (0x53)  // DEC 83
@@ -62,8 +70,14 @@ typedef enum __attribute__((packed)) _commands {
     BLE_CMD_POS_STATUS = 0x51,
     BLE_CMD_RUN_RESULTS = 0x52,
     BLE_CMD_CH_STATUS = 0x53,
+    BLE_CMD_GATE_CROSSED = 0x54,
 
     BLE_CMD_BAT_DATA = 0x6A,
+    BLE_CMD_NEW_SLAVE = 0x70,
+    // 0xE0 - 0xEF Nrf commands
+    BLE_CMD_DISCOVERY = 0xE0,
+    BLE_CMD_ANNOUNCE = 0xE1,
+    BLE_CMD_DISCOVERY_ACK = 0xE2,
     // 0xF0 - 0xFF Special meaning
     BLE_CMD_RESPONSE = 0xF0,
     BLE_CMD_NOT_SUPPORTED = 0xF1,
@@ -87,6 +101,8 @@ typedef enum {
     RUN_MODE_NONE = 0,
     RUN_MODE_POSITIONING,
     RUN_MODE_FREE_START,
+    RUN_MODE_KO,
+    RUN_MODE_LAP,
 
     RUN_MODE_CNT
 } RunMode;
@@ -106,6 +122,12 @@ typedef enum {
     DEV_SLAVE4 = (1 << 6),
 } Device;
 
+typedef struct {
+    uint8_t sn[14];
+    soc_t soc;
+    bool charging;
+} AnnouncePayload;
+
 // Access utilities
 #define SOM_INLINE inline
 
@@ -114,14 +136,14 @@ SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst);
 SOM_INLINE int8_t PACKET_SetTransactionID(Packet *p, const uint32_t tid);
 SOM_INLINE int8_t PACKET_SetMessageID(Packet *p, const uint32_t mid);
 SOM_INLINE int8_t PACKET_SetCommand(Packet *p, const uint8_t cmd);
-SOM_INLINE int8_t PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len);
+SOM_INLINE int8_t PACKET_SetPayload(Packet *p, void *payload, size_t len);
 
 SOM_INLINE uint8_t PACKET_GetSource(const Packet *p);
 SOM_INLINE uint8_t PACKET_GetDestination(const Packet *p);
 SOM_INLINE uint32_t PACKET_GetTransactionID(const Packet *p);
 SOM_INLINE uint32_t PACKET_GetMessageID(const Packet *p);
 SOM_INLINE uint8_t PACKET_GetCommand(const Packet *p);
-SOM_INLINE size_t PACKET_GetPayload(const Packet *p, uint8_t *payload);
+SOM_INLINE size_t PACKET_GetPayload(const Packet *p, void *payload);
 
 uint8_t PACKET_IsRawValid(const uint8_t *raw);
 void PACKET_Init(Packet *p);
@@ -135,8 +157,9 @@ void PACKET_Free(Packet *p);
 typedef bool LASER_STATUS;
 Packet *PACKET_CreatePositionStatus(const ChannelIndex idx,
                                     const ChannelStatus sts);
-Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd,
-                                   const uint16_t data);
+Packet *PACKET_CreateBatteryPacket(const bool charging, const soc_t soc);
+
+Packet *PACKET_CreateGateCrossPacket(const ChannelIndex idx);
 
 Packet *PACKET_FillBatteryData(Packet *p, const BQ27441_Command cmd,
                                const uint16_t data);
@@ -150,5 +173,14 @@ int8_t PACKET_GetRunMode(const Packet *p, RunMode *mode, uint8_t *channel);
 
 void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]);
 size_t PACKET_GetFullSize(const Packet *p);
+
+// NRF connections
+Packet *PACKET_CreateDiscovery();
+Packet *PACKET_CreateAnnounce(const uint8_t *sn, const soc_t soc,
+                              const bool charging);
+AnnouncePayload PACKET_GetAnnouncePayload(const Packet *p);
+Packet *PACKET_CreateNewSlave(AnnouncePayload *ap);
+
+Packet *PACKET_CreateRunResult(const ChannelIndex idx, const uint32_t timeUs);
 
 #endif /* PARSER_SOMPARSER_H_ */

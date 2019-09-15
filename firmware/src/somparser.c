@@ -5,7 +5,6 @@
  *      Author: gabbla
  */
 #include "somparser.h"
-#include "system/random/sys_random.h"
 
 uint32_t swapEndian(const uint32_t value) {
     return (((value >> 24) & 0x000000ff) | ((value >> 8) & 0x0000ff00) |
@@ -42,7 +41,8 @@ SOM_INLINE int8_t PACKET_SetCommand(Packet *p, const uint8_t cmd) {
     return 0;
 }
 
-int8_t PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len) {
+int8_t PACKET_SetPayload(Packet *p, void *payload, size_t len) {
+    uint8_t *pl = (uint8_t*)payload;
     SYS_ASSERT(p != NULL, "PACKET_SetPayload() Packet is null");
     p->pLen = len;
     if(p->payload)
@@ -50,7 +50,7 @@ int8_t PACKET_SetPayload(Packet *p, uint8_t *payload, size_t len) {
     p->payload = malloc(len);
     if(!p->payload)
         return -1;
-    memcpy((void*)p->payload, payload, len);
+    memcpy((void*)p->payload, pl, len);
     return 0;
 }
 
@@ -79,13 +79,14 @@ SOM_INLINE uint8_t PACKET_GetCommand(const Packet *p) {
     return p->cmd;
 }
 
-SOM_INLINE size_t PACKET_GetPayload(const Packet *p, uint8_t *payload) {
+SOM_INLINE size_t PACKET_GetPayload(const Packet *p, void *payload) {
     SYS_ASSERT(p != NULL, "PACKET_GetPayload() Packet is null");
+    uint8_t *pl = (uint8_t*)payload;
     if(!p->payload) {
         payload = NULL;
         return 0;
     }
-    memcpy(payload, p->payload, p->pLen);
+    memcpy(pl, p->payload, p->pLen);
     return p->pLen;
 }
 
@@ -166,15 +167,24 @@ Packet *PACKET_CreatePositionStatus(const ChannelIndex idx, const ChannelStatus 
     return p;
 }
 
-Packet *PACKET_CreateBatteryPacket(const BQ27441_Command cmd, const uint16_t data){
+Packet *PACKET_CreateBatteryPacket(const bool charging, const soc_t soc){
     Packet *p;
     if((p = PACKET_Create()) != NULL) {
+        // It always go to the app
+        PACKET_SetDestination(p, DEV_APPLICATION);
         p->cmd = BLE_CMD_BAT_DATA;
-        p->pLen = 3;
-        p->payload = malloc(p->pLen);
-        p->payload[0] = cmd;
-        p->payload[1] = HIBYTE(data);
-        p->payload[2] = LOBYTE(data);
+        uint8_t pl[] = {charging, HIBYTE(soc), LOBYTE(soc) };
+        PACKET_SetPayload(p, pl, sizeof(pl));
+    }
+    return p;
+}
+
+Packet *PACKET_CreateGateCrossPacket(const ChannelIndex idx) {
+    Packet *p;
+    if((p = PACKET_Create()) != NULL) {
+        PACKET_SetCommand(p, BLE_CMD_GATE_CROSSED);
+        uint8_t data = CH_IDX_TO_MASK(idx);
+        PACKET_SetPayload(p, &data, 1);
     }
     return p;
 }
@@ -188,7 +198,7 @@ Packet *PACKET_FillBatteryData(Packet *p, const BQ27441_Command cmd,
     return p;
 }
 
-void PACKET_GetByteArray(const Packet *p, uint8_t byteArray[]) {
+void PACKET_GetByteArray(const Packet *p, uint8_t *byteArray) {
 	SYS_ASSERT(p != NULL, "Packet is null");
 	memcpy((void*) byteArray, (void*) p, PACKET_BASE_LEN);
 	if (p->pLen)
@@ -223,4 +233,59 @@ int8_t PACKET_GetRunMode(const Packet *p, RunMode *mode, uint8_t *channel) {
     return res;
 }
 
+Packet *PACKET_CreateDiscovery(){
+    Packet *p;
+    if((p = PACKET_Create()) != NULL) {
+        PACKET_SetCommand(p, BLE_CMD_DISCOVERY);
+    }
+    return p;
+}
 
+Packet *PACKET_CreateAnnounce(const uint8_t *sn, const soc_t soc,
+                              const bool charging) {
+    Packet *p;
+    if ((p = PACKET_Create()) != NULL) {
+        PACKET_SetCommand(p, BLE_CMD_ANNOUNCE);
+        AnnouncePayload payload;
+        memcpy(payload.sn, "SOM_", 4);
+        sprintf(&payload.sn[4], "%02X%02X%02X%02X%02X", sn[0], sn[1], sn[2],
+                sn[3], sn[4]);
+        payload.soc = soc;
+        payload.charging = charging;
+        PACKET_SetPayload(p, &payload, sizeof(AnnouncePayload));
+    }
+    return p;
+}
+
+AnnouncePayload PACKET_GetAnnouncePayload(const Packet *p) {
+    AnnouncePayload ap;
+    if (PACKET_GetCommand(p) == BLE_CMD_ANNOUNCE) {
+        PACKET_GetPayload(p, &ap);
+    }
+    return ap;
+}
+
+Packet *PACKET_CreateNewSlave(AnnouncePayload *ap) {
+    Packet *p;
+    if((p = PACKET_Create()) != NULL) {
+        PACKET_SetCommand(p, BLE_CMD_NEW_SLAVE);
+        // It always go to the app
+        PACKET_SetDestination(p, DEV_APPLICATION);
+        PACKET_SetPayload(p, ap, sizeof(AnnouncePayload));
+    }
+    return p;
+}
+
+Packet *PACKET_CreateRunResult(const ChannelIndex idx, const uint32_t timeUs)  {
+    Packet *p;
+    if((p = PACKET_Create()) != NULL) {
+        PACKET_SetCommand(p, BLE_CMD_RUN_RESULTS);
+        // It always go to the app
+        PACKET_SetDestination(p, DEV_APPLICATION);
+        uint8_t pl[5] = {};
+        pl[0] = CH_IDX_TO_MASK(idx);
+        memcpy(&pl[1], &timeUs, sizeof(uint32_t));
+        PACKET_SetPayload(p, pl, sizeof(pl));
+    }
+    return p;
+}
