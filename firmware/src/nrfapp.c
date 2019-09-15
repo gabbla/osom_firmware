@@ -308,12 +308,13 @@ void NRFAPP_Tasks(void) {
                     nrfappData.discovered = true;
                     nrfappData.state = NRFAPP_STATE_IDLE;
                     // TODO notify mainapp for led status
+                    MAINAPP_SetLedStatus(LED_STATUS_CONNECTED);
                 }
                 PACKET_Free(p);
             }
             break;
         }
-        
+
         case NRFAPP_STATE_IDLE: {
             printOnceState(NRFAPP_STATE_IDLE, "IDLE");
             //NRF_Status s = NRF_GetStatus();
