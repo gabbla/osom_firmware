@@ -38,18 +38,34 @@ void ChannelStatusCallback(uintptr_t context, uint32_t currTick) {
         sts |= (temp_status == ChannelStatusActive? LASER_SX : 0x00);
     }
     // This check fix an issue while entering the Positioning activity.
-    // Since this callback will be called after SET_MODE (that turns on the 
+    // Since this callback will be called after SET_MODE (that turns on the
     // channels) the already turned on channels will be shut off
     if(data->runMode != RUN_MODE_POSITIONING) {
         enableLaser(LASER_DX | LASER_SX, false);
     }
     DEBUG("%s() Ch: 0x%02X Status: 0x%02X", __func__, ch, sts);
-    Packet *reply = PACKET_Create();
-    uint8_t dummy[] = { ch, sts };
-    PACKET_SetDestination(reply, DEV_APPLICATION);
-    PACKET_SetCommand(reply, BLE_CMD_CH_STATUS);
-    PACKET_SetPayload(reply, dummy, 2);
-    SendPacketToBle(MSG_SRC_MAIN, reply);
+
+    Packet *reply = NULL;
+    switch(data->runMode) {
+        case RUN_MODE_LAP: {
+            if (sts == ChannelStatusActive) break;
+            reply = PACKET_CreateRunResult(ch, SYS_TMR_TickCountGet() * 1000);
+            break;
+        }
+        default: {
+            WARN("Dummy reply");
+            reply = PACKET_Create();
+            uint8_t dummy[] = {ch, sts};
+            PACKET_SetDestination(reply, DEV_APPLICATION);
+            PACKET_SetCommand(reply, BLE_CMD_CH_STATUS);
+            PACKET_SetPayload(reply, dummy, 2);
+            break;
+        }
+    }
+
+    if(reply)
+        SendPacketToBle(MSG_SRC_MAIN, reply);
+
 }
 
 void nextState(MAINAPP_STATES next) { mainappData.state = next; }
@@ -70,12 +86,17 @@ void BLE_CMD_MODE_Parser(const Packet *in, Packet *out, uintptr_t context) {
         INFO("Entering new mode 0x%02X (channels 0x%02X)", data->runMode,
              data->activeChannels);
     }
-
+    enableLaser(data->activeChannels, true);
     switch (data->runMode) {
-        case RUN_MODE_POSITIONING: {
-            enableLaser(data->activeChannels, true);
+        case RUN_MODE_FREE_START:
+            break;            
+        case RUN_MODE_POSITIONING:
             break;
-        }
+        case RUN_MODE_KO:
+            break;
+        case RUN_MODE_LAP:
+            break;
+        case RUN_MODE_NONE:
         default:
             enableLaser(LASER_SX | LASER_DX, false);
             break;
@@ -157,9 +178,57 @@ void MAINAPP_Initialize(void) {
     mainappData.phase = SP_IDLE;
 }
 
+uint32_t start = 0;
+
+void dummyFinish ( uintptr_t context, uint32_t currTick ) {
+    uint32_t stop = SYS_TMR_TickCountGet() - start;
+    ChannelIndex idx = (ChannelIndex) context;
+    INFO("%s() ch %d @ %d", __func__, idx, stop);
+    Packet *p = PACKET_CreateRunResult(idx, stop);
+    SendPacketToBle(MSG_SRC_MAIN, p);
+}
+
+SYS_TMR_HANDLE dummy;
+
+#define RUN_TIMER_ID TMR_ID_3
+static uint64_t cnt;
+void __ISR(_TIMER_3_VECTOR, ipl1AUTO) runtimerHandler(void)
+{
+    cnt++;
+    StatusRightToggle();
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_TIMER_3);
+    PLIB_TMR_Counter16BitSet(RUN_TIMER_ID, 65535);
+}
+void RUNTIMER_Init(TMR_MODULE_ID tmr) {
+    PLIB_TMR_Stop(tmr);
+    if(PLIB_TMR_ExistsMode32Bit(tmr)) 
+        PLIB_TMR_Mode16BitEnable(tmr);
+    PLIB_TMR_Counter16BitClear(tmr);
+    PLIB_TMR_ClockSourceSelect(tmr, TMR_CLOCK_SOURCE_PERIPHERAL_CLOCK);
+    PLIB_TMR_PrescaleSelect(tmr, TMR_PRESCALE_VALUE_1);
+    PLIB_TMR_Counter16BitSet(tmr, 65535);
+
+    // Interrupt
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_TIMER_3);
+    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_3);
+    PLIB_INT_VectorPrioritySet(INT_ID_0, INT_VECTOR_T3, INT_PRIORITY_LEVEL1);
+}
+
+void RUNTIMER_Start(TMR_MODULE_ID tmr) {
+    cnt = 0;
+    PLIB_TMR_Start(tmr);
+}
+
+uint64_t RUNTIMER_Stop(TMR_MODULE_ID tmr) {
+    PLIB_TMR_Stop(tmr);
+    return cnt;
+}
+
 void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx) {
-    INFO("Channel %d new state is %d", idx, s);
+    INFO("Channel %d new state is %d @ %d", idx, s, SYS_TMR_TickCountGetLong());
     MAINAPP_DATA *data = (MAINAPP_DATA *)cntx;
+    
+    Packet *reply = NULL;   
     switch (data->runMode) {
         case RUN_MODE_POSITIONING: {
             Packet *reply = PACKET_CreatePositionStatus(idx, s);
@@ -167,7 +236,35 @@ void wdcb(const ChannelIndex idx, const ChannelStatus s, uintptr_t *cntx) {
             SendPacketToBle(MSG_SRC_MAIN, reply);
             break;
         }
+        case RUN_MODE_FREE_START: {
+            if(s == ChannelStatusInactive) {
+                start = SYS_TMR_TickCountGet();
+                Packet *reply = PACKET_CreateGateCrossPacket(idx);
+                PACKET_SetDestination(reply, DEV_APPLICATION);
+                SendPacketToBle(MSG_SRC_MAIN, reply);
+                Channel_Enable(Channel_Get(idx), false);
+                dummy = SYS_TMR_CallbackSingle(5000, NULL, dummyFinish);
+            }
+            break;
+        }
+        case RUN_MODE_LAP: {
+            if (s == ChannelStatusActive) break;
+            reply = PACKET_CreateRunResult(idx, SYS_TMR_TickCountGet());
+            break;
+        }
+        default: {
+            WARN("Dummy reply");
+            reply = PACKET_Create();
+            uint8_t dummy[] = {idx, s};
+            PACKET_SetDestination(reply, DEV_APPLICATION);
+            PACKET_SetCommand(reply, BLE_CMD_CH_STATUS);
+            PACKET_SetPayload(reply, dummy, 2);
+            break;
+        }
     }
+    
+    if(reply)
+        SendPacketToBle(MSG_SRC_MAIN, reply);
 }
 
 void BatteryCallback(BQ27441_Command cmd, uint8_t *data, size_t s,
@@ -178,7 +275,11 @@ void BatteryCallback(BQ27441_Command cmd, uint8_t *data, size_t s,
     }
     switch (cmd) {
         case BQ27441_STATE_OF_CHARGE: {
-            DEBUG("State of charge: %d %%", BQ27441_GetStateOfCharge(data));
+            soc_t soc = BQ27441_GetStateOfCharge(data);
+            bool charging = !BQ_PGoodStateGet();
+            DEBUG("State of charge: %d %%", soc);
+            Packet *p = PACKET_CreateBatteryPacket(charging, soc);
+            SendPacketToBle(MSG_SRC_MAIN, p);
             break;
         }
         case BQ27441_VOLTAGE: {
@@ -213,12 +314,14 @@ void MAINAPP_Tasks(void) {
                                     (uintptr_t *)&mainappData);
             }
 
-            // mainappData.batteryInfoTmr = SYS_TMR_CallbackPeriodic(60000,
-            // NULL, batteryInfoCallback);
-
+//            mainappData.batteryInfoTmr = SYS_TMR_CallbackPeriodic(10000,
+//             NULL, batteryInfoCallback);
+                        
             if (appInitialized) {
                 INFO("Main App started!");
                 mainappData.state = MAINAPP_STATE_SERVICE_TASKS;
+                RUNTIMER_Init(RUN_TIMER_ID);
+                RUNTIMER_Start(RUN_TIMER_ID);
             }
             break;
         }
@@ -226,6 +329,7 @@ void MAINAPP_Tasks(void) {
         case MAINAPP_STATE_SERVICE_TASKS: {
             LED_Tasks();
             MSG_Tasks();
+            MODE_Tasks();
             break;
         }
 
@@ -242,13 +346,17 @@ void LED_Tasks() {
     static uint32_t cnt = 0;
     switch(mainappData.ledStatus) {
         case LED_STATUS_INVALID:
+        case LED_STATUS_DISCOVERED :
         case LED_STATUS_DISCONNECTED: {
+            // TODO delay 
             if(SYS_TMR_TickCountGet() - cnt >= 500) {
                 LedStatusToggle();
                 cnt = SYS_TMR_TickCountGet();
             }
             break;
         }
+        
+            
         case LED_STATUS_CONNECTED: {
             static uint8_t loop = 0;
             if(loop < 4) {
@@ -289,10 +397,21 @@ void MSG_Tasks() {
             SendPacketToBle(MSG_SRC_MAIN, notSupported);
         } else {
             DEBUG("Parsing command ID 0x%02X", p->cmd);
+            // TODO reply may not be generated by every command.
+            // It's better to generate it inside the parser, if needed
             Packet *reply = PACKET_CreateForReply(p);
             parsers[parserIndex](p, reply, (uintptr_t)&mainappData);
             SendPacketToBle(MSG_SRC_MAIN, reply);
         }
         PACKET_Free(p);  // really important
+    }
+}
+
+void MODE_Tasks() {
+    switch(mainappData.runMode) {
+        case RUN_MODE_FREE_START: {
+            
+            break;
+        }
     }
 }

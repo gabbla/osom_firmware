@@ -14,6 +14,7 @@
 #include "peripheral/ports/plib_ports.h"
 #include "channels.h"
 
+#include "eeprom.h"
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -69,6 +70,7 @@ typedef enum {
     LED_STATUS_INVALID = 0,
     LED_STATUS_DISCONNECTED,
     LED_STATUS_CONNECTED,
+    LED_STATUS_DISCOVERED,
 } LEDStatus;
 
 // Command function parser prototype
@@ -92,6 +94,8 @@ typedef struct
     
     // Led status
     LEDStatus ledStatus;
+    
+    
 } MAINAPP_DATA;
 
 void MAINAPP_Initialize ( void );
@@ -101,6 +105,8 @@ void MAINAPP_Tasks( void );
 void LED_Tasks();
 
 void MSG_Tasks();
+
+void MODE_Tasks();
 
 void POW_Tasks();
 
