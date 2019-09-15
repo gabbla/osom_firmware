@@ -274,10 +274,8 @@ void NRFAPP_Tasks(void) {
                     DEBUG("Got discovery");
                     uint8_t sn[5] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
                     Packet *r = PACKET_CreateAnnounce(sn, 88, false);
-                    uint8_t tt[32];
-                    PACKET_GetByteArray(r, tt);
                     NRF_StopListening();
-                    NRF_Write(tt, 32);
+                    NRF_WritePacket(r);
                     NRF_StartListening();
                     // wait ack
                     PACKET_Free(r);
@@ -360,7 +358,6 @@ void NRFAPP_Tasks(void) {
                 NRF_Write(&got_time, sizeof(uint64_t));
                 DEBUG("Sent response");
                 NRF_StartListening();
-
             }
             break;
         }
