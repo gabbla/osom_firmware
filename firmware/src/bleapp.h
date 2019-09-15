@@ -9,12 +9,9 @@
 #include "system_definitions.h"
 #include "somparser.h"
 #include "logger.h"
-#include "i2c_device.h"
 #include "osal/osal_definitions.h"
 #include "mailbox.h"
 #include "bq27441_parser.h"
-
-#include "PCF8574.h"
 
 //#include <xc.h>
 //#include <sys/attribs.h>
@@ -55,10 +52,6 @@ typedef struct
 
     // I2C handler
     DRV_HANDLE i2cHandle;
-
-    // I2C Device
-    I2CDevice eeprom;
-    I2CDevice ioexp;
 
     // Packet stuff
     uint8_t packet[MAX_PACKET_LEN];
