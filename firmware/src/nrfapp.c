@@ -1,5 +1,9 @@
 #include "nrfapp.h"
 
+#define IS_MASTER(x) ( x.device_type == DEVICE_TYPE_MASTER )
+
+#define MAX_DISCOVERY   10
+
 NRFAPP_DATA nrfappData;
 
 void printNRFStatus(const NRF_Status *status);
@@ -30,8 +34,6 @@ void NRFAPP_Initialize(void) {
     // Address
     nrfappData.aw_bytes = AW_TO_BYTES(AW_5_BYTES);
     // Broadcast address, common to all devices
-    nrfappData.pipe0 = 0x314E6F6465; // 1Node
-    nrfappData.pipe1 = 0x324e6f6465; // 2Node
     nrfappData.pipe0 = 0x65646F4E31; // 1Node
     nrfappData.pipe1 = 0x65646F4E32; // 2Node
     // TODO get the serial number (4bytes)
@@ -39,8 +41,11 @@ void NRFAPP_Initialize(void) {
     //    const uint8_t pipeBaseaddress[] = { 0x01, 0xCE, 0xCA, 0xEF, 0xBE };
     //    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
 
-    nrfappData.device_type = 1; // 1 = RX | 0 = TX
+    nrfappData.device_type = 0; // 1 = RX | 0 = TX
     INFO("Bootloader PIN: %d", nrfappData.device_type);
+    
+    // Clear device discovered
+    memset(nrfappData.deviceDiscovered, 0, sizeof(nrfappData.deviceDiscovered));
 }
 
 int8_t initializeNRFappMailbox() {
@@ -80,7 +85,7 @@ bool configureSPI() {
     // MCLK value is stored in SYS_CLK_BUS_REFERENCE_1 and now is 18 Mhz
     // This output around 9 Mhz clock
     PLIB_SPI_BaudRateClockSelect(SPI_ID_1, SPI_BAUD_RATE_MCLK_CLOCK);
-    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_REFERENCE_1, 9000000);
+    PLIB_SPI_BaudRateSet(SPI_ID_1, SYS_CLK_BUS_REFERENCE_1, 1000000);
     //    PLIB_SPI_PinEnable(
     //        SPI_ID_1, SPI_PIN_SLAVE_SELECT | SPI_PIN_DATA_OUT |
     //        SPI_PIN_DATA_IN);
@@ -93,6 +98,7 @@ bool configureSPI() {
 
     spi_idle();
     NRF_CEOff();  // TODO
+    NRF_CSOn();
     return true;
 }
 
@@ -134,6 +140,29 @@ void printNRFInfo(const NRF_Info *info) {
     DEBUG("DYNPD:       0x%02X", info->dynpd);
 }
 
+void addDiscoveredDevice(const AnnouncePayload *ap) {
+    size_t i;
+    SOM_Device *dd = nrfappData.deviceDiscovered;
+    for(i = 0; i < 5; ++i) {
+        if(!dd[i].valid) {
+            memcpy(dd[i].sn, ap->sn, sizeof(ap->sn));
+            dd[i].valid = true;
+            break;
+        }
+    }
+}
+
+uint8_t getDeviceDiscoveredCnt() {
+    size_t i = 0;
+    SOM_Device *dd = nrfappData.deviceDiscovered;
+    for(; i < 5; ++i) {
+        if(!nrfappData.deviceDiscovered[i].valid) {
+            break;
+        }
+    }
+    return i;
+}
+
 void NRFAPP_Tasks(void) {
     /* Check the application's current state. */
     switch (nrfappData.state) {
@@ -164,22 +193,125 @@ void NRFAPP_Tasks(void) {
             DEBUG("Status is: 0x%02X", status);
             NRF_SetPALevel(NRF_PA_LOW);
 
-            if(nrfappData.device_type) {
+            if(!IS_MASTER(nrfappData)) {
                 NRF_OpenWritingPipe(nrfappData.pipe1);
                 NRF_OpenReadingPipe(1, nrfappData.pipe0);
-                nrfappData.state = NRFAPP_STATE_RX;
+                nrfappData.state = NRF_STATE_DISCOVERY;
             } else {
                 NRF_OpenWritingPipe(nrfappData.pipe0);
                 NRF_OpenReadingPipe(1, nrfappData.pipe1);
-                nrfappData.state = NRFAPP_STATE_TX;
-                nrfappData.gpTimer = SYS_TMR_DelayMS(500);
+                nrfappData.state = NRF_STATE_ANNOUNCE;
             }
-            NRF_StartListening(); 
-            NRF_Info info = NRF_GetInfo();
-            printNRFInfo(&info);
+
+            NRF_StartListening();
             break;
         }
 
+        case NRF_STATE_DISCOVERY: {
+            printOnceState(NRF_STATE_DISCOVERY, "discovery");
+            if(nrfappData.discoveryCnt >= MAX_DISCOVERY) {
+                WARN("Discovery ended");
+                DEBUG("Device found:");
+                size_t i;
+                for(i = 0; i < 5; ++i)
+                    if(nrfappData.deviceDiscovered[i].valid)
+                        DEBUG("\t %d) %s", i, nrfappData.deviceDiscovered[i].sn);
+                nrfappData.state = NRFAPP_STATE_IDLE;
+                break;
+            }
+            NRF_StopListening();
+            // Ask if anyone is there
+            Packet *p = PACKET_CreateDiscovery();
+            NRF_Write(p, PACKET_GetFullSize(p));
+            PACKET_Free(p);
+            nrfappData.discoveryTimeout = SYS_TMR_TickCountGet();
+            DEBUG("Sending discovery @ %d [%d/%d]", nrfappData.discoveryTimeout,
+                  ++nrfappData.discoveryCnt, MAX_DISCOVERY);
+            NRF_StartListening();
+            nrfappData.state = NRF_STATE_WAIT_DISCOVERY;
+            break;
+        }
+
+        case NRF_STATE_WAIT_DISCOVERY: {
+            if (SYS_TMR_TickCountGet() - nrfappData.discoveryTimeout > 1000) {
+                nrfappData.state = NRF_STATE_DISCOVERY;
+                break;
+            }
+            if(NRF_Available(NULL)) {
+                // Someone may have replied us
+                uint8_t data[32];
+                NRF_ReadPayload(data, 32);
+                Packet *p = PACKET_Get(data); 
+                AnnouncePayload ap = PACKET_GetAnnouncePayload(p);
+                DEBUG("SN: %s", ap.sn);
+                DEBUG("SOC: %d %", ap.soc);
+                DEBUG("Charging: %s", ap.charging? "yes" : "no");
+                addDiscoveredDevice(&ap);
+                DEBUG("Device discovered: %d", getDeviceDiscoveredCnt());
+                // Send over BLE
+                Packet *ble = PACKET_CreateNewSlave(&ap); // Freed by BLEApp
+                SendPacketToBle(MSG_SRC_NRF, ble);
+                // ACK the discovery
+                // TODO assign a role
+                Packet *reply = PACKET_CreateForReply(p);
+                PACKET_SetCommand(reply, BLE_CMD_DISCOVERY_ACK);
+                NRF_StopListening();
+                NRF_Write(reply, PACKET_GetFullSize(reply));
+                NRF_StartListening();
+                PACKET_Free(p);
+                PACKET_Free(reply);
+            }
+            break;
+        }
+        
+        case NRF_STATE_ANNOUNCE: {
+            printOnceState(NRF_STATE_ANNOUNCE, "announce");
+            if(!nrfappData.discovered && NRF_Available(NULL)) {
+                uint8_t data[32];
+                NRF_ReadPayload(data, 32);
+                Packet *p = PACKET_Get(data);
+                if(PACKET_GetCommand(p) == BLE_CMD_DISCOVERY) {
+                    DEBUG("Got discovery");
+                    uint8_t sn[5] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+                    Packet *r = PACKET_CreateAnnounce(sn, 88, false);
+                    uint8_t tt[32];
+                    PACKET_GetByteArray(r, tt);
+                    NRF_StopListening();
+                    NRF_Write(tt, 32);
+                    NRF_StartListening();
+                    // wait ack
+                    PACKET_Free(r);
+                    nrfappData.state = NRF_STATE_WAIT_DISCOVERY_ACK;
+                    //nrfappData.state = NRFAPP_STATE_IDLE;
+                    nrfappData.discoveryAckTimeout = SYS_TMR_TickCountGet();
+                }
+                PACKET_Free(p);
+            }   
+            break;
+        }
+        
+        case NRF_STATE_WAIT_DISCOVERY_ACK: {
+            printOnceState(NRF_STATE_WAIT_DISCOVERY_ACK, "discovery ack");
+            if(SYS_TMR_TickCountGet() - nrfappData.discoveryAckTimeout > 1000) {
+                WARN("Discovery not ACKed!");
+                nrfappData.state = NRF_STATE_ANNOUNCE;
+                break;
+            }
+            if(NRF_Available(NULL)) {
+                uint8_t data[32];
+                NRF_ReadPayload(data, 32);
+                Packet *p = PACKET_Get(data);
+                if(PACKET_GetCommand(p) == BLE_CMD_DISCOVERY_ACK) {
+                    DEBUG("Discovery ACKed");
+                    nrfappData.discovered = true;
+                    nrfappData.state = NRFAPP_STATE_IDLE;
+                    // TODO notify mainapp for led status
+                }
+                PACKET_Free(p);
+            }
+            break;
+        }
+        
         case NRFAPP_STATE_IDLE: {
             printOnceState(NRFAPP_STATE_IDLE, "IDLE");
             //NRF_Status s = NRF_GetStatus();
