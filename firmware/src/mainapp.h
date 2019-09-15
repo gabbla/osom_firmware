@@ -110,6 +110,8 @@ void MODE_Tasks();
 
 void POW_Tasks();
 
+void MAINAPP_SetLedStatus(const LEDStatus status);
+
 #endif /* _MAINAPP_H */
 
 //DOM-IGNORE-BEGIN
