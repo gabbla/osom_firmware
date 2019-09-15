@@ -372,10 +372,17 @@ void BLEAPP_Tasks(void) {
                         manageBleAppMessage(p);
                         PACKET_Free(p);
                     } else {
-                        DEBUG("Message for MainApp");
                         // Forward
+                        uint8_t mailboxMsgId = MAIN_MSG_ID;
+                        if(p->dst & DEV_MASTER) {
+                            DEBUG("Message for MainApp");
+                            // mailboxMsgId is already ok
+                        } else {
+                            DEBUG("Message for NRFApp");
+                            mailboxMsgId = NRF_MSG_ID;
+                        }
                         SYS_MSG_OBJECT message;
-                        message.nMessageTypeID = MAIN_MSG_ID;
+                        message.nMessageTypeID = mailboxMsgId;
                         message.nSource = MSG_SRC_MAIN;
                         message.nSizeData = sizeof(Packet);
                         message.pData = (uintptr_t *)p;
