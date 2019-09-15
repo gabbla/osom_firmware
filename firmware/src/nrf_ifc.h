@@ -5,6 +5,7 @@
 #include <peripheral/peripheral.h>
 #include "memory_map.h"
 #include "logger.h"
+#include "somparser.h"
 
 #define NRF_SPI_ID  SPI_ID_1
 
@@ -160,6 +161,7 @@ NRF_Status NRF_StopListening();
 NRF_Status NRF_GetPayloadSize(const uint8_t pipe, uint8_t *size);
 
 NRF_Status NRF_Write(const void *data, const size_t size);
+NRF_Status NRF_WritePacket(const Packet *p);
 
 bool NRF_Available(uint8_t *pipe);
 

@@ -403,6 +403,12 @@ NRF_Status NRF_Write(const void *data, const size_t size) {
     return status;
 }
 
+NRF_Status NRF_WritePacket(const Packet *p) {
+    uint8_t tt[32];
+    PACKET_GetByteArray(p, tt);
+	return NRF_Write(tt, 32);
+}
+
 bool NRF_Available(uint8_t *pipe) {
     uint8_t fifo_status;
     nrf_read_register(FIFO_STATUS, &fifo_status);
