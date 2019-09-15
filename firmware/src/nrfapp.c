@@ -163,6 +163,10 @@ uint8_t getDeviceDiscoveredCnt() {
     return i;
 }
 
+bool isChargerConnected() {
+    return !BQ_PGoodStateGet();
+}
+
 void NRFAPP_Tasks(void) {
     /* Check the application's current state. */
     switch (nrfappData.state) {
@@ -263,7 +267,7 @@ void NRFAPP_Tasks(void) {
             }
             break;
         }
-        
+
         case NRF_STATE_ANNOUNCE: {
             printOnceState(NRF_STATE_ANNOUNCE, "announce");
             if(!nrfappData.discovered && NRF_Available(NULL)) {
@@ -273,7 +277,7 @@ void NRFAPP_Tasks(void) {
                 if(PACKET_GetCommand(p) == BLE_CMD_DISCOVERY) {
                     DEBUG("Got discovery");
                     uint8_t sn[5] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
-                    Packet *r = PACKET_CreateAnnounce(sn, 88, false);
+                    Packet *r = PACKET_CreateAnnounce(sn, 88, isChargerConnected());
                     NRF_StopListening();
                     NRF_WritePacket(r);
                     NRF_StartListening();
@@ -284,10 +288,10 @@ void NRFAPP_Tasks(void) {
                     nrfappData.discoveryAckTimeout = SYS_TMR_TickCountGet();
                 }
                 PACKET_Free(p);
-            }   
+            }
             break;
         }
-        
+
         case NRF_STATE_WAIT_DISCOVERY_ACK: {
             printOnceState(NRF_STATE_WAIT_DISCOVERY_ACK, "discovery ack");
             if(SYS_TMR_TickCountGet() - nrfappData.discoveryAckTimeout > 1000) {
@@ -358,6 +362,7 @@ void NRFAPP_Tasks(void) {
                 NRF_Write(&got_time, sizeof(uint64_t));
                 DEBUG("Sent response");
                 NRF_StartListening();
+                
             }
             break;
         }
