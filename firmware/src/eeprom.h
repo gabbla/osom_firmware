@@ -1,17 +1,11 @@
-/*
- * eeprom.h
- *
- *  Created on: 04 nov 2018
- *      Author: gabbla
- */
-
 #ifndef FIRMWARE_SRC_EEPROM_H_
 #define FIRMWARE_SRC_EEPROM_H_
 
-#include "driver/i2c/drv_i2c.h"
-#include "i2c_device.h"
+#include "i2cifc.h"
 
-void EEPROM_Write(const I2CDevice *dev, const uint16_t address, const uint8_t data);
+int8_t EEPROM_Init(const I2C_MODULE_ID module, const uint8_t address);
+
+void EEPROM_Write(const uint16_t address, const uint8_t data);
 
 
 #endif /* FIRMWARE_SRC_EEPROM_H_ */

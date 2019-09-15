@@ -1,18 +1,20 @@
-/*
- * eeprom.c
- *
- *  Created on: 04 nov 2018
- *      Author: gabbla
- */
-
 #include "eeprom.h"
 
-void EEPROM_Write(const I2CDevice *dev, const uint16_t address, const uint8_t data) {
-	DRV_HANDLE handle = I2CDevice_GetHandle(dev);
-	uint16_t dev_address = I2CDevice_GetWriteAddress(dev);
-	//DRV_I2C_MasterStart(handle);
-	uint8_t buff[] = {0xF0, 0x55};
-	DRV_I2C_Transmit(handle, 0x00A0, (void*)buff, 2, NULL);
-	//DRV_I2C_MasterStop(handle);
+static I2C_MODULE_ID _module;
+static uint8_t _address;
+
+
+int8_t EEPROM_Init(const I2C_MODULE_ID module, const uint8_t address) {
+    _module = module;
+    _address = address;
+    return I2C_Init(_module);
+}
+
+void EEPROM_Write(const uint16_t address, const uint8_t data) {
+    PLIB_I2C_MasterStart(_module);
+    I2C_TransmitAndWait(_module, _address & 0xFE);
+    I2C_TransmitAndWait(_module, address);
+    I2C_TransmitAndWait(_module, data);
+    PLIB_I2C_MasterStop(_module);
 }
 
