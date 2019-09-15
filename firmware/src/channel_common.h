@@ -1,6 +1,8 @@
 #ifndef CHANNEL_COMMON_H_A8CS3IXR
 #define CHANNEL_COMMON_H_A8CS3IXR
 
+// We can safely ignore those define when testing the parser
+#ifdef __XC32
 #include "system/ports/sys_ports.h"
 
 // Configuration
@@ -35,6 +37,7 @@
 #define LEFT_ENABLER_PORT_IDX   PORTS_ID_0
 #define LEFT_ENABLER_PORT       PORT_CHANNEL_A
 #define LEFT_ENABLER_POS        PORTS_BIT_POS_9
+#endif
 
 #define IS_VALID_CHANNEL_IDX(x)     ((x) < Channel_Max)
 
