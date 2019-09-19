@@ -2,7 +2,7 @@
 
 #define IS_MASTER(x) ( x.device_type == DEVICE_TYPE_MASTER )
 
-#define MAX_DISCOVERY   10
+#define MAX_DISCOVERY   1000
 
 NRFAPP_DATA nrfappData;
 
@@ -197,7 +197,7 @@ void NRFAPP_Tasks(void) {
             DEBUG("Status is: 0x%02X", status);
             NRF_SetPALevel(NRF_PA_LOW);
 
-            if(!IS_MASTER(nrfappData)) {
+            if(IS_MASTER(nrfappData)) {
                 NRF_OpenWritingPipe(nrfappData.pipe1);
                 NRF_OpenReadingPipe(1, nrfappData.pipe0);
                 nrfappData.state = NRF_STATE_DISCOVERY;
@@ -237,7 +237,7 @@ void NRFAPP_Tasks(void) {
         }
 
         case NRF_STATE_WAIT_DISCOVERY: {
-            if (SYS_TMR_TickCountGet() - nrfappData.discoveryTimeout > 1000) {
+            if (SYS_TMR_TickCountGet() - nrfappData.discoveryTimeout > 10) {
                 nrfappData.state = NRF_STATE_DISCOVERY;
                 break;
             }
