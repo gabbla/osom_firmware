@@ -14,8 +14,6 @@
 #include "peripheral/ports/plib_ports.h"
 #include "channels.h"
 
-#include "eeprom.h"
-
 #ifdef __cplusplus  // Provide C++ Compatibility
 
 extern "C" {
