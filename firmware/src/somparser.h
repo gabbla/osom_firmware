@@ -120,6 +120,7 @@ typedef enum {
     DEV_SLAVE2 = (1 << 4),
     DEV_SLAVE3 = (1 << 5),
     DEV_SLAVE4 = (1 << 6),
+    DEV_ALL_SLAVES = DEV_SLAVE0 | DEV_SLAVE1 | DEV_SLAVE2 | DEV_SLAVE3 | DEV_SLAVE4,
 } Device;
 
 typedef struct {

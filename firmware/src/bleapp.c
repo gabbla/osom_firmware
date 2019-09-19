@@ -258,7 +258,7 @@ void manageBleAppMessage(Packet *p) {
     switch (cmd) {
         case BLE_CMD_GET_BAT_DATA:
             DEBUG("Battery request from ble [0x%02X]", p->payload[0]);
-            BQ27441_GetData(p->payload[0], &powercb, (uintptr_t)p);
+            //BQ27441_GetData(p->payload[0], &powercb, (uintptr_t)p);
             break;
         case BLE_CMD_SYS_RESET: {
             uint8_t btReset;
@@ -373,14 +373,15 @@ void BLEAPP_Tasks(void) {
                         PACKET_Free(p);
                     } else {
                         // Forward
+                        // XXX always forward to mainapp, it knows what to do
                         uint8_t mailboxMsgId = MAIN_MSG_ID;
-                        if(p->dst & DEV_MASTER) {
-                            DEBUG("Message for MainApp");
-                            // mailboxMsgId is already ok
-                        } else {
-                            DEBUG("Message for NRFApp");
-                            mailboxMsgId = NRF_MSG_ID;
-                        }
+                        //if(p->dst & DEV_MASTER) {
+                        //    DEBUG("Message for MainApp");
+                        //    // mailboxMsgId is already ok
+                        //} else {
+                        //    DEBUG("Message for NRFApp");
+                        //    mailboxMsgId = NRF_MSG_ID;
+                        //}
                         SYS_MSG_OBJECT message;
                         message.nMessageTypeID = mailboxMsgId;
                         message.nSource = MSG_SRC_MAIN;
@@ -393,7 +394,7 @@ void BLEAPP_Tasks(void) {
                         // The packet will be free'd by the receiver
                     }
                     // PQUEUE_CODE res = PQUEUE_Enqueue(&bleappData.incoming,
-                    // &p); if (res != PQUEUE_OK) { 	ERROR("Cannot enqueue the
+                    // &p); if (res != PQUEUE_OK) {		ERROR("Cannot enqueue the
                     //packet! %s", PQUEUE_GetErrorStr(res));
                     //}
                     // DEBUG("Packet(s) in queue: %d\n",
@@ -402,8 +403,6 @@ void BLEAPP_Tasks(void) {
                     ERROR("The received packet is not valid");
                 }
 
-                //			unregisterBuffer();
-                //			registerBuffer();
                 reregisterBuffer();
             }
 
