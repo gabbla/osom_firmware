@@ -64,7 +64,7 @@ typedef struct {
     uint8_t *bqCommand[2];
     uint8_t *bqReply[2];
     BQ27441_Command bqCmdId;
-    DRV_I2C_BUFFER_HANDLE hBuff;
+    //DRV_I2C_BUFFER_HANDLE hBuff;
 } BQ_Request;
 
 // *****************************************************************************

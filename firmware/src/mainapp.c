@@ -181,9 +181,13 @@ int8_t initializeMainappMailbox() {
     return -2;
 }
 
+void EEPROM_SetUp();
+
 void MAINAPP_Initialize(void) {
     mainappData.state = MAINAPP_STATE_INIT;
     mainappData.phase = SP_IDLE;
+    
+    EEPROM_SetUp();
 }
 
 uint32_t start = 0;
@@ -305,6 +309,38 @@ void batteryInfoCallback(uintptr_t context, uint32_t currTick) {
     BQ27441_GetData(BQ27441_AVERAGE_CURRENT, &BatteryCallback, NULL);
 }
 
+
+void EEPROM_SetUp() {
+    // TODO verify
+    PLIB_I2C_BaudRateSet(I2C_ID_2, SYS_CLK_BUS_REFERENCE_1, 400000);
+    PLIB_I2C_Enable(I2C_ID_2);
+}
+
+void _i2c_tx(I2C_MODULE_ID module, uint8_t data) {
+    //while(!PLIB_I2C_TransmitterIsReady(module));
+    PLIB_I2C_TransmitterByteSend(module, data);
+    while(!PLIB_I2C_TransmitterByteHasCompleted(module));
+    while(!PLIB_I2C_TransmitterByteWasAcknowledged(module));
+}
+
+void _EEPROM_Write(const uint8_t address, const uint16_t offset, void *data, size_t size) {
+    DEBUG("%s() size: 0x%02X bytes", __func__, size);
+    uint8_t ctrl = address & 0xFE;
+    uint8_t *curr = (uint8_t *)data;
+    size_t i;
+    PLIB_I2C_MasterStart(I2C_ID_2);
+    _i2c_tx(I2C_ID_2, ctrl);
+    _i2c_tx(I2C_ID_2, (uint8_t)offset);
+    _i2c_tx(I2C_ID_2, (uint8_t)(offset >> 8));
+    for(i = 0; i < size; i++) {
+        _i2c_tx(I2C_ID_2, *curr);
+        ++curr;
+    }
+    PLIB_I2C_MasterStop(I2C_ID_2);
+    DEBUG("%s() Done", __func__);
+}
+
+
 void MAINAPP_Tasks(void) {
     /* Check the application's current state. */
     switch (mainappData.state) {
@@ -325,6 +361,8 @@ void MAINAPP_Tasks(void) {
 
             if (appInitialized) {
                 INFO("Main App started!");
+                
+
                 mainappData.state = MAINAPP_STATE_SERVICE_TASKS;
                 RUNTIMER_Init(RUN_TIMER_ID);
                 RUNTIMER_Start(RUN_TIMER_ID);
@@ -336,6 +374,9 @@ void MAINAPP_Tasks(void) {
             LED_Tasks();
             MSG_Tasks();
             MODE_Tasks();
+                            
+            uint8_t d = 0xA0;
+                _EEPROM_Write(0xA0, 0xA0, &d, 1);
             break;
         }
 

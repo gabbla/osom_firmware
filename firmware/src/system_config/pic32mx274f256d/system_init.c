@@ -109,30 +109,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Driver Initialization Data
 // *****************************************************************************
 // *****************************************************************************
-// <editor-fold defaultstate="collapsed" desc="DRV_I2C Initialization Data">
-// *****************************************************************************
-/* I2C Driver Initialization Data
-*/
-
-const DRV_I2C_INIT drvI2C0InitData =
-{
-    .i2cId = DRV_I2C_PERIPHERAL_ID_IDX0,
-    .i2cMode = DRV_I2C_OPERATION_MODE_IDX0,
-    .portSCL = DRV_SCL_PORT_IDX0,
-	.pinSCL  = DRV_SCL_PIN_POSITION_IDX0,
-	.portSDA = DRV_SDA_PORT_IDX0,
-	.pinSDA  = DRV_SDA_PIN_POSITION_IDX0,
-    .baudRate = DRV_I2C_BAUD_RATE_IDX0,
-    .busspeed = DRV_I2C_SLEW_RATE_CONTROL_IDX0,
-    .buslevel = DRV_I2C_SMBus_SPECIFICATION_IDX0,
-    .mstrInterruptSource = DRV_I2C_MASTER_INT_SRC_IDX0,
-    .errInterruptSource = DRV_I2C_ERR_MX_INT_SRC_IDX0,
-};
-
-
-
-
-// </editor-fold>
 /*** TMR Driver Initialization Data ***/
 
 const DRV_TMR_INIT drvTmr0InitData =
@@ -279,13 +255,6 @@ void SYS_Initialize ( void* data )
     SYS_DEVCON_PerformanceConfig(SYS_CLK_SystemFrequencyGet());
 
     /* Initialize Drivers */
-    sysObj.drvI2C0 = DRV_I2C_Initialize(DRV_I2C_INDEX_0, (SYS_MODULE_INIT *)&drvI2C0InitData);
-
-
-    SYS_INT_VectorPrioritySet(INT_VECTOR_I2C2, INT_PRIORITY_LEVEL1);
-    SYS_INT_VectorSubprioritySet(INT_VECTOR_I2C2, INT_SUBPRIORITY_LEVEL0);
-
-
 
     sysObj.drvTmr0 = DRV_TMR_Initialize(DRV_TMR_INDEX_0, (SYS_MODULE_INIT *)&drvTmr0InitData);
 

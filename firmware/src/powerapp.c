@@ -62,8 +62,8 @@ void POWERAPP_Tasks(void) {
         /* Application's initial state. */
         case POWERAPP_STATE_INIT: {
             bool appInitialized = true;
-            powerappData.gauge =
-                DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE);
+//            powerappData.gauge =
+//                DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE);
             if (powerappData.gauge == DRV_HANDLE_INVALID) {
                 ERROR("Gauge I2C handler is invalid");
                 appInitialized = false;
@@ -72,7 +72,9 @@ void POWERAPP_Tasks(void) {
             asm("nop");
             if (appInitialized) {
                 powerappData.state = POWERAPP_STATE_IDLE;
+              
             }
+                
             break;
         }
 
@@ -81,56 +83,56 @@ void POWERAPP_Tasks(void) {
         }
 
         case POWERAPP_STATE_IDLE: {
-            powerappData.currentRequest =
-                getNextRequest(powerappData.requests, MAX_BQ_REQUESTS);
-            if (powerappData.currentRequest) {
-                DEBUG("Request to serve found. Command: 0x%02X",
-                      powerappData.currentRequest->bqCmdId);
-                powerappData.state = POWERAPP_STATE_GET_DATA;
-            }
+//            powerappData.currentRequest =
+//                getNextRequest(powerappData.requests, MAX_BQ_REQUESTS);
+//            if (powerappData.currentRequest) {
+//                DEBUG("Request to serve found. Command: 0x%02X",
+//                      powerappData.currentRequest->bqCmdId);
+//                powerappData.state = POWERAPP_STATE_GET_DATA;
+//            }
             break;
         }
 
-        case POWERAPP_STATE_GET_DATA: {
-            powerappData.currentRequest->hBuff = DRV_I2C_TransmitThenReceive(
-                powerappData.gauge, 0xAA,
-                powerappData.currentRequest->bqCommand, 2,
-                powerappData.currentRequest->bqReply, 2, NULL);
-            if (!powerappData.currentRequest->hBuff) {
-                powerappData.state = POWERAPP_STATE_ERROR;
-                break;
-            }
-            powerappData.state = POWERAPP_STATE_WAIT;
-            break;
-        }
-
-        case POWERAPP_STATE_WAIT: {
-            DRV_I2C_BUFFER_EVENT status = DRV_I2C_TransferStatusGet(
-                powerappData.gauge, powerappData.currentRequest->hBuff);
-            if (status == DRV_I2C_BUFFER_EVENT_COMPLETE) {
-                powerappData.operationInProgress = false;
-                powerappData.currentRequest->bqCallback(
-                    powerappData.currentRequest->bqCmdId,
-                    powerappData.currentRequest->bqReply, 2,
-                    powerappData.currentRequest->user_data);
-                powerappData.currentRequest->status = REQ_FREE;
-                powerappData.state = POWERAPP_STATE_IDLE;
-            } else if (status == DRV_I2C_BUFFER_EVENT_ERROR) {
-                powerappData.state = POWERAPP_STATE_ERROR;
-            }
-
-            break;
-        }
-
-        case POWERAPP_STATE_ERROR: {
-            powerappData.currentRequest->bqCallback(
-                powerappData.currentRequest->bqCmdId, NULL, 0,
-                powerappData.currentRequest->user_data);
-            powerappData.currentRequest->status = REQ_FREE;
-            powerappData.operationInProgress = false;
-            powerappData.state = POWERAPP_STATE_IDLE;
-            break;
-        }
+//        case POWERAPP_STATE_GET_DATA: {
+//            powerappData.currentRequest->hBuff = DRV_I2C_TransmitThenReceive(
+//                powerappData.gauge, 0xAA,
+//                powerappData.currentRequest->bqCommand, 2,
+//                powerappData.currentRequest->bqReply, 2, NULL);
+//            if (!powerappData.currentRequest->hBuff) {
+//                powerappData.state = POWERAPP_STATE_ERROR;
+//                break;
+//            }
+//            powerappData.state = POWERAPP_STATE_WAIT;
+//            break;
+//        }
+//
+//        case POWERAPP_STATE_WAIT: {
+//            DRV_I2C_BUFFER_EVENT status = DRV_I2C_TransferStatusGet(
+//                powerappData.gauge, powerappData.currentRequest->hBuff);
+//            if (status == DRV_I2C_BUFFER_EVENT_COMPLETE) {
+//                powerappData.operationInProgress = false;
+//                powerappData.currentRequest->bqCallback(
+//                    powerappData.currentRequest->bqCmdId,
+//                    powerappData.currentRequest->bqReply, 2,
+//                    powerappData.currentRequest->user_data);
+//                powerappData.currentRequest->status = REQ_FREE;
+//                powerappData.state = POWERAPP_STATE_IDLE;
+//            } else if (status == DRV_I2C_BUFFER_EVENT_ERROR) {
+//                powerappData.state = POWERAPP_STATE_ERROR;
+//            }
+//
+//            break;
+//        }
+//
+//        case POWERAPP_STATE_ERROR: {
+//            powerappData.currentRequest->bqCallback(
+//                powerappData.currentRequest->bqCmdId, NULL, 0,
+//                powerappData.currentRequest->user_data);
+//            powerappData.currentRequest->status = REQ_FREE;
+//            powerappData.operationInProgress = false;
+//            powerappData.state = POWERAPP_STATE_IDLE;
+//            break;
+//        }
 
         /* The default state should never be executed. */
         default: {
