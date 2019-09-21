@@ -360,6 +360,8 @@ void MAINAPP_Tasks(void) {
             //            SYS_TMR_CallbackPeriodic(10000,
             //             NULL, batteryInfoCallback);
 
+            // I2C stuff
+            DEBUG("I2C driver version: %s", DRV_I2C_VersionStrGet(0));
             mainappData.hEeprom = DRV_I2C_Open(DRV_I2C_INDEX_0, 
                     DRV_IO_INTENT_READWRITE | DRV_IO_INTENT_SHARED);
             if (mainappData.hEeprom == DRV_HANDLE_INVALID) {
