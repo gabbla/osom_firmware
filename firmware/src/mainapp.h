@@ -16,6 +16,7 @@
 
 #include "eeprom.h"
 #include "somconfig.h"
+#include <osal/osal.h>
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -90,8 +91,10 @@ typedef struct
     DRV_I2C_BUFFER_HANDLE eepromBuffHandler;
     SYSTEM_PHASE phase; 
     
+    // Config stuff
     SOMConfig config;
     uint16_t configOffset;
+    OSAL_MUTEX_DECLARE(configMutex);
     
     SYS_TMR_HANDLE batteryInfoTmr;
     // Left / Right

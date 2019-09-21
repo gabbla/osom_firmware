@@ -186,7 +186,7 @@ void MAINAPP_Initialize(void) {
     mainappData.phase = SP_IDLE;
     
     mainappData.configOffset = SOM_CFG_ADDRESS;
-    mainappData.configLoaded = false;
+    OSAL_MUTEX_Create(&mainappData.configMutex);
 }
 
 uint32_t start = 0;
@@ -325,11 +325,21 @@ void CFG_Print(SOMConfig *cfg) {
 }
 
 bool MAINAPP_IsConfigLoaded() {
-    return CFG_IsValid(&mainappData.config);
+    bool ret = false;
+    if(OSAL_MUTEX_Lock(&mainappData.configMutex, 1000) == OSAL_RESULT_TRUE) {
+        ret = CFG_IsValid(&mainappData.config);
+        OSAL_MUTEX_Unlock(&mainappData.configMutex);
+    }
+    return ret;
 }
 
-SOMConfig *MAINAPP_GetConfig() {
-    return &mainappData.config;
+const SOMConfig *MAINAPP_GetConfig() {
+    SOMConfig *cfg = NULL;
+    if(OSAL_MUTEX_Lock(&mainappData.configMutex, 1000) == OSAL_RESULT_TRUE) {
+        cfg = &mainappData.config;
+        OSAL_MUTEX_Unlock(&mainappData.configMutex);
+    }
+    return cfg;
 }
 
 void MAINAPP_Tasks(void) {
@@ -370,16 +380,21 @@ void MAINAPP_Tasks(void) {
 
         case MAINAPP_STATE_LOAD_CFG: {
             DEBUG("Loading config");
-            mainappData.eepromBuffHandler = DRV_I2C_TransmitThenReceive(
-                    mainappData.hEeprom, 0xA0, &mainappData.configOffset, 2,
-                    &mainappData.config, sizeof(SOMConfig), NULL);
-            if(mainappData.eepromBuffHandler == DRV_I2C_BUFFER_HANDLE_INVALID) {
-                ERROR("Error while loading config");
-                mainappData.state = MAINAPP_STATE_IDLE;
-                // TODO handle this kind of error
-                break;
+            if(OSAL_MUTEX_Lock(&mainappData.configMutex, 1000) == OSAL_RESULT_TRUE) {
+                mainappData.eepromBuffHandler = DRV_I2C_TransmitThenReceive(
+                        mainappData.hEeprom, 0xA0, &mainappData.configOffset, 2,
+                        &mainappData.config, sizeof(SOMConfig), NULL);
+                if(mainappData.eepromBuffHandler == DRV_I2C_BUFFER_HANDLE_INVALID) {
+                    ERROR("Error while loading config");
+                    mainappData.state = MAINAPP_STATE_IDLE;
+                    OSAL_MUTEX_Unlock(&mainappData.configMutex);
+                    // TODO handle this kind of error
+                    break;
+                }
+                mainappData.state = MAINAPP_STATE_WAIT_CFG;
+            } else {
+                ERROR("Cannot lock configMutex");
             }
-            mainappData.state = MAINAPP_STATE_WAIT_CFG;
             break;
         }
         
@@ -413,13 +428,17 @@ void MAINAPP_Tasks(void) {
                     }
                     CFG_Print(&mainappData.config);
                     mainappData.state = MAINAPP_STATE_SERVICE_TASKS;
+                    // Unlock the mutex
+                    OSAL_MUTEX_Unlock(&mainappData.configMutex);
                     break;
                 case DRV_I2C_BUFFER_EVENT_ERROR:
                     ERROR("Error while reading config");
                     mainappData.state = MAINAPP_STATE_IDLE;
+                    // Unlock the mutex
+                    OSAL_MUTEX_Unlock(&mainappData.configMutex);
                     // TODO handle this error
                     break;
-            }
+            }            
             break;
         }
        
