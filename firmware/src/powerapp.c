@@ -63,7 +63,7 @@ void POWERAPP_Tasks(void) {
         case POWERAPP_STATE_INIT: {
             bool appInitialized = true;
             powerappData.gauge =
-                DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE);
+                DRV_I2C_Open(DRV_I2C_INDEX_0, DRV_IO_INTENT_READWRITE | DRV_IO_INTENT_SHARED);
             if (powerappData.gauge == DRV_HANDLE_INVALID) {
                 ERROR("Gauge I2C handler is invalid");
                 appInitialized = false;
