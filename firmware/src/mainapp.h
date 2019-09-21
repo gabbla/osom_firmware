@@ -15,6 +15,7 @@
 #include "channels.h"
 
 #include "eeprom.h"
+#include "somconfig.h"
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -57,6 +58,10 @@ typedef enum
 	/* Application's state machine's initial state. */
 	MAINAPP_STATE_INIT=0,
 	MAINAPP_STATE_SERVICE_TASKS,
+    MAINAPP_STATE_IDLE,
+	MAINAPP_STATE_LOAD_CFG,
+    MAINAPP_STATE_WAIT_CFG,
+    MAINAPP_STATE_WRITE_CFG,
 
 
 } MAINAPP_STATES;
@@ -76,13 +81,18 @@ typedef enum {
 // Command function parser prototype
 typedef void (*cmdParserFunction)(const Packet *, Packet *, uintptr_t);
 
-
 typedef struct
 {
     /* The application's current state */
     MAINAPP_STATES state;
     SYS_OBJ_HANDLE commandMailBox; // Here the app receives the commands
+    DRV_HANDLE hEeprom;
+    DRV_I2C_BUFFER_HANDLE eepromBuffHandler;
     SYSTEM_PHASE phase; 
+    
+    SOMConfig config;
+    uint16_t configOffset;
+    bool configLoaded;
     
     SYS_TMR_HANDLE batteryInfoTmr;
     // Left / Right
@@ -112,6 +122,8 @@ void POW_Tasks();
 
 void MAINAPP_SetLedStatus(const LEDStatus status);
 
+bool MAINAPP_IsConfigLoaded();
+SOMConfig *MAINAPP_GetConfig();
 #endif /* _MAINAPP_H */
 
 //DOM-IGNORE-BEGIN

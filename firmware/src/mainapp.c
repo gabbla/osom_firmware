@@ -184,6 +184,9 @@ int8_t initializeMainappMailbox() {
 void MAINAPP_Initialize(void) {
     mainappData.state = MAINAPP_STATE_INIT;
     mainappData.phase = SP_IDLE;
+    
+    mainappData.configOffset = SOM_CFG_ADDRESS;
+    mainappData.configLoaded = false;
 }
 
 uint32_t start = 0;
@@ -305,6 +308,30 @@ void batteryInfoCallback(uintptr_t context, uint32_t currTick) {
     BQ27441_GetData(BQ27441_AVERAGE_CURRENT, &BatteryCallback, NULL);
 }
 
+void CFG_Print(SOMConfig *cfg) {
+    if(!cfg) {
+        ERROR("%s() Config is NULL", __func__);
+        return;
+    }
+    INFO("***** CONFIG  *****");
+    INFO("Offset: 0x%04X", cfg->offset);
+    INFO("Version: 0x%02X", cfg->version);
+    INFO("Name: '%s'", cfg->name);
+    INFO("Role: %s", cfg->flags.role? "master" : "slave");
+    if(cfg->flags.role == SOM_CFG_ROLE_SLAVE) {
+        INFO("Slave ID: 0x%02X", cfg->flags.slave_id);
+    }
+    INFO("*****   END   *****");
+}
+
+bool MAINAPP_IsConfigLoaded() {
+    return mainappData.configLoaded;
+}
+
+SOMConfig *MAINAPP_GetConfig() {
+    return &mainappData.config;
+}
+
 void MAINAPP_Tasks(void) {
     /* Check the application's current state. */
     switch (mainappData.state) {
@@ -323,15 +350,79 @@ void MAINAPP_Tasks(void) {
             //            SYS_TMR_CallbackPeriodic(10000,
             //             NULL, batteryInfoCallback);
 
+            mainappData.hEeprom = DRV_I2C_Open(DRV_I2C_INDEX_0, 
+                    DRV_IO_INTENT_READWRITE | DRV_IO_INTENT_SHARED);
+            if (mainappData.hEeprom == DRV_HANDLE_INVALID) {
+                ERROR("EEPROM handler is invalid");
+                appInitialized = false;
+            } else {
+                DEBUG("EEPROM handler is valid");
+            }
+            
             if (appInitialized) {
                 INFO("Main App started!");
-                mainappData.state = MAINAPP_STATE_SERVICE_TASKS;
-                RUNTIMER_Init(RUN_TIMER_ID);
-                RUNTIMER_Start(RUN_TIMER_ID);
+                mainappData.state = MAINAPP_STATE_LOAD_CFG;
+                //RUNTIMER_Init(RUN_TIMER_ID);
+                //RUNTIMER_Start(RUN_TIMER_ID);
             }
             break;
         }
 
+        case MAINAPP_STATE_LOAD_CFG: {
+            DEBUG("Loading config");
+            mainappData.eepromBuffHandler = DRV_I2C_TransmitThenReceive(
+                    mainappData.hEeprom, 0xA0, &mainappData.configOffset, 2,
+                    &mainappData.config, sizeof(SOMConfig), NULL);
+            if(mainappData.eepromBuffHandler == DRV_I2C_BUFFER_HANDLE_INVALID) {
+                ERROR("Error while loading config");
+                mainappData.state = MAINAPP_STATE_IDLE;
+                // TODO handle this kind of error
+                break;
+            }
+            mainappData.state = MAINAPP_STATE_WAIT_CFG;
+            break;
+        }
+        
+        case MAINAPP_STATE_WRITE_CFG: {
+            DEBUG("Writing config");
+            CFG_Print(&mainappData.config);
+            mainappData.eepromBuffHandler = DRV_I2C_Transmit(
+                    mainappData.hEeprom, 0xA0,
+                    &mainappData.config, sizeof(SOMConfig), NULL);
+            if(mainappData.eepromBuffHandler == DRV_I2C_BUFFER_HANDLE_INVALID) {
+                ERROR("Error while writing config");
+                mainappData.state = MAINAPP_STATE_IDLE;
+                // TODO handle this kind of error
+                break;
+            }
+            mainappData.state = MAINAPP_STATE_WAIT_CFG;
+            break;
+        }
+        
+        case MAINAPP_STATE_WAIT_CFG: {
+            switch(DRV_I2C_TransferStatusGet(mainappData.hEeprom,
+                    mainappData.eepromBuffHandler)) {
+                case DRV_I2C_BUFFER_EVENT_COMPLETE:
+                    DEBUG("Config loaded");
+                    // TODO is valid?
+                    if(!CFG_IsValid(&mainappData.config)) {
+                        WARN("Config is not valid");
+                        CFG_SetDefault(&mainappData.config);
+                        mainappData.state = MAINAPP_STATE_WRITE_CFG;
+                        break;
+                    }
+                    CFG_Print(&mainappData.config);
+                    mainappData.state = MAINAPP_STATE_SERVICE_TASKS;
+                    break;
+                case DRV_I2C_BUFFER_EVENT_ERROR:
+                    ERROR("Error while reading config");
+                    mainappData.state = MAINAPP_STATE_IDLE;
+                    // TODO handle this error
+                    break;
+            }
+            break;
+        }
+       
         case MAINAPP_STATE_SERVICE_TASKS: {
             LED_Tasks();
             MSG_Tasks();
@@ -339,6 +430,10 @@ void MAINAPP_Tasks(void) {
             break;
         }
 
+        case MAINAPP_STATE_IDLE: {
+            break;
+        }
+        
         default: {
             /* TODO: Handle error in application's state machine. */
             break;
