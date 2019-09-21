@@ -171,11 +171,16 @@ void NRFAPP_Tasks(void) {
     switch (nrfappData.state) {
             /* Application's initial state. */
         case NRFAPP_STATE_INIT: {
+            if(!MAINAPP_IsConfigLoaded()) {
+                break;
+            }
+            nrfappData.config = MAINAPP_GetConfig();
+            if(nrfappData.config == NULL)
+                break;
             if (configureSPI()) {
                 INFO("NRF App started!");
-                DEBUG("Device type: %s [%d]",
-                      nrfappData.device_type ? "Master" : "Slave",
-                      nrfappData.device_type);
+                DEBUG("Device type: %s",
+                      CFG_IsMaster(nrfappData.config) ? "Master" : "Slave");
                 // configure_irq();
                 nrfappData.gpTimer = SYS_TMR_DelayMS(5000);
                 nrfappData.state = NRFAPP_STATE_CONFIG;
@@ -197,7 +202,7 @@ void NRFAPP_Tasks(void) {
             DEBUG("Status is: 0x%02X", status);
             NRF_SetPALevel(NRF_PA_MAX);
 
-            if (!IS_MASTER(nrfappData)) {
+            if (CFG_IsMaster(nrfappData.config)) {
                 NRF_OpenWritingPipe(nrfappData.pipe1);
                 NRF_OpenReadingPipe(1, nrfappData.pipe0);
                 nrfappData.state = NRF_STATE_DISCOVERY;

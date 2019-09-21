@@ -15,6 +15,8 @@
 #include <peripheral/peripheral.h>
 #include "nrf_ifc.h"
 
+#include "somconfig.h"
+
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
 
@@ -70,6 +72,9 @@ typedef struct
     // Here the app receives the packets
     SYS_OBJ_HANDLE commandMailBox;
 
+    // Config coming from mainapp
+    const SOMConfig *config;
+    
     // device type
     uint8_t device_type;
 
