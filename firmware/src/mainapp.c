@@ -308,7 +308,7 @@ void batteryInfoCallback(uintptr_t context, uint32_t currTick) {
     BQ27441_GetData(BQ27441_AVERAGE_CURRENT, &BatteryCallback, NULL);
 }
 
-void CFG_Print(SOMConfig *cfg) {
+void CFG_Print(const SOMConfig *cfg) {
     if(!cfg) {
         ERROR("%s() Config is NULL", __func__);
         return;

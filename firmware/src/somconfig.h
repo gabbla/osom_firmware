@@ -5,10 +5,10 @@
 #include "logger.h"
 
 // Every time a field is added to SOMConfig the version must be incremented
-#define SOM_CFG_VERSION (0x00)
+#define SOM_CFG_VERSION (0x01)
 
 // Define to fource config overwrite (useful during debug)
-#define SOM_CFG_FORCE_OVERWRITE
+//#define SOM_CFG_FORCE_OVERWRITE
 
 // Address in eeprom
 #define SOM_CFG_ADDRESS 0x0000
@@ -34,10 +34,10 @@ typedef struct {
     } flags;
 } SOMConfig;
 
-bool CFG_IsValid(SOMConfig *cfg);
+bool CFG_IsValid(const SOMConfig *cfg);
 
 void CFG_SetDefault(SOMConfig *cfg);
 
-bool CFG_IsMaster(SOMConfig *cfg);
+bool CFG_IsMaster(const SOMConfig *cfg);
 
 #endif /* end of include guard: SOMCONFIG_H_V1ILYIPR */

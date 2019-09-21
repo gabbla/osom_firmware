@@ -9,7 +9,7 @@ static const SOMConfig defconfig = {
     }
 };
 
-bool CFG_IsValid(SOMConfig *cfg) {
+bool CFG_IsValid(const SOMConfig *cfg) {
     if(!cfg)
         return false;
 #ifdef SOM_CFG_FORCE_OVERWRITE
@@ -30,7 +30,7 @@ void CFG_SetDefault(SOMConfig *cfg) {
     memcpy(cfg, &defconfig, sizeof(SOMConfig));
 }
 
-bool CFG_IsMaster(SOMConfig *cfg) {
+bool CFG_IsMaster(const SOMConfig *cfg) {
     if(!cfg)
         return false;
     return cfg->flags.role == SOM_CFG_ROLE_MASTER;
