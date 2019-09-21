@@ -125,7 +125,7 @@ void POW_Tasks();
 void MAINAPP_SetLedStatus(const LEDStatus status);
 
 bool MAINAPP_IsConfigLoaded();
-SOMConfig *MAINAPP_GetConfig();
+const SOMConfig *MAINAPP_GetConfig();
 #endif /* _MAINAPP_H */
 
 //DOM-IGNORE-BEGIN
