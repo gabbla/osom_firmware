@@ -92,7 +92,6 @@ typedef struct
     
     SOMConfig config;
     uint16_t configOffset;
-    bool configLoaded;
     
     SYS_TMR_HANDLE batteryInfoTmr;
     // Left / Right

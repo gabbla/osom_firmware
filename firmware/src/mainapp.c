@@ -325,7 +325,7 @@ void CFG_Print(SOMConfig *cfg) {
 }
 
 bool MAINAPP_IsConfigLoaded() {
-    return mainappData.configLoaded;
+    return CFG_IsValid(&mainappData.config);
 }
 
 SOMConfig *MAINAPP_GetConfig() {
