@@ -139,6 +139,7 @@
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/bq27441_parser.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/nrf_ifc.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/i2cifc.h</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/somconfig.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -252,6 +253,7 @@
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/channels.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/nrf_ifc.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/i2cifc.c</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/somconfig.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -512,6 +514,7 @@
         <property key="UART2" value="true"/>
         <property key="USB" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
