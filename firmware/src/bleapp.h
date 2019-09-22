@@ -48,10 +48,6 @@ typedef struct
 
     // UART handlers
     DRV_HANDLE hm10;
-    DRV_HANDLE mcp2200;
-
-    // I2C handler
-    DRV_HANDLE i2cHandle;
 
     // Packet stuff
     uint8_t packet[MAX_PACKET_LEN];

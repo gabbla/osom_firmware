@@ -197,8 +197,6 @@ void BLEAPP_Initialize(void) {
 
     // Handlers
     bleappData.hm10 = DRV_HANDLE_INVALID;
-    bleappData.mcp2200 = DRV_HANDLE_INVALID;
-    bleappData.i2cHandle = DRV_HANDLE_INVALID;
 
     // Packet stuff
     bleappData.packetHandler = DRV_USART_BUFFER_HANDLE_INVALID;
@@ -287,29 +285,7 @@ void BLEAPP_Tasks(void) {
         case BLEAPP_STATE_INIT: {
             bleappData.hm10 =
                 DRV_USART_Open(DRV_USART_INDEX_0, DRV_IO_INTENT_READWRITE);
-            bleappData.mcp2200 =
-                DRV_USART_Open(DRV_USART_INDEX_1, DRV_IO_INTENT_READWRITE);
-
-            //		bleappData.i2cHandle = DRV_I2C_Open(DRV_I2C_INDEX_0,
-            //DRV_IO_INTENT_READWRITE);
-
-            //		bleappData.eeprom.i2cHandle = bleappData.i2cHandle;
-            //		bleappData.eeprom.address = 0b10100000;
-            //
-            //		bleappData.ioexp.i2cHandle = bleappData.i2cHandle;
-            //		bleappData.ioexp.address = 0x40;
-            //
-            //		PCF_BankWrite(&bleappData.ioexp, 0);
-
-            // TODO: why mcp handler == DRV_HANDLE_INVALID but it still works?
-            // && bleappData.mcp2200 != DRV_HANDLE_INVALID)
-            DEBUG("MCP UART handle is valid? %d",
-                  bleappData.mcp2200 != DRV_HANDLE_INVALID);
-
-            // Interrupt
-            //		PLIB_INT_SourceEnable(INT_ID_0,
-            //INT_SOURCE_USART_1_RECEIVE);
-
+            
             // Mailbox stuff
             initializeBleAppMailbox();
 
@@ -372,33 +348,9 @@ void BLEAPP_Tasks(void) {
                         manageBleAppMessage(p);
                         PACKET_Free(p);
                     } else {
-                        // Forward
-                        // XXX always forward to mainapp, it knows what to do
-                        uint8_t mailboxMsgId = MAIN_MSG_ID;
-                        //if(p->dst & DEV_MASTER) {
-                        //    DEBUG("Message for MainApp");
-                        //    // mailboxMsgId is already ok
-                        //} else {
-                        //    DEBUG("Message for NRFApp");
-                        //    mailboxMsgId = NRF_MSG_ID;
-                        //}
-                        SYS_MSG_OBJECT message;
-                        message.nMessageTypeID = mailboxMsgId;
-                        message.nSource = MSG_SRC_MAIN;
-                        message.nSizeData = sizeof(Packet);
-                        message.pData = (uintptr_t *)p;
-                        SYS_MSG_RESULTS myRes =
-                            SYS_MSG_MessageSend(MAIN_MAILBOX, &message);
-                        if (myRes != SYS_MSG_SENT)
-                            ERROR("Failed to send!! %d", myRes);
+                        SendPacketToMainapp(MSG_SRC_BLE, p);
                         // The packet will be free'd by the receiver
                     }
-                    // PQUEUE_CODE res = PQUEUE_Enqueue(&bleappData.incoming,
-                    // &p); if (res != PQUEUE_OK) {		ERROR("Cannot enqueue the
-                    //packet! %s", PQUEUE_GetErrorStr(res));
-                    //}
-                    // DEBUG("Packet(s) in queue: %d\n",
-                    // PQUEUE_GetSize(&bleappData.incoming)); PACKET_Free(&p);
                 } else {
                     ERROR("The received packet is not valid");
                 }
@@ -408,16 +360,7 @@ void BLEAPP_Tasks(void) {
 
             break;
         }
-
-        case BLEAPP_STATE_DISPATCH: {
-            SYS_MSG_OBJECT *next;
-            if ((next = SYS_MSG_MailboxMessagesGet(bleappData.bleOutgoing)) !=
-                NULL) {
-            }
-            bleappData.state = BLEAPP_STATE_IDLE;
-            break;
-        }
-
+        
         default: {
             /* TODO: Handle error in application's state machine. */
             break;
