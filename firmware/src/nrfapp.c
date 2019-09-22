@@ -40,10 +40,7 @@ void NRFAPP_Initialize(void) {
     // TODO pipe 1-5 will be numbered <serial>x where x 1-5
     //    const uint8_t pipeBaseaddress[] = { 0x01, 0xCE, 0xCA, 0xEF, 0xBE };
     //    memcpy(nrfappData.pipe0, pipe0address, nrfappData.aw_bytes);
-
-    nrfappData.device_type = 0;  // 1 = RX | 0 = TX
-    INFO("Bootloader PIN: %d", nrfappData.device_type);
-
+    
     // Clear device discovered
     memset(nrfappData.deviceDiscovered, 0, sizeof(nrfappData.deviceDiscovered));
 }

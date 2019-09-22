@@ -75,8 +75,6 @@ typedef struct
     // Config coming from mainapp
     const SOMConfig *config;
     
-    // device type
-    uint8_t device_type;
 
     // Timeouts
     uint32_t discoveryTimeout;
