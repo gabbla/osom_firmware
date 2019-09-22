@@ -73,15 +73,6 @@ void MAINAPP_SetLedStatus(const LEDStatus status) {
     LedStatusOff();
 }
 
-void positioningPhase() {
-    // TODO manage the input states (I guess something getWatchdogDx status)
-    DEBUG("Sending fake status");
-    Packet *reply = PACKET_CreatePositionStatus(false, true);
-    SendPacketToBle(MSG_SRC_MAIN, reply);
-    nextState(MAINAPP_STATE_SERVICE_TASKS);
-}
-
-
 void BLE_CMD_MODE_Parser(const Packet *in, Packet *out, uintptr_t context) {
     DEBUG("%s()", __func__);
     MAINAPP_DATA *data = (MAINAPP_DATA *)context;
