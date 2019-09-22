@@ -140,6 +140,7 @@
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/nrf_ifc.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/i2cifc.h</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/somconfig.h</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/cmd_parsers.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -213,33 +214,38 @@
           </logicalFolder>
         </logicalFolder>
         <logicalFolder name="f2" displayName="system" projectFiles="true">
-          <logicalFolder name="f1" displayName="console" projectFiles="true">
+          <logicalFolder name="f1" displayName="common" projectFiles="true">
+            <logicalFolder name="f1" displayName="src" projectFiles="true">
+              <itemPath>../../../../framework/system/common/src/sys_queue.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="console" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/console/src/sys_console.c</itemPath>
               <itemPath>../../../../framework/system/console/src/sys_console_uart.c</itemPath>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f2" displayName="debug" projectFiles="true">
+          <logicalFolder name="f3" displayName="debug" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/debug/src/sys_debug.c</itemPath>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f3" displayName="int" projectFiles="true">
+          <logicalFolder name="f4" displayName="int" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/int/src/sys_int_pic32.c</itemPath>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f4" displayName="msg" projectFiles="true">
+          <logicalFolder name="f5" displayName="msg" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/msg/src/sys_msg.c</itemPath>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f5" displayName="random" projectFiles="true">
+          <logicalFolder name="f6" displayName="random" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/random/src/sys_random.c</itemPath>
             </logicalFolder>
           </logicalFolder>
-          <logicalFolder name="f6" displayName="tmr" projectFiles="true">
+          <logicalFolder name="f7" displayName="tmr" projectFiles="true">
             <logicalFolder name="f1" displayName="src" projectFiles="true">
               <itemPath>../../../../framework/system/tmr/src/sys_tmr.c</itemPath>
             </logicalFolder>
@@ -254,6 +260,7 @@
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/nrf_ifc.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/i2cifc.c</itemPath>
       <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/somconfig.c</itemPath>
+      <itemPath>/opt/microchip/harmony/v2_06/apps/som_firmware/firmware/src/cmd_parsers.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

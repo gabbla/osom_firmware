@@ -16,6 +16,7 @@
 
 #include "eeprom.h"
 #include "somconfig.h"
+#include "cmd_parsers.h"
 #include <osal/osal.h>
 
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -36,6 +37,8 @@ extern "C" {
 #define LASER_DX            (0x01)
 #define LASER_SX            (0x02)
 
+#define PACKET_QUEUE_POOL   (10)
+    
 typedef struct {
     PORTS_CHANNEL port;
     PORTS_BIT_POS pin;
@@ -79,9 +82,6 @@ typedef enum {
     LED_STATUS_DISCOVERED,
 } LEDStatus;
 
-// Command function parser prototype
-typedef void (*cmdParserFunction)(const Packet *, Packet *, uintptr_t);
-
 typedef struct
 {
     /* The application's current state */
@@ -95,6 +95,9 @@ typedef struct
     SOMConfig config;
     uint16_t configOffset;
     OSAL_MUTEX_DECLARE(configMutex);
+
+    QUEUE_OBJECT *packetQueue;
+    QUEUE_ELEMENT_OBJECT packetQueuePool[PACKET_QUEUE_POOL];
     
     SYS_TMR_HANDLE batteryInfoTmr;
     // Left / Right

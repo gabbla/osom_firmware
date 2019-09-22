@@ -70,186 +70,190 @@
         <Path dnOrder="1">Source&amp;#160;Files/framework/system/msg/src</Path>
       </File>
       <File dnOrder="14">
+        <Name dnOrder="0">sys_queue.c</Name>
+        <Path dnOrder="1">Source&amp;#160;Files/framework/system/common/src</Path>
+      </File>
+      <File dnOrder="15">
         <Name dnOrder="0">sys_ports_definitions.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/ports</Path>
       </File>
-      <File dnOrder="15">
+      <File dnOrder="16">
         <Name dnOrder="0">drv_tmr.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/framework/driver/tmr/src/dynamic</Path>
       </File>
-      <File dnOrder="16">
+      <File dnOrder="17">
         <Name dnOrder="0">sys_int_private.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/int/src</Path>
       </File>
-      <File dnOrder="17">
+      <File dnOrder="18">
         <Name dnOrder="0">drv_tmr_compatibility.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/tmr</Path>
       </File>
-      <File dnOrder="18">
+      <File dnOrder="19">
         <Name dnOrder="0">sys_tmr_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/tmr/src</Path>
       </File>
-      <File dnOrder="19">
+      <File dnOrder="20">
         <Name dnOrder="0">system.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system</Path>
       </File>
-      <File dnOrder="20">
+      <File dnOrder="21">
         <Name dnOrder="0">drv_usart.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/usart</Path>
       </File>
-      <File dnOrder="21">
+      <File dnOrder="22">
         <Name dnOrder="0">sys_console.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/console</Path>
       </File>
-      <File dnOrder="22">
+      <File dnOrder="23">
         <Name dnOrder="0">drv_i2c.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/i2c</Path>
       </File>
-      <File dnOrder="23">
+      <File dnOrder="24">
         <Name dnOrder="0">sys_msg_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/msg/src</Path>
       </File>
-      <File dnOrder="24">
+      <File dnOrder="25">
         <Name dnOrder="0">sys_int.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/int</Path>
       </File>
-      <File dnOrder="25">
+      <File dnOrder="26">
         <Name dnOrder="0">drv_tmr_variant_mapping.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/tmr/src</Path>
       </File>
-      <File dnOrder="26">
+      <File dnOrder="27">
         <Name dnOrder="0">drv_tmr.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/tmr</Path>
       </File>
-      <File dnOrder="27">
+      <File dnOrder="28">
         <Name dnOrder="0">sys_random_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/random/src</Path>
       </File>
-      <File dnOrder="28">
+      <File dnOrder="29">
         <Name dnOrder="0">sys_dma.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/dma</Path>
       </File>
-      <File dnOrder="29">
+      <File dnOrder="30">
         <Name dnOrder="0">sys_console.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/framework/system/console/src</Path>
       </File>
-      <File dnOrder="30">
+      <File dnOrder="31">
         <Name dnOrder="0">sys_tmr.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/tmr</Path>
       </File>
-      <File dnOrder="31">
+      <File dnOrder="32">
         <Name dnOrder="0">osal.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/osal</Path>
       </File>
-      <File dnOrder="32">
+      <File dnOrder="33">
         <Name dnOrder="0">drv_usart_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/usart/src</Path>
       </File>
-      <File dnOrder="33">
+      <File dnOrder="34">
         <Name dnOrder="0">sys_ports.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/ports</Path>
       </File>
-      <File dnOrder="34">
+      <File dnOrder="35">
         <Name dnOrder="0">drv_usart_read_write.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/framework/driver/usart/src/dynamic</Path>
       </File>
-      <File dnOrder="35">
+      <File dnOrder="36">
         <Name dnOrder="0">drv_usart.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/framework/driver/usart/src/dynamic</Path>
       </File>
-      <File dnOrder="36">
+      <File dnOrder="37">
         <Name dnOrder="0">sys_debug_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/debug/src</Path>
       </File>
-      <File dnOrder="37">
+      <File dnOrder="38">
         <Name dnOrder="0">drv_i2c_compatibility.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/i2c</Path>
       </File>
-      <File dnOrder="38">
+      <File dnOrder="39">
         <Name dnOrder="0">sys_common.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/common</Path>
       </File>
-      <File dnOrder="39">
+      <File dnOrder="40">
         <Name dnOrder="0">sys_buffer.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/common</Path>
       </File>
-      <File dnOrder="40">
+      <File dnOrder="41">
         <Name dnOrder="0">drv_usart_definitions.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/usart</Path>
       </File>
-      <File dnOrder="41">
+      <File dnOrder="42">
         <Name dnOrder="0">sys_random.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/random</Path>
       </File>
-      <File dnOrder="42">
+      <File dnOrder="43">
         <Name dnOrder="0">sys_clk_compatibility.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/clk</Path>
       </File>
-      <File dnOrder="43">
+      <File dnOrder="44">
         <Name dnOrder="0">sys_console_uart.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/console/src</Path>
       </File>
-      <File dnOrder="44">
+      <File dnOrder="45">
         <Name dnOrder="0">osal_impl_basic.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/osal</Path>
       </File>
-      <File dnOrder="45">
+      <File dnOrder="46">
         <Name dnOrder="0">drv_i2c_variant_mapping.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/i2c/src</Path>
       </File>
-      <File dnOrder="46">
+      <File dnOrder="47">
         <Name dnOrder="0">sys_clk_mapping.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/clk</Path>
       </File>
-      <File dnOrder="47">
+      <File dnOrder="48">
         <Name dnOrder="0">sys_int_mapping.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/int</Path>
       </File>
-      <File dnOrder="48">
+      <File dnOrder="49">
         <Name dnOrder="0">osal_definitions.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/osal</Path>
       </File>
-      <File dnOrder="49">
+      <File dnOrder="50">
         <Name dnOrder="0">sys_msg.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/msg</Path>
       </File>
-      <File dnOrder="50">
+      <File dnOrder="51">
         <Name dnOrder="0">drv_i2c_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/i2c/src</Path>
       </File>
-      <File dnOrder="51">
+      <File dnOrder="52">
         <Name dnOrder="0">sys_msg_config.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/msg/config</Path>
       </File>
-      <File dnOrder="52">
+      <File dnOrder="53">
         <Name dnOrder="0">sys_debug.c</Name>
         <Path dnOrder="1">Source&amp;#160;Files/framework/system/debug/src</Path>
       </File>
-      <File dnOrder="53">
+      <File dnOrder="54">
         <Name dnOrder="0">sys_debug.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/debug</Path>
       </File>
-      <File dnOrder="54">
+      <File dnOrder="55">
         <Name dnOrder="0">drv_usart_variant_mapping.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/usart/src</Path>
       </File>
-      <File dnOrder="55">
+      <File dnOrder="56">
         <Name dnOrder="0">sys_module.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/common</Path>
       </File>
-      <File dnOrder="56">
+      <File dnOrder="57">
         <Name dnOrder="0">drv_i2c_mapping.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/i2c</Path>
       </File>
-      <File dnOrder="57">
+      <File dnOrder="58">
         <Name dnOrder="0">drv_i2c_device_pic32m.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/driver/i2c</Path>
       </File>
-      <File dnOrder="58">
+      <File dnOrder="59">
         <Name dnOrder="0">sys_queue.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/common</Path>
       </File>
-      <File dnOrder="59">
+      <File dnOrder="60">
         <Name dnOrder="0">sys_console_local.h</Name>
         <Path dnOrder="1">Header&amp;#160;Files/framework/system/console/src</Path>
       </File>

@@ -5,7 +5,7 @@ static const SOMConfig defconfig = {
     .version = SOM_CFG_VERSION,
     .name = "SOM_TestBoard\0",
     .flags = {
-        .role = SOM_CFG_ROLE_MASTER
+        .role = SOM_CFG_ROLE_SLAVE
     }
 };
 
