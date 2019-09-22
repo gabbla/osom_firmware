@@ -329,7 +329,7 @@ void NRFAPP_Tasks(void) {
             if ((next = SYS_MSG_MailboxMessagesGet(
                      nrfappData.commandMailBox)) != NULL) {
                 Packet *p = (Packet *)next->pData;
-                DEBUG(">>>>>>>>>>>> NRF cmd: 0x%02X", PACKET_GetCommand(p));
+                DEBUG("Sending via NRF cmd: 0x%02X", PACKET_GetCommand(p));
                 NRF_StopListening();
                 NRF_WritePacket(p);
                 NRF_StartListening();
@@ -340,16 +340,8 @@ void NRFAPP_Tasks(void) {
                 uint8_t data[32];
                 NRF_ReadPayload(data, 32);
                 Packet *p = PACKET_Get(data);
-                INFO("~~~Received: cmd 0x%02X", p->cmd);
-                // TODO forward to mainapp
-                SYS_MSG_OBJECT message;
-                message.nMessageTypeID = MAIN_MSG_ID;
-                message.nSource = MSG_SRC_NRF;
-                message.nSizeData = sizeof(Packet);
-                message.pData = (uintptr_t *)p;
-                SYS_MSG_RESULTS myRes =
-                    SYS_MSG_MessageSend(MAIN_MAILBOX, &message);
-                if (myRes != SYS_MSG_SENT) ERROR("Failed to send!! %d", myRes);
+                DEBUG("Received via NRF cmd 0x%02X", PACKET_GetCommand(p));
+                SendPacketToMainapp(MSG_SRC_BLE, p);
             }
                 break;
             }
