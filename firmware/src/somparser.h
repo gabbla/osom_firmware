@@ -49,7 +49,7 @@
 #define PING_OK (0x00)
 
 
-#define MAINAPP_CMD_OFFSET (0x10)
+
 typedef enum __attribute__((packed)) _commands {
     // 0x00 to 0x0F commands that are not propagated, managed by BLE APP
     BLE_CMD_PING = 0x00,
@@ -84,6 +84,8 @@ typedef enum __attribute__((packed)) _commands {
     // MUST always be the last enum
     BLE_CMD_MAX_CMD
 } BLECommand;
+
+#define MAINAPP_CMD_OFFSET (BLE_CMD_MODE)
 
 typedef struct _packet {
     uint8_t preamble[2];
