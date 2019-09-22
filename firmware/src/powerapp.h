@@ -57,6 +57,11 @@ typedef enum {
 
 typedef enum { REQ_FREE = 0, REQ_SERVED, REQ_PENDING } BQ_Request_Status;
 
+// This struct describes the battery
+typedef struct {
+    soc_t soc;
+} Battery;
+
 typedef struct {
     BQ_Request_Status status;
     BQ27441_CALLBACK bqCallback;
@@ -87,6 +92,9 @@ typedef struct {
     BQ_Request requests[MAX_BQ_REQUESTS];
     BQ_Request *currentRequest;
     bool operationInProgress;
+    
+    Battery battery;
+    
     /* TODO: Define any additional data used by the application. */
 
 } POWERAPP_DATA;
