@@ -6,12 +6,22 @@
  */
 #include "somparser.h"
 
+static Device global_source = DEV_INVALID;
+
 uint32_t swapEndian(const uint32_t value) {
     return (((value >> 24) & 0x000000ff) | ((value >> 8) & 0x0000ff00) |
 	    ((value << 8) & 0x00ff0000) | ((value << 24) & 0xff000000));
  }
 
-SOM_INLINE int8_t PACKET_SetSource(Packet *p, const uint8_t src) {
+SOM_INLINE void PARSER_SetSource(const Device src) {
+    global_source = src;
+}
+
+SOM_INLINE const Device PARSER_GetSource() {
+    return global_source;
+}
+
+SOM_INLINE int8_t PACKET_SetSource(Packet *p, const Device src) {
     SYS_ASSERT(p != NULL, "PACKET_SetSource() Packet is null");
     p->src = src;
     return 0;

@@ -135,8 +135,11 @@ typedef struct {
 // Access utilities
 #define SOM_INLINE inline
 
-SOM_INLINE int8_t PACKET_SetSource(Packet *p, const uint8_t src);
-SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst);
+// The source is the same for all the message generated. Set it globally
+SOM_INLINE void PARSER_SetSource(const Device src);
+SOM_INLINE const Device PARSER_GetSource();
+
+
 SOM_INLINE int8_t PACKET_SetSource(Packet *p, const Device src) __attribute__((deprecated));
 SOM_INLINE int8_t PACKET_SetTransactionID(Packet *p, const uint32_t tid);
 SOM_INLINE int8_t PACKET_SetMessageID(Packet *p, const uint32_t mid);
