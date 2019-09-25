@@ -115,6 +115,7 @@ typedef enum {
 } CommandResponse;
 
 typedef enum {
+    DEV_INVALID = (0),
     DEV_APPLICATION = (1 << 0),
     DEV_MASTER = (1 << 1),
     DEV_SLAVE0 = (1 << 2),
