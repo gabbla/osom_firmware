@@ -137,6 +137,7 @@ typedef struct {
 
 SOM_INLINE int8_t PACKET_SetSource(Packet *p, const uint8_t src);
 SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst);
+SOM_INLINE int8_t PACKET_SetSource(Packet *p, const Device src) __attribute__((deprecated));
 SOM_INLINE int8_t PACKET_SetTransactionID(Packet *p, const uint32_t tid);
 SOM_INLINE int8_t PACKET_SetMessageID(Packet *p, const uint32_t mid);
 SOM_INLINE int8_t PACKET_SetCommand(Packet *p, const uint8_t cmd);
