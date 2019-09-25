@@ -141,13 +141,14 @@ SOM_INLINE const Device PARSER_GetSource();
 
 
 SOM_INLINE int8_t PACKET_SetSource(Packet *p, const Device src) __attribute__((deprecated));
+SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const Device dst);
 SOM_INLINE int8_t PACKET_SetTransactionID(Packet *p, const uint32_t tid);
 SOM_INLINE int8_t PACKET_SetMessageID(Packet *p, const uint32_t mid);
 SOM_INLINE int8_t PACKET_SetCommand(Packet *p, const uint8_t cmd);
 SOM_INLINE int8_t PACKET_SetPayload(Packet *p, void *payload, size_t len);
 
-SOM_INLINE uint8_t PACKET_GetSource(const Packet *p);
-SOM_INLINE uint8_t PACKET_GetDestination(const Packet *p);
+SOM_INLINE Device PACKET_GetSource(const Packet *p);
+SOM_INLINE Device PACKET_GetDestination(const Packet *p);
 SOM_INLINE uint32_t PACKET_GetTransactionID(const Packet *p);
 SOM_INLINE uint32_t PACKET_GetMessageID(const Packet *p);
 SOM_INLINE uint8_t PACKET_GetCommand(const Packet *p);

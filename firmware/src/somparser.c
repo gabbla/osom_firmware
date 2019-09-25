@@ -27,7 +27,7 @@ SOM_INLINE int8_t PACKET_SetSource(Packet *p, const Device src) {
     return 0;
 }
 
-SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const uint8_t dst) {
+SOM_INLINE int8_t PACKET_SetDestination(Packet *p, const Device dst) {
     SYS_ASSERT(p != NULL, "PACKET_SetDestination() Packet is null");
     p->dst = dst;
     return 0;
@@ -64,12 +64,12 @@ int8_t PACKET_SetPayload(Packet *p, void *payload, size_t len) {
     return 0;
 }
 
-SOM_INLINE uint8_t PACKET_GetSource(const Packet *p) {
+SOM_INLINE Device PACKET_GetSource(const Packet *p) {
     SYS_ASSERT(p != NULL, "PACKET_GetSource() Packet is null");
     return p->src;
 }
 
-SOM_INLINE uint8_t PACKET_GetDestination(const Packet *p) {
+SOM_INLINE Device PACKET_GetDestination(const Packet *p) {
     SYS_ASSERT(p != NULL, "PACKET_GetDestination() Packet is null");
     return p->dst;
 }
