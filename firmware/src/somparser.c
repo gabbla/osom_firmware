@@ -134,6 +134,10 @@ Packet *PACKET_Create(){
         p->preamble[1] = PREAMBLE1_VAL;
 		PACKET_SetTransactionID(p, SYS_RANDOM_PseudoGet());
 		PACKET_SetMessageID(p, SYS_RANDOM_PseudoGet());
+        // By default set the destination to application.
+        // Change it later if needed
+        PACKET_SetDestination(p, DEV_APPLICATION);
+        PACKET_SetSource(p, PARSER_GetSource());
         p->payload = NULL;
     }
     return p;
